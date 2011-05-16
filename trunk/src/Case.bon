@@ -1,0 +1,212 @@
+(* this is a new account of extensions in which the default function
+is used exactly once, as the third argument to the case
+*) 
+
+class Case extends Sugar {
+pattern : Expression;
+body: Expression ;
+get_pattern = { | () -> !this.pattern}
+get_body = { | () -> !this.body}
+static make = { | (pat,bdy) -> 
+  let res = new Case in 
+  res.pattern = pat;
+  res.body = bdy;
+  Expression.make res 
+} 
+
+static extension =  { | (pat,body,default) ->  Case.make (pat,body) [default] }
+
+
+static discontinuous parser = { 
+(stx_parser "|") .>> (
+Expression.parser .>>= (fun pat -> 
+(stx_parser "- >") .>> (
+Expression.parser .>>= (fun bdy -> (
+Case.parser .<|> (
+  (stx_parser "|") .>> 
+  Expression.parser)) .>>= (fun default -> 
+ret (Case.make (pat,bdy) [default]))))))
+}
+
+static discontinuous lambda = { ((fun x -> x) : Expression -> Expression) } 
+
+term = { | () -> 
+  match Case.lambda(this) with ((
+  | (x:Sugar) -> x.term()
+  | x -> x
+  ): Expression[a] -> Expression)
+}
+
+
+infer_type = { fun ctxt -> Case.lambda(this).infer_type(ctxt) }
+
+
+
+headString = { |() -> 
+  "| " ^ 
+  (this.get_pattern().expressionToString (False))^
+  " -> " ^ 
+  (this.get_body().expressionToString(False))
+}
+
+expressionToString = { fun isArg ->  
+match this.get_arguments() with 
+| [] -> addParens isArg (this.headString())
+| Cons y ys -> 
+  let innerExtensionString = 
+    match y with 
+    | (_:Case) ->  this.headString() ^ y.expressionToString(False) 
+    | _ -> this.headString() ^ " | " ^ y.expressionToString(False) 
+  in 
+  let extensionString = addParens (not (ys == [])) innerExtensionString
+  in 
+  let innerString = 
+	foldleft (fun x y -> x ^ " " ^ (y.expressionToString(True))) extensionString ys 
+  in 
+  addParens isArg innerString 
+}
+
+with Expression.parser += | view(Case.parser,Parsed ps) -> Parsed ps
+and Variable.free += | (x:Case) -> 
+  append 
+    (subtract (Variable.free(x.get_body())) (Variable.free(x.get_pattern())))
+    (Variable.free (x.get_arguments()))
+and 
+Case.lambda += | (x:Case) -> 
+  let pat = x.get_pattern() in 
+  let bdy = x.get_body() in 
+
+match F_operator.factorise(pat) with 
+| None ->   
+  match pat with (
+  | (var: ExpressionVariable) -> 
+	match x.get_arguments() with (
+	| [] -> K_operator.make [Lambda.make var bdy []] 
+	| Cons _ args -> Lambda.make var bdy args )
+  | _ ->  E_operator.make (append [pat,bdy] (x.get_arguments()))
+  )
+| Some(left_pat,right_pat) -> 
+
+	let default = match x.get_arguments() with 
+	| Cons default _  -> default 
+	in 
+	let ext_args = match x.get_arguments() with 
+	| Cons _ ext_args -> ext_args 
+       	in 	
+      let left_component = ExpressionVariable.next()  
+      in 
+      let outer_default = S_operator.make [K_operator.make [default]] in 
+      let inner_default =  outer_default.apply [left_component] in
+      let inner_extn = Case.lambda (Case.make(right_pat,bdy) [inner_default]) in 
+      let outer_extn = Case.lambda(Case.make(left_pat,inner_extn) [outer_default]) in
+      let argument = ExpressionVariable.next() in 
+      let for_atoms = default.apply [(argument:Expression)] 
+      in
+      let for_compounds = 
+	Lambda.make left_component (outer_extn.apply [left_component]) []
+      in 		
+ 	Lambda.make argument
+  	  	(F_operator.make [(argument:Expression), for_atoms, for_compounds ]) 
+		ext_args
+
+}
+
+
+
+
+(* 
+
+let parse = Expression.parse;;
+let ctxt0 = Context.make1 (TypeVariable.idSub);;
+
+
+
+
+let id = (Expression.parse "| x -> x | I")
+;;
+
+id.infer_type(ctxt0) (TypeVariable.next());;
+
+let id1 = (parse "| S -> S |I")
+;;
+id1.infer_type(ctxt0) (TypeVariable.next());;
+
+match id1 with ((
+| (x:Case) -> x.term()
+): Expression [a] -> Expression)
+;;
+
+(parse "(| x -> x | y -> y | F)")
+;;
+
+(parse "(| x -> x | y -> y | F) K S")
+;;
+
+match parse "(| x -> x | I) K S" with 
+((| (y:Case) -> y.term()
+| _ -> Exception
+): Expression[a] -> Expression)
+;;
+
+
+(parse "K(| x -> x | I)")
+;;
+
+
+let s_op  = S_operator.make ;;
+let k_op  = K_operator.make ;;
+let y_op  = Y_operator.make ;;
+let f_op  = F_operator.make ;;
+let e_op  = E_operator.make ;;
+let b_op  = B_operator.make ;;
+let i_op  = I_combinator.make;;
+
+
+
+(s_op [ b_op [], b_op [], b_op []]).eval();;
+
+
+
+let t0 = Expression.parse "
+| B x -> x
+| I"
+;;
+t0.infer_type(ctxt0) (TypeVariable.next());;
+
+Case.lambda(t0);;
+
+
+
+let t1 = Expression.parse "
+| B x -> x
+| x -> x
+| I"
+;;
+t1.infer_type(ctxt0) (TypeVariable.next());;
+
+
+let t2 = Expression.parse "
+let unblock =
+| x -> x
+| I
+in unblock"
+;;
+t2.infer_type(ctxt0) (TypeVariable.next());;
+
+
+let t3 = Expression.parse "
+let rec unblock =
+| B x -> x
+| x -> x
+| I
+in 
+unblock"
+;;
+t3.infer_type(ctxt0) (TypeVariable.next());;
+
+
+
+
+
+*) 
+

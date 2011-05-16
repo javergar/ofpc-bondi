@@ -1,0 +1,37 @@
+class TypedExpressionVariable extends ExpressionVariable {
+type_constraint: Type;
+get_type_constraint = { | () -> !this.type_constraint}
+
+static make = { | (x,ty) -> 
+  Expression.make (
+        let res = new TypedExpressionVariable in
+	res.variable = x;
+ 	res.type_constraint = ty;
+	(res:Expression))
+}
+
+
+static discontinuous parser = { 
+(stx_parser "(") .>> (
+Variable.parser .>>= (fun var -> 
+(stx_parser ":") .>> (
+(Type.parser) .>>=  (fun ty  -> 
+ (stx_parser ")" ) .>> (
+ret (TypedExpressionVariable.make (var,ty) [])
+)))))
+}
+
+	(** typing *) 
+
+
+infer_type_head = { (( | (ctxt: ExpressionContext) -> 
+  let ty1 = this.get_type_constraint() in  (* assumed to be the binding occurrence *) 
+  let x = this.get_variable() in 
+  ctxt.add2term_context x ty1;
+  super.infer_type_head(ctxt) 
+): Context -> Type -> Maybe Type)
+}
+
+with ExpressionVariable.parser += | view(TypedExpressionVariable.parser,Parsed ps) -> Parsed ps
+and toString += | (x:TypedExpressionVariable) -> "(" ^ (toString (x.get_variable())) ^ ":" ^  (toString (x.get_type_constraint())) ^ ")" 
+}

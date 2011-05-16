@@ -1,0 +1,82 @@
+class E_operator extends Expression {
+
+static make =  { fun args -> Expression.make (new E_operator) args } 
+
+static parser = { parseUpper "E" (E_operator.make []) }
+
+(*
+infer_type = {  | (ctxt:ExpressionContext) -> fun ty -> 
+  match this.get_arguments() with ((
+  | Cons (arg1:Operator) (Cons arg2 (Cons arg3 args)) ->
+    let add_argty ty e = FunctionType.make (TypeVariable.next(),ty) in 
+    let headty = foldleft add_argty ty args
+    in  
+    match arg3.infer_type(ctxt) headty with 
+    | Some (ty3:FunctionType) -> 
+	let aty = ty3.get_argumentType() in 
+	let rty = ty3.get_resultType() in 
+	let ctxt2 = ExpressionContext.make(ctxt.get_counter(),
+				 ctxt.get_term_context(),
+				 ctxt.get_substitution(), 
+				 ctxt.get_avoided(),
+ 				 []) 
+	in 
+    	match arg1.infer_type(ctxt2) aty with 
+	| None -> None (* actually, this should be okay in general *) 
+	| Some aty2 -> 
+	  let sub2 = ctxt2.get_substitution() in 
+	  let new_fixed = sub2.fold 
+		(fun xs -> | (_,y) -> append (Variable.free y) xs)
+		(append (Variable.free (ty3.applySub(sub2))) (ctxt2.get_fixed()))
+	  in 
+      	  match arg2.infer_type(ctxt2) rty with 
+    	  | Some _ -> foldleft (Expression.infer_type_argument(ctxt)) (Some ty3) args
+   	  | _ -> None 
+    | _ -> None 
+  | _ -> None 
+}
+*)
+
+reduce = {| () -> match this.get_arguments() with 
+  | Cons (w:Operator) (Cons x (Cons y (Cons (z:Operator) args))) -> 
+	if equal(w,x.eval()) 
+	then Some (y.apply args)
+	else Some (z.apply (Cons z args))
+  | args -> None
+}
+
+headString = { |() -> "E" }
+
+with Expression.simpleParser += | view(E_operator.parser,Parsed ps) -> Parsed ps
+}
+
+
+(* tests 
+
+
+
+let ctxt0 = Context.make (Context.idSub,[],[]);;
+Expression.parse "E K K".infer_type(ctxt0);;
+
+Expression.parse "E K K I".infer_type(ctxt0);;
+Expression.parse "E K K (E S S I)".infer_type(ctxt0);;
+Expression.parse "E K S I".infer_type(ctxt0);;
+
+Expression.parse "K".infer_type(ctxt0);;;;
+
+
+Expression.parse "E K K I";;
+
+
+
+
+
+
+
+Expression.parse "E K S S K".eval();;
+Expression.parse "E K S S K".infer_type(ctxt0);;
+let t2 = get_result(Expression.parser(0,lexer "E K S S F")).eval();;
+
+
+*)
+

@@ -1,0 +1,22 @@
+
+class TypedLambda extends Apply {
+binder: TypedTermVariable;  
+body: Expression;
+get_binder = { | () -> !this.binder}
+set_binder = { fun nm -> this.binder = nm}
+get_body = { | () -> !this.body}
+set_body = { fun nm -> this.body = nm}
+typ = { |() -> match this.get_body().typ() with 
+	((| Some resty -> Some (functionType (this.get_binder().get_ty()) resty)
+	| None -> None ):Maybe Type -> Maybe Type) }
+}
+
+let tylam x s = 
+let res = new TypedLambda in 
+res.set_binder (x) ;
+res.set_body s;
+let term = lam (x.get_variable()) s in 
+res.set_head(term.get_head());
+res.set_args(term.get_args());
+res;;
+

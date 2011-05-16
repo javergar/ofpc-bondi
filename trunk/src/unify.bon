@@ -1,0 +1,38 @@
+(*
+static discontinuous unify  = { ((| _ -> | _ -> None
+):Type[a] * Type[b] -> Context -> Maybe Type) 
+}
+
+unify_clean  = { ((| (ty1,ty2) -> 
+  let sub = this.get_substitution() in 
+  Context.unify(ty1.applySub(sub),ty2.applySub(sub)) this
+):Type[a] * Type[b] -> Maybe Type) 
+}
+
+*)
+(*
+and Context.unify += | (ty1:FunctionType,(ty2:FunctionType)) -> ((
+  	let ty11 = ty1.get_argumentType() in 
+	let ty12 = ty1.get_resultType() in 
+	let ty21 = ty2.get_argumentType() in 
+	let ty22 = ty2.get_resultType() in 
+	fun ctxt -> 
+	begin
+	match Context.unify (ty11,ty21) ctxt with ((
+	| None -> None
+	| Some ty31 -> 
+	   match Context.unify (ty12,ty22) ctxt with ((
+	   | None -> None
+	   | Some ty32 -> Some (FunctionType.make (ty31.applySub(ctxt.get_substitution()), ty32))
+	   ): Maybe Type -> Maybe Type)
+	): Maybe Type -> Maybe Type)
+	end
+): Context -> Maybe Type)
+*)
+and Context.unify += | ((ty1: QuantifiedType),(ty2: QuantifiedType)) -> fun ctxt -> 
+	match ty1.instantiate2(ty2) with ((
+	| (body1,body2,x) -> 
+	ctxt.set_avoided(Cons (x:Variable) (ctxt.get_avoided()));
+	Context.unify (body1,body2) ctxt
+	): Type * Type * Variable -> Maybe Type)
+

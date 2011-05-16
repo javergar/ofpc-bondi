@@ -1,0 +1,19 @@
+class ExpressionAction extends ShellAction {
+exp:Expression;
+get_expression = { | () -> !this.exp}
+
+static make = { fun x ->
+                   let res = new ExpressionAction in
+                       res.exp = x; res
+}
+
+static discontinuous parser = { 
+Expression.parser .>>=
+(fun exp ->  (stx_parser "; ;") .>> 
+ret (ExpressionAction.make exp))
+}
+act = { | () -> this.exp = (!this.exp).eval(); println this } 
+with
+ShellAction.parser += | view(ExpressionAction.parser,Parsed ps) -> Parsed ps
+and toString += | (x:ExpressionAction) -> toString x 
+}

@@ -1,0 +1,7 @@
+class Operator extends Expression {
+type_scheme = { ((| () -> Exception): Unit ->  Type) } 
+infer_type_head = { ((fun ctxt ty -> ctxt.subunify_clean (this.type_scheme(),ty) 
+): Context -> Type -> Maybe Type)
+}
+}
+

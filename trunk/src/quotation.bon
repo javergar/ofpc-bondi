@@ -1,0 +1,41 @@
+
+
+let rec quote e = 
+match F_operator.factorise(e) with 
+| Some (e1,e2) ->  (quote e1).apply [quote e2]
+| None -> B_operator.make [e]
+;;
+
+
+
+let unquote = Expression.parse "
+let rec unquote = 
+| B x1 -> x1 
+| x21 x22 -> (unquote x21) (unquote x22) 
+| I
+in 
+unquote
+"
+;;
+
+
+(*
+
+tests
+
+let parse = Expression.parse;;
+
+let ap x y = x.apply [y];;
+
+
+let q0 = quote (parse "K");;
+let q1 = quote (parse "F S F");;
+let q2 = quote (parse "K S F");;
+
+(ap unquote q0).eval();;
+(ap unquote q1).normal();;
+(ap unquote q2).eval();;
+
+
+
+*)

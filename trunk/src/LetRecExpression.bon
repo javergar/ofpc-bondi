@@ -1,0 +1,101 @@
+class LetRecExpression extends Sugar {
+variable:ExpressionVariable;
+value:Expression;
+body:Expression;
+get_variable = { | () -> !this.variable}
+get_value = { | () -> !this.value}
+get_body = { | () -> !this.body}
+
+static make = { fun x y z ->
+  Expression.make  (
+	let res = new LetRecExpression in
+	res.variable = x;
+	res.value = y;
+	res.body = z;
+	res) 
+}
+
+static discontinuous parser = { 
+let lambdamake  = 
+((| (x:ExpressionVariable) -> fun y -> Lambda.make x y []
+): Expression -> Expression -> Expression) 
+in 
+let letrecmake  = 
+((| (x:ExpressionVariable) -> fun y z -> LetRecExpression.make x y z []
+): Expression -> Expression -> Expression -> Expression) 
+in 
+(stx_parser "let rec") .>> (
+Expression.simpleParser .>>= (fun ident -> 
+(parseMany ExpressionVariable.parser) .>>= (fun params ->
+(stx_parser "=") .>> (
+Expression.parser .>>= (fun exp ->  
+(stx_parser "in") .>> ( 
+Expression.parser .>>= (fun body -> 
+ret (letrecmake ident (foldright lambdamake params exp) body)
+)))))))
+}
+
+infer_type_head = { (( | (ctxt:ExpressionContext) -> fun ty -> 
+  let variableType = 
+    match this.get_variable() with ((
+    | (x:TypedExpressionVariable) -> QuantifiedType.closure (x.get_type_constraint()) ctxt
+    | x -> TypeVariable.next()
+    ): ExpressionVariable -> Type)
+ in 
+  let param = this.get_variable().get_variable() in 
+ ctxt.add2term_context param variableType;
+ match this.get_value().infer_type(ctxt) (TypeVariable.next()) with 
+    | None -> ctxt.delete_type param;None 
+    | Some vty1 -> 
+	let result = 
+	match ctxt.subunify_clean (vty1,variableType) with 
+	| None -> None  
+	| Some vty2 -> this.get_body().infer_type(ctxt) ty
+	in 
+	ctxt.delete_type param;
+	result
+): Context -> Type -> Maybe Type)
+}
+
+ 
+
+
+term = { |() -> 
+  Lambda.make (this.get_variable()) (this.get_body()) 
+ (Cons (this.get_value()) (this.get_arguments()))
+}
+
+headString = { |() -> 
+"let rec " ^ 
+(toString (this.get_variable())) ^ 
+" = " ^
+(toString (this.get_value())) ^ 
+" in " ^
+(toString (this.get_body())) 
+}
+
+with Expression.parser += | view(LetRecExpression.parser,Parsed ps) -> Parsed ps
+}
+
+
+
+(* 
+
+let t5 = parse "let rec x = I in S x x";;
+t5.infer_type(ctxt0) (TypeVariable.next());;
+
+
+let t6 = parse "let rec (x:a -> a) = I in x";;
+t6.infer_type(ctxt0) (TypeVariable.next());;
+
+
+let t7 = Expression.parse "let rec f x = f x in f";;
+t7.infer_type(ctxt0) (TypeVariable.next());;
+
+
+
+let t8 = Expression.parse "let rec f x = f(f x) in f";;
+t8.infer_type(ctxt0) (TypeVariable.next());;
+
+
+*)

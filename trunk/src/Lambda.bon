@@ -1,0 +1,174 @@
+class Lambda extends Sugar {
+binder: ExpressionVariable;  
+body: Expression;
+get_binder = { | () -> !this.binder}
+get_body = { | () -> !this.body}
+
+static make = { fun x s -> 
+  let res = new Lambda in 
+  res.binder = x;
+  res.body = s;
+  Expression.make res 
+}
+
+static discontinuous parser = { 
+((stx_parser "\\") .>> 
+ExpressionVariable.parser) .>>= (fun var -> 
+((stx_parser ".") .>> 
+Expression.parser) .>>= (fun exp -> 
+match var with ((
+| (v:ExpressionVariable) -> ret (Lambda.make v exp [])
+):Expression -> Int * array Token -> ParserResult Expression)
+))
+}
+
+term = {  (* lam ignores the arguments, which are added at the end *)
+ let (lam : ExpressionVariable -> Expression -> Expression) tvar exp =
+  let var = tvar.get_variable() in 
+  if not (member var (Variable.free exp)) 
+  then K_operator.make [exp]
+  else 
+  match tail_split (exp.get_arguments()) with 
+  | None -> I_combinator.make []
+  | Some(args,the_arg) -> 
+    let the_fun = Expression.make (clone exp) args in 
+    if equal(tvar,the_arg) && 
+       (not (member var (Variable.free the_fun)))
+      then the_fun
+      else 
+	S_operator.make 
+	[Lambda.make tvar the_fun [],
+	 Lambda.make tvar the_arg []]
+ in 
+ | () -> (lam (this.get_binder()) (this.get_body())).apply 
+		(this.get_arguments())
+}
+
+infer_type_head = { ((| (ctxt:ExpressionContext) -> fun ty ->  (* need to perform deletions ! *) 
+  let aty = TypeVariable.next() in 
+  let rty = TypeVariable.next() in 
+  let fty = FunctionType.make(aty,rty) 
+  in 
+  match ctxt.subunify_clean (fty,ty)  with 
+  | None -> None 
+  | Some _ -> 
+    let binder = this.get_binder() in 
+    let argty = 
+     match binder with ((
+     | (x:TypedExpressionVariable) -> x.get_type_constraint() 
+     | x -> TypeVariable.next()
+     ): ExpressionVariable -> Type)
+    in 
+    match ctxt.subunify_clean  (aty,argty) with 
+    | None -> None 
+    | Some aty2 -> 
+	let bv = binder.get_variable() in 
+	ctxt.add2term_context bv aty2;
+        match this.get_body().infer_type(ctxt) rty  with 
+        | None -> (ctxt.delete_type (bv); None)
+        | Some bodyTy -> (ctxt.delete_type (bv); 
+			 Some ((FunctionType.make (argty,bodyTy)).applySub (ctxt.get_substitution())))
+): Context -> Type -> Maybe Type)
+}
+
+headString = { | () ->  
+    "(\\" ^
+    (this.get_binder().expressionToString(False))^
+    "." ^
+    (this.get_body().expressionToString(False)) ^
+    ")"
+}
+
+with Expression.parser += | view(Lambda.parser,Parsed ps) -> Parsed ps
+and Variable.free += | (x:Lambda) -> 
+  append 
+    (subtract (Variable.free(x.get_body())) (Variable.free(x.get_binder())))
+    (Variable.free (x.get_arguments()))
+
+}
+
+(* tests 
+
+let parse = Expression.parse;;
+let ctxt0 = Context.make1 (TypeVariable.idSub);;
+
+
+let id0 = parse "(\\ x.x)" ;;
+Variable.free id0;;
+id0.infer_type(ctxt0) (TypeVariable.next());;
+
+let ky = parse "\\y. \\ x.y" ;;
+ky. infer_type(ctxt0) (TypeVariable.next());;
+
+
+
+parse "K (\\ x.x) K"
+;;
+parse "K (\\ x.x) K".infer_type(ctxt0)
+;;
+
+parse "\\ x.x x".infer_type(ctxt0)
+;;
+
+
+parse "\\ (x:a).S x y";;
+
+let id2  = parse "(\\x.\\y. F(x y)) z"
+;;
+
+id2.eval();;
+
+let ctxt0 = Context.make (Context.idSub,[],[]);;
+
+
+id0.infer_type(ctxt0);;
+
+
+
+
+
+parse "S".infer_type_head(ctxt0);;
+parse "K".infer_type(ctxt0);;
+parse "Y".infer_type(ctxt0);;
+parse "F".infer_type(ctxt0);;
+parse "E".infer_type(ctxt0);;
+parse "B".infer_type(ctxt0);;
+
+
+
+parse "K K".infer_type(ctxt0);;
+
+let omega = parse"(\\ x.x x)" ;;
+omega.infer_type(ctxt0) (TypeVariable.next());;
+
+let (desugar: Expression -> Expression) =
+| (x:Sugar) -> x.term()
+| x -> x;;
+ 
+desugar(parse "\\x.K");;
+
+let parse = Expression.parse;;
+let ctxt0 = Context.make (TypeVariable.idSub,[],[]);;
+
+
+parse "K K".infer_type(ctxt0);;
+parse "B K".infer_type(ctxt0);;
+
+(parse "\\ x.x").infer_type(ctxt0) (TypeVariable.next());;
+
+(parse "\\ x.x x").infer_type(ctxt0);;
+desugar(parse "\\ x.x x").infer_type(ctxt0);;
+
+
+desugar (parse "\\ x.x x");;
+(parse "S(\\ x.x)(\\ x. x)").infer_type(ctxt0);;
+
+
+(parse "S I").infer_type(ctxt0);;
+(parse "S I I").infer_type(ctxt0);;
+
+let (show_type: Expression -> Type) = 
+| (x: ExpressionVariable) -> x.get_type_constraint()
+;;
+
+*)

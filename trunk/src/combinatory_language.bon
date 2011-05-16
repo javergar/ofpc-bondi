@@ -1,0 +1,74 @@
+	(*** combinatory_language.bon ***) 
+
+%open "aux.bon";;
+%open "peg_parser.bon";;
+
+(** The comments on the right describe the grammars for
+     variables, types and expressions which are encoded
+     in the corresponding bondi files.
+**)
+
+	(** The core language **)
+
+%open "Variable.bon";;          (* x ::= 	*)
+%open "InternalVariable.bon";; 	(*       | i 	*)
+
+%open "Type.bon";;		(* t ::=     	*)
+  %open "Context.bon";;		(* ctxt ::=  	*) 
+  %open "TypeVariable.bon";;	(* t +=  | x 	*)
+  %open "FunctionType.bon";;	(*       | t -> t      *)
+  %open "QuantifiedType.bon";; 	(*       | forall x. t *)
+
+%open "Expression.bon";;        (* e ::=   e e 	*)
+  %open "Operator.bon";;        (*       | o   	*)
+                         	(* o ::=       	*)
+    %open "S_operator.bon";; 	(*       | S   	*)
+    %open "K_operator.bon";; 	(*       | K   	*)
+    %open "Y_operator.bon";; 	(*       | Y   	*)
+
+
+  	(** Adding term variables (and their types **) 
+
+  %open "ExpressionContext.bon";;	(* ctxt += tctxt *) 
+  %open "NamedVariable.bon";;   (* x += | n	*)   
+  %open "ExpressionVariable.bon" ;;   (* e += | x 	*)
+    %open "TypedExpressionVariable.bon" ;; 
+
+	(** Syntactic Sugar **) 
+
+  %open "Sugar.bon";;		(* e += | s	*) 
+    %open "I_combinator.bon";;	(* s += | I 	*) 
+    %open "Lambda.bon";;	(* 	| \x.e 	*)
+    %open "LetExpression.bon";;	(* 	| let x = e in e *) 
+    %open "LetRecExpression.bon";;	(* 	| let rec x = e in e *)
+ 
+    %open "F_operator.bon";;	(* o += | F 	*)
+    %open "E_operator.bon";;	(* 	| E 	*) 
+    %open "Case.bon";;		(* s += | e -> e *) 
+
+    %open "B_operator.bon";;	(* o += | B 	*) 
+  %open "quotation.bon";;	
+  %open "equality.bon";;
+(*
+
+  %open "self-Interpretation.bon";;
+  %open "enact_jens.bon";;
+*)
+
+  %open "ShellAction.bon";;
+  %open "ExpressionAction.bon";;
+  %open "LetAction.bon";;
+
+  %open "Shell.bon";;
+
+
+
+
+(* tests code
+
+Type.parser (lexer "all a.b",Parsed 0 []);;
+Expression.parser (lexer "S",Parsed 0 []);;
+Expression.parser (lexer "S (K S) K",Parsed 0 []);;
+
+
+*)

@@ -1,0 +1,24 @@
+class Type  {
+static make = { | () -> (new Type:Type) }
+
+static discontinuous parser = { (defaultParser: ParserArgument-> ParserResult Type) }
+
+static discontinuous simpleParser = { 
+(stx_parser "(") .>> (
+Type.parser .>>= (fun exp -> 
+(stx_parser ")") .>>
+ret exp
+))
+}
+applySub = { ((| _ -> this): BalancedTree <Variable,Type> -> Type) } 
+with Type.parser += | view(Type.simpleParser,Parsed ps) -> Parsed ps
+}
+
+
+(** tests 
+
+Type.parser (0, lexer "a");;
+
+
+*) 
+

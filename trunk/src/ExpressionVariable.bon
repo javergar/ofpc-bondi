@@ -1,0 +1,55 @@
+class ExpressionVariable extends Expression {
+variable:Variable;
+
+	(** getting and making *) 
+
+get_variable = { | () -> !this.variable}
+static make = { | x -> 
+  Expression.make (
+        let res = new ExpressionVariable in
+	res.variable = x;
+	res)
+}
+static next = { |() -> 
+  let res = new ExpressionVariable in
+  res.variable = InternalVariable.next() ;
+  res.arguments = [];
+  res
+}
+
+	(** parsing *) 
+
+static discontinuous parser = { 
+Variable.parser .>>= ( fun var -> ret (ExpressionVariable.make var [])) 
+}
+
+
+	(** typing *) 
+
+
+
+infer_type_head = { (( | (ctxt:ExpressionContext) -> fun ty -> 
+  match ctxt.find_type(this.get_variable())  with 
+	| None -> None
+	| Some ty1 -> ctxt.subunify_clean (ty1,ty)
+): Context -> Type -> Maybe Type)
+}
+
+
+	(** evaluating *) 
+
+reduce = { | () -> ((Exception "reducing a variable"): Maybe Expression) }
+
+	(** printing *) 
+
+headString = { |() -> toString (this.get_variable()) }
+
+with Expression.simpleParser += | view(ExpressionVariable.parser,Parsed ps) -> Parsed ps
+and equal += | ((x:ExpressionVariable),(y:ExpressionVariable)) -> 
+	x.get_variable() == y.get_variable()  &&
+	x.get_arguments() == y.get_arguments()
+and Variable.free += | (x:ExpressionVariable) -> 
+	Cons (x.get_variable()) (Variable.free(x.get_arguments())) 
+ }
+
+

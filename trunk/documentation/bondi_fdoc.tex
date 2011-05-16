@@ -1,0 +1,1109 @@
+\documentclass[12pt]{article}
+\usepackage{amsmath}
+\usepackage{book_pc_no_env}
+\usepackage{fancyvrb}
+ \usepackage{simplemargins}
+\usepackage{proof}
+\usepackage{syntax}
+\usepackage{sverb}
+\usepackage{code}
+\usepackage{enumitem}
+
+
+\title{Growing \bondi\ One Class at a Time \\
+Projects for Students of Programming with Patterns }
+
+\author{Jose Vergara}
+\date{}
+\setleftmargin{1.5cm}
+	\setrightmargin{1cm}
+	\settopmargin{2cm}
+	\setbottommargin{2cm}
+\begin{document}
+\maketitle
+\makeatactive
+
+\section{Introduction}
+
+\bondi\ is a state-of-the-art programming language in which all
+computation is based upon patterns. The current implementation is in
+OCAML, a functional programming language. We are producing a \bondi\
+interpreter in \bondi, with each language feature isolated in a single
+object-oriented class. 
+
+At this point we have implemented about half of the features. The rest
+are available for you to work on. The typical project will require
+development of one feature, i.e.\ one major class, along with its
+documentation. 
+
+This document describes the current state of the system; the intended
+final state of the system; and the specifications of the various
+features. 
+
+\subsection{The Current State of the System}
+
+The current state of the system is given in Figure~\ref{fig:comblang}.
+
+\begin{figure}
+  \begin{grammar}
+<x> ::= i | n
+
+<type> ::= type_var | t $\rightarrow$ t  | $\forall$x.t 
+
+<exp> ::= <exp> <exp> | <operator> | exp_var | <sugar> 
+
+<operator> ::= S | K | Y | I | F | E | B 
+
+<sugar> ::= $\lambda x.$<e> | let  | let_rec | $p \; \rightarrow \; s$
+
+<action> ::= shell_action | exp_action | let_action
+\end{grammar}
+\caption{The current combinatory language}
+\label{fig:comblang}
+\end{figure}
+
+
+\subsection{The Intended State of the System}
+
+The intended state of the system is given in Figure~\ref{fig:gcomblang}.
+
+\begin{figure}
+  \begin{grammar}
+<x> ::= i | n
+
+<type> ::= <type_var> | t $\rightarrow$ t  | $\forall$x.t | ref x | array x | <type_constant>
+
+<type_constant> ::= Int | Float | Bool | String | Unit
+
+<exp> ::= <exp> <exp> | <operator> | exp_var | <sugar> | Ref <expression> | constructor
+
+<operator> ::= S | K | Y | I | F | E | B | new | newarray | lengthv | entry 
+\alt  <bang> | <arithmetic_oper>  | infix_op
+
+<sugar> ::= $\lambda x.$<e> | let  | let_rec | $p \; \rightarrow \; s$ | $[\theta]p \; \rightarrow \; s$ 
+
+<action> ::= shell_action | exp_action | let_action | add_case | datatype_decl | class_decl 
+             \alt   newarray | assignment | type_syn_decl | method_decl | static_method_decl
+
+\end{grammar}  
+\caption{The grown combinatory language}
+\label{fig:gcomblang}
+\end{figure}
+
+
+\subsection{The List of Features to be Implemented}
+
+Each item below represents a project for one student, unless stated
+otherwise. Completion requires the ability to handle all of the bondi
+test code, as given in the standard prelude, tests and pc_book. Other
+tests may be added as necessary. 
+
+
+The effort involved in each project will differ, and this
+will be reflected in the assessment.  
+
+Here are the new types and expressions to be added. Wildcards must be
+handled in situ. For example, the wildcard for integers 
+must be handled as a subclass of the integer class. 
+
+\begin{enumerate}
+
+\item{Types and Expressions}
+
+\begin{enumerate}[label*=\arabic*]
+\item numerical types, @Int@ and @Float@
+\item alphabetical types @Char@ and @String@ and @Bool@
+\item booleans and conditionals 
+\item let-terms (with their status) 
+\item dynamic patterns 
+\item references 
+\item arrays (including while- and for-loops) 
+\item sockets (including file IO)
+\item concurrent processes (cpc) (this is hard, and requires sockets)  
+\end{enumerate}
+
+
+\item{Shell Actions}
+The new shell actions to be added are:
+\begin{enumerate}[label*=\arabic*]
+\item let-declarations (with let-status) 
+\item linear declaration (to be made a let-status) 
+\item adding a case
+\item type synonyms 
+\item datatype declarations
+\item class declarations 
+\item \ldots (including static methods and generic types)
+\item augmenting declarations with trailing actions (with ... and ...)  
+\end{enumerate}
+
+\item{The Context}
+The actions must be managed by a context.
+\paragraph*{•}
+The existing context must be
+extended to support the following fields
+\begin{enumerate}[label*=\arabic*]
+\item
+\begin{itemize}
+\item globalTyEnv: ref (type_env);;
+\item globalVEnv: ref (global_value_env) 
+\item globalCEnv: ref (constructor_env) 
+\item globalRefVarSub: ref sub where sub is a TyMap that produces types. 
+\end{itemize}
+\end{enumerate}
+
+\paragraph*{}
+In turn, these are implemented using various data structures. The OCAML
+interpreter uses the following:
+
+\begin{itemize}
+\item{TyMap}: maps type variables to types, or other stuff: used widely.
+\item{TMap}: maps term variables to types, or other stuff: used widely.
+\item  type\_data: describes type synonyms and class data 
+\item type\_env: a TyMap of type\_data. 
+\item constructor\_env: a TMap producing indexed type and status data for constructors
+\item scheme_env: a TMap producing  type and status data for variables 
+\item global\_value\_env: and indexed mapping from variables to their types and values 
+\end{itemize}
+
+\item Data Sructures and Algorithms 
+\paragraph*{}
+In turn, the structures above require
+\begin{enumerate}[label*=\arabic*]
+\item
+hash tables
+\item
+balanced search trees
+\item garbage collection (hard) 
+\end{enumerate}
+
+
+
+\item Auxiliary Programs
+\paragraph*{}
+Here are features that are {\em not} within the natural class structure:
+\begin{enumerate}[label*=\arabic*]
+\item parsing of comments, infix operators, tuples and lists, etc.
+\item the unit type, exceptions, etc 
+\end{enumerate}
+
+
+\item Integration and Testing
+Integration and testing must work with the whole project team.  Marks
+will be the average of the class as a whole, adjusted according to
+feedback, or by negotiation. 
+\begin{enumerate}[label*=\arabic*]
+\item integration
+\item testing
+\end{enumerate}
+
+\end{enumerate}
+
+
+\section{Implementing Features}
+
+One example of a language feature, is the K operator that has the following informal description:
+
+Class: K
+
+\begin{tabular}{|l|p{15cm}|}
+\hline
+Parsing & \begin{grammar}
+<K> ::= `K'  (K is defined as the character `K')
+\end{grammar} \\
+\hline
+Typing & $K \text{ has type }\forall X. \forall Y. X \rightarrow Y \rightarrow X$
+\\
+\hline
+Evaluation & $K \;s\;t \;\;  \text{reduces to} \; s$ \\
+\hline
+Pretty printing & $K \; \text{has string} \; ``K"$ \\
+\hline
+\end{tabular} 
+
+\paragraph*{•}
+The description of Parsing is given ``Backus Naur Form" (BNF) \cite{grune2008parsing}.
+The meta-symbols of BNF are:
+\begin{tabular}{l l}
+\verb@::=@ &  meaning ``is defined as" \\
+\verb@|@    & meaning ``or" \\
+\verb@< >@ & angle brackets used to surround category names \\
+\verb@+,*,?@ & meaning ``one or more'',``zero or many'' and ``zero or one'' \\
+\end{tabular} 
+\paragraph*{}
+Typing is given by mathematical symbols, the type scheme for the K operator,
+Where $X$ and $Y$ are type variables, $X \rightarrow Y$ is a function type,
+and $\forall.X.T$ is a quantified type.
+
+\paragraph*{}
+Evaluation is given by the reduction rule: ``$K$ applied to two arguments $s$ and $t$
+reduces to $s$". 
+
+\paragraph*{}
+Pretty printing is displaying the string ``K"
+\paragraph*{}
+This informal description corresponds to the following \bondi\ class:
+\scriptsize
+\begin{Verbatim}[frame=single,framerule=0.2pt,framesep=6pt] 
+class K_operator extends Operator {
+static make =  { fun args -> Expression.make (new K_operator) args } 
+(* parse "K" = K *)
+static parser = { parseUpper "K" (K_operator.make []) }   
+(*  K: forall X. forall Y. X -> Y -> X *)
+type_scheme = { |() ->                                    
+  let x = TypeVariable.next() in 
+  let y = TypeVariable.next() in 
+  QuantifiedType.make (x.get_variable(),
+  (QuantifiedType.make (y.get_variable(),FunctionType.make2 (x,y,x) 
+))) }
+(* K x y -> x *)
+reduce = { (( |() -> match this.get_arguments() with ((  
+  | (Cons x (Cons y args)) -> Some (x.apply args)
+  | _ -> None
+): List Expression -> Maybe Expression)
+): Unit -> Maybe Expression) }
+(* toString K = "k" *)
+headString = { |() -> "K" }                              
+with 
+Expression.simpleParser += | view(K_operator.parser,Parsed ps) -> Parsed ps }
+\end{Verbatim}
+\normalsize
+
+
+\section{Types and Expressions}
+
+
+\subsection{Numerical types, Int and Float}
+
+\begin{tabular}{c}
+
+
+\begin{tabular}{|l|p{15cm}|}
+\hline
+Class name & Integer extends Expression\\
+\hline
+Parsing & 
+\begin{grammar}
+<int> ::=  <digit>+ 
+\end{grammar}  \\
+\hline
+Typing &  Int
+\\
+\hline
+Evaluation &  has no evaluation rules \\
+\hline
+Pretty printing &  $t:T$  has string  ``it: $Int$   it = $t$" \\
+\hline
+\end{tabular} 
+
+\\
+
+\begin{tabular}{|l|p{15cm}|}
+\hline
+\hline
+Class name & Integer_wildcard extends Expression\\
+\hline
+Parsing & 
+\begin{grammar}
+<int_wildcard> ::=  `_Int'
+\end{grammar}  \\
+\hline
+Typing &  Int
+\\
+\hline
+Evaluation &  has no evaluation rules \\
+\hline
+Pretty printing &  $\_Int$  has string  ``it: Int it = _Int" \\
+\hline
+\end{tabular} 
+
+\\
+
+\begin{tabular}{|l|p{15cm}|}
+\hline
+\hline
+Class name & Float extends Expression \\
+\hline
+Parsing & 
+\begin{grammar}
+<float> ::=  <digit>+ `.' <digit>* 
+\end{grammar}  \\
+\hline
+Typing &  Float
+\\
+\hline
+Evaluation &  has no evaluation rules \\
+\hline
+Pretty printing &  $t:T$  has string  ``it: $Float$   it = $t$" \\
+\hline
+\end{tabular} 
+
+\\
+
+\begin{tabular}{|l|p{15cm}|}
+\hline
+\hline
+Class name & Float_wildcard extends Expression\\
+\hline
+Parsing & 
+\begin{grammar}
+<float_wildcard> ::=  `_Float'
+\end{grammar}  \\
+\hline
+Typing &  Float
+\\
+\hline
+Evaluation &  has no evaluation rules \\
+\hline
+Pretty printing &  $\_Float$  has string  ``it: Float it = _Float" \\
+\hline
+\end{tabular} 
+
+\end{tabular}
+
+\paragraph{}
+Besides the implementation of the Int and Float classes for expressions and types, 
+it is necessary to implement  the following operators:
+
+\subsubsection{Int operators}
+\begin{enumerate}
+\item  Integer Addition   		\textbf{plusint}
+\item  Integer subtraction		\textbf{minusint}
+\item  Integer multiplication   \textbf{timesint}
+\item  Integer division         \textbf{divideint}
+\item  Integer reminder         \textbf{modint}
+\item  Integer unary negation   \textbf{negateint}
+\item  Picks a random number between zero and an integer upper bound  \textbf{randomint};
+\end{enumerate}
+
+\subsubsection{Relational Int operators}
+\begin{enumerate}
+\item Less than   			  \textbf{lessthan int} 
+\item Less than or equal   \textbf{lessthanorequal int} 
+\item Greater than			  \textbf{greaterthan int} 
+\item Greater than or equal  \textbf{greaterthanorequal int} 
+\end{enumerate}
+
+\subsubsection{Float operators}
+\begin{enumerate}
+\item  Float addition       \textbf{plusfloat} 
+\item  Float substraction   \textbf{minusfloat} 
+\item  Float multiplication \textbf{timesfloat} 
+\item  Float division 		 \textbf{dividefloat} 
+\item  Arc tangent x y returns the arc tangent of y / x \textbf{atan2}
+\item  Float reminder   	\textbf{fmod} 
+\item  Float pow, computes x raised to the power y  \textbf{pow}
+\end{enumerate}
+
+\subsubsection{Relational Float operators}
+\begin{enumerate}
+\item Less than   			  \textbf{lessthanfloat} 
+\item Less than or equal   \textbf{lessthanorequalfloat} 
+\item Greater than			  \textbf{greaterthanfloat} 
+\item Greater than or equal  \textbf{greaterthanorequalfloat} 
+\end{enumerate}
+
+\subsubsection{Extra Float operators}
+\begin{enumerate}
+\item  Arc cosine 	\textbf{acos}
+\item  Arc sine		\textbf{asin}
+\item  Arc tangent  \textbf{atan}
+\item  Round above to an integer value \textbf{ceil}
+\item  Cosine  \textbf{cos}
+\item  Hyperbolic cosine \textbf{hcos}
+\item Exponential \textbf{exponential}
+\item Asolute value \textbf{fabs}
+\item Round below to an integer value {floor}
+\item Natural logarithm \textbf{log}
+\item Base 10 logarithm \textbf{log10}
+\item Float unary negation  \textbf{negatefloat}
+\item Picks a random number between zero and a float upper bound  \textbf{randomfloat}
+\item Sin \textbf{sin}
+\item Hyperbolic sine \textbf{sinh}
+\item Square root \textbf{sqrt}
+\item Tangent \textbf{tan}
+\item Hyperbolic tangent \textbf{tanh}
+\end{enumerate}
+
+
+
+\paragraph{}
+The PlusInt class is an example of the implementation of one of these operators:
+
+\begin{tabular}{|l|p{15cm}|}
+\hline
+Class name & PlusInt extends Operator \\
+\hline
+Parsing & 
+\begin{grammar}
+<plusint> ::=  `plusint'
+\end{grammar}  \\
+\hline
+Typing &  plusint has type  $Int \rightarrow Int \rightarrow Int$
+\\
+\hline
+Evaluation &  $exp \; plusint \; exp$ reduces to $exp$\\
+\hline
+Pretty printing & \\
+\hline
+\end{tabular} 
+
+
+\subsection{Alphabetical types Char and String}
+
+\begin{tabular}{c}
+
+
+\begin{tabular}{|l|p{15cm}|}
+\hline
+Class name & Char extends Expression \\
+\hline
+Parsing & 
+\begin{grammar}
+<char> ::=  `''<chatacter>`''
+\end{grammar}  \\
+\hline
+Typing &  Char
+\\
+\hline
+Evaluation &  has no evaluation rules \\
+\hline
+Pretty printing &  $t:T$  has string  ``it: $Char$   it = $'t'$" \\
+\hline
+\end{tabular} 
+
+\\
+
+\begin{tabular}{|l|p{15cm}|}
+\hline
+\hline
+Class name & Char_wildcard extends Expression \\
+\hline
+Parsing & 
+\begin{grammar}
+<char_wildcard> ::=  `_Char'
+\end{grammar}  \\
+\hline
+Typing &  Char
+\\
+\hline
+Evaluation &  has no evaluation rules \\
+\hline
+Pretty printing &  $\_Char$  has string  ``it: Char it = _Char" \\
+\hline
+\end{tabular} 
+
+\\
+
+\begin{tabular}{|l|p{15cm}|}
+\hline
+Class name & String extends Expression \\
+\hline
+Parsing & 
+\begin{grammar}
+<string> ::=  `"'(<character>|<digit>)+`"'
+\end{grammar}  \\
+\hline
+Typing &  String
+\\
+\hline
+Evaluation &  has no evaluation rules \\
+\hline
+Pretty printing &  $t:T$  has string  ``it: $String$   it = $'t'$" \\
+\hline
+\end{tabular} 
+
+\\
+
+\begin{tabular}{|l|p{15cm}|}
+\hline
+\hline
+Class name & Char_wildcard extends Expression \\
+\hline
+Parsing & 
+\begin{grammar}
+<char_wildcard> ::=  `_Char'
+\end{grammar}  \\
+\hline
+Typing &  Char
+\\
+\hline
+Evaluation &  has no evaluation rules \\
+\hline
+Pretty printing &  $\_Char$  has string  ``it: Char it = _Char" \\
+\hline
+\end{tabular} 
+
+\end{tabular}
+
+\subsubsection{Char operators}
+\begin{itemize}
+\item Char to Int conversion \textbf{char2int}
+\end{itemize}
+
+\subsubsection{Relational Char operators}
+\begin{itemize}
+\item Less than   			  \textbf{lessthanchar} 
+\item Less than or equal   \textbf{lessthanorequalchar} 
+\item Greater than			  \textbf{greaterthanchar} 
+\item Greater than or equal  \textbf{greaterthanorequalchar} 
+\end{itemize}
+
+\subsubsection{String operators}
+\begin{itemize}
+\item String concatenation \textbf{concat}
+\item String copy, return a copy of the given string \textbf{copystring}
+\item Return a copy of the argument, with special characters represented by escape sequences \textbf{escapedstring}
+\item String length \textbf{lengthstring}
+\item Return a copy of the argument, with the first character set to uppercase \textbf{capitalizestring}
+\item Return a copy of the argument, with all lowercase letters translated to uppercase \textbf{uppercasestring}
+\item Converts a string into a boolean (i.e "True" is  coverted to True)  \textbf{string2bool}
+\item Converts a string into an integer \textbf{string2int}
+\item Converts a string into a float \textbf{string2float}
+\item Returns character number n in string s \textbf{getcharstring}
+\item Returns a fresh string of length n, filled with a character c \textbf{makestring}
+\item Returns the character number of the first occurrence of character c in string s \textbf{indexstring}
+\item Returns the character number of the last occurrence of character c in string s \textbf{rindexstring}
+\item Tests if character c appears in the string s \textbf{containsstring}
+\item Returns a fresh string of length len, containing the substring of s that starts at position start and has length len \textbf{substring}
+\item Returns the character number of the first occurrence of character c in string s after position i \textbf{indexfromstring}
+\item Tests if character c appears in s after position \textbf{containsfromstring}
+\end{itemize}
+
+\subsection{Booleans and conditionals}
+
+\begin{tabular}{c}
+
+\begin{tabular}{|l|p{15cm}|}
+\hline
+Class name & Bool extends Expression \\
+\hline
+Parsing & 
+\begin{grammar}
+<bool> ::=  `True' | `False'
+\end{grammar}  \\
+\hline
+Typing &  Bool
+\\
+\hline
+Evaluation &  has no evaluation rules \\
+\hline
+Pretty printing &  $t:T$  has string  ``it: $Bool$   it = $'t'$" \\
+\hline
+\end{tabular} 
+
+\\
+
+\begin{tabular}{|l|p{15cm}|}
+\hline
+\hline
+Class name & Bool_wildcard extends Expression \\
+\hline
+Parsing & 
+\begin{grammar}
+<bool_wildcard> ::=  `_Bool'
+\end{grammar}  \\
+\hline
+Typing &  Bool
+\\
+\hline
+Evaluation &  has no evaluation rules \\
+\hline
+Pretty printing &  $\_Bool$  has string  ``it: Bool it = _Char" \\
+\hline
+\end{tabular} 
+\\
+\begin{tabular}{|l|p{15cm}|}
+\hline
+\hline
+Class name & If_Statement extends Expression \\
+\hline
+Parsing & 
+\begin{grammar}
+<if_statement> ::= `if' <exp> `then' <exp> pTerm `else' <exp>
+\end{grammar}
+ \\
+\hline
+Typing &  \infer[]
+       {\Gamma \; \vdash \text{if} \; t_1 \text{ then } t_2 \text{ else } t_3 : T } 
+       {\Gamma \; \vdash t_1:Bool \;\; \Gamma \; \vdash t_2:T \;\; \Gamma \; \vdash t_3:T}
+\\
+\hline
+Evaluation & $if\_statment$ reduces to $exp$ \\
+\hline
+Pretty printing &  Once evaluated  has string  ``it: T it = value_exp" \\
+\hline
+\end{tabular} 
+
+\end{tabular}
+
+\subsection{let-terms (with their status)}
+
+
+\begin{tabular}{|l|p{15cm}|}
+\hline
+\hline
+Class name & Let extends Expression \\
+\hline
+Parsing & 
+\begin{grammar}
+<let_exp> ::= `let' ((<let_status>  <binding>) | <binding_list>) `in' <exp>
+
+<let_status> ::= `rec' | `ext' | `method' | `discontinuous' | `linear'
+
+<binding> ::= <parameter> <simple_exp>* `=' <exp>
+
+<parameter> ::= <term_id> | <parameter> `:' <type> | `(' <parameter> `)' | `(' <infix_op> `)' 
+\end{grammar}
+ \\
+\hline
+Typing & \infer[]
+       {\Gamma \; \vdash \text{let} x=t_1 \text{ in } t_2:T_2} 
+       {\Gamma \; \vdash t_1:T_1  \Gamma,x:T_1 \; \vdash t_2:T_2} \\
+\hline
+Evaluation & $let\_exp$ reduces to $exp$ if it has all its arguments, remains unevaluated otherwise \\
+\hline
+Pretty printing &  Once evaluated  has string  ``it: T it = value_exp" \\
+\hline
+\end{tabular} 
+
+
+\subsection{Dynamic patterns }
+
+\begin{tabular}{|l|p{15cm}|}
+\hline
+\hline
+Class name & Dynamic_case extends Case \\
+\hline
+Parsing & 
+\begin{grammar}
+<dynamiccase> :: =  `|' `{' <parameterCommaList> `}' <exp>  `->'  <exp> 
+
+<parameterCommaList> ::= <lident> | <lident> `,' <parameterCommaList> 
+\end{grammar}
+ \\
+\hline
+Typing & $p \rightarrow s$\\
+\hline
+Evaluation &  \\
+\hline
+Pretty printing &   ``it = $T_1 \rightarrow T_2$" \\
+\hline
+\end{tabular} 
+
+
+
+\subsection{References }
+\bondi\ references have values that can be read and written. References to references
+can be used as pointers.
+
+\begin{verbatim}
+~~ let x = Ref 3;;
+x: ref Int
+~~ !x;;
+it: Int
+it = 3
+~~ x = !x + 1;;
+it: Unit
+~~ !x;;
+it: Int
+it = 4
+\end{verbatim}
+
+The example above, creates a reference in the store, where a value $3$ is placed under the entry $x$.
+The value of $x$ can be read by using the $!$ operator as in $!x$, in the example
+$!x$ returns the value $it = 3$.
+A reference can be written by using the $=$ operator as for example
+the code $x = !x + 1;;$  writes the value of the expression $!x + 1$ into
+the value pointed by $x$.
+
+
+It is also possible to pattern match over references as they are constructors; for example:
+
+\begin{verbatim}
+ ~~ select (is _Int) (Ref 1,4,5)
+;;
+it: List Int
+it = [1,4,5]
+\end{verbatim}
+
+
+Creating,reading and writing references can be split into three classes for three operators:   
+
+\subsubsection{Ref constructor}
+Class: Ref extends Expression
+
+\begin{tabular}{|l|p{15cm}|}
+\hline
+Parsing & \begin{grammar}
+<reference> ::= `Ref' <Expression>   
+\end{grammar}  \\
+\hline
+Typing & $Ref exp\; \text{has type} \; \forall X.X \rightarrow ref \;X$
+\\
+\hline
+Evaluation &  Ref is a constructor \\
+\hline
+Pretty printing & $Ref \; exp\; \text{has string} \;``ref  (toString \; T)$ \\
+\hline
+\end{tabular} 
+
+
+\subsubsection{Assignment}
+
+Class: Assigment extends Action
+
+\begin{tabular}{|l|p{15cm}|}
+\hline
+Parsing & \begin{grammar}
+<assignment> ::= <expression> `=' <expression> 
+\end{grammar}  \\
+\hline
+Typing & \infer[^{if \;T_2 < T_1}]
+       {\Gamma \; \vdash t_1=t_2:Unit} 
+       {\Gamma \; \vdash t_1:ref\;T_1 \;\; \Gamma \; \vdash t_2:T_2}
+\\
+\hline
+Evaluation & $t  \rightharpoonup Unit$ \\
+\hline
+Pretty printing &  \\
+\hline
+\end{tabular} 
+
+\subsubsection{Dereference}
+
+Class: Dereference extends Operator
+
+\begin{tabular}{|l|p{15cm}|}
+\hline
+Parsing & \begin{grammar}
+<!> ::= `!' <expression> 
+\end{grammar}  \\
+\hline
+Typing & \infer[^{}]
+       {\Gamma \; \vdash \; !t_1:T_1}
+       {\Gamma \; \vdash \; t_1:ref \; T_1} 
+\\
+\hline
+Evaluation & $!e  \rightharpoonup  deref\;\; e$ \\
+\hline
+Pretty printing &  !($x:ref\;T$) has string  $toString \; T$\\
+\hline
+\end{tabular} 
+\subsection{Arrays (including while- and for-loops) }
+
+In computer science, an array data structure or simply array is a data structure consisting of a collection of elements (values or variables), 
+each identified by at least one index. An array is stored so that the position of each element can be computed from its index.
+
+In \bondi\ arrays can be used as follows:
+
+\begin{verbatim}
+~~ let array1 = newarray 0 5;;
+array1: array Int
+array1 = ...
+~~ lengthv array1;;
+it: Int
+it = 5
+~~ entry(array1,0);;
+it: ref Int
+!(entry(array1,0));;
+it: Int
+it = 0
+~~ (entry(array1,0)) = 7;;
+it: Unit
+~~ !(entry(array1,0));;
+it: Int
+it = 7
+\end{verbatim}
+
+An array is created using the \verb@newarray@ operator that receives two parameter, the first parameter is the default value for initialization and 
+the second parameter is the array length.
+The \verb@lengthv@ operator returns an Int value, that represents the array length.
+The elements of the array can be accessed by using the \verb@entry@ operator; the \verb@entry@ operator has two parameters, the first parameter 
+is the array whose values we want to access, the second parameter is the index of an array location.
+The \verb@entry@ operator can be used with the operator for assigment \verb@=@ to change the value of an array location, and also the same \verb@entry@ operator
+can be used with the dereference operator \verb@!@ to read the value of an array location.
+
+\subsubsection{newarray}
+
+Class: NewArray extends operator
+
+\begin{tabular}{|l|p{15cm}|}
+\hline
+Parsing & \begin{grammar}
+<newarray> ::= `newarray' <type> <expression>   
+\end{grammar}  \\
+\hline
+Typing & newarray ty int \; \text{has type} \; $\forall X.X \rightarrow Int \rightarrow  array \;X$
+\\
+\hline
+Evaluation &   \\
+\hline
+Pretty printing & newarray ty int \text{has string} $\;``array  (toString \; T)$ \\
+\hline
+\end{tabular} 
+
+
+\subsubsection{lengthv}
+
+Class: NewArray extends Operator
+
+\begin{tabular}{|l|p{15cm}|}
+\hline
+Parsing & \begin{grammar}
+<lengthv> ::= `lengthv' <expression>   
+\end{grammar}  \\
+\hline
+Typing & $lengthv$ \text{ has type} \; $array \; a \rightarrow Int$
+\\
+\hline
+Evaluation &  $lengthv \; e \; \rightharpoonup e$\\
+\hline
+Pretty printing & $newarray \;ty \; int$ \text{has string} $\;``array  (toString \; T)$ \\
+\hline
+\end{tabular} 
+
+\subsubsection{entry}
+Class: Entry extends Operator
+
+\begin{tabular}{|l|p{15cm}|}
+\hline
+Parsing & \begin{grammar}
+<entry> ::= `entry' <expression> <expression>   
+\end{grammar}  \\
+\hline
+Typing & $entry$ \; \text{has type} \; $array \;a \rightarrow Int \rightarrow Ref\; a$
+\\
+\hline
+Evaluation &  $entry \;array\; int \; \rightharpoonup Ref\; e$\\
+\hline
+Pretty printing & $newarray \;ty \; int$ \text{has string} $\;``array" (toString \; T)$ \\
+\hline
+\end{tabular} 
+
+
+\subsubsection{while-loop}
+
+
+\subsubsection{for-loop}
+
+
+
+\subsection{Sockets (including file IO)}
+
+Sockets in bondi provide network conectivity and file I/O.
+Socket and Host are two constant types, like Int, Float, Char, etc...
+Values of type socket and Host are created by Operators.
+
+
+\begin{itemize}
+ \item  Execute the given command, wait until it terminates, and return its termination status \textbf{sysexec}
+ \item  Returns a term of type host \textbf{gethost}
+ \item  Open the named file on a socket, returns the socket   \textbf{openfile}
+ \item  Opens a connection to a server on host h and port p, and returns a socket  \textbf{openserver}
+ \item  Opens a tcp connection to host h and port p and returns a socket \textbf{opentcp}
+ \item  Reads a line of text from a socket \textbf{readline}
+ \item  Reads all the content of a socket buffer as text \textbf{readall}
+ \item  Accepts a connection to an open socket \textbf{acceptclient}
+ \item  Close a socket \textbf{close}
+ \item  Writes to a socket {write}
+ \item  Writes a line of text to a socket {writeline}
+\end{itemize}                                                                                  
+
+
+\subsection{Concurrent processes (cpc) (this is hard, and requires sockets)  }
+
+In computer science, the process calculi (or process algebras) are a diverse family of related approaches to formally modeling concurrent systems. 
+Process calculi provide a tool for the high-level description of interactions, communications, and synchronizations between a collection of independent agents or processes.
+
+The concurrent pattern calculus generalizes the $\Pi$-calculus by replacing the input and output prefixes
+by patterns and with interaction driven by pattern unification. The resulting calculus supports exchange
+while supporting encodings of many popular process calculi such as $Pi$-calculus, spi calculus and
+Linda.
+
+More information on CPC can be found in \cite{}
+
+
+\section{Shell Actions}
+
+\subsection{Let-declarations (with let-status) }
+\begin{tabular}{|l|p{15cm}|}
+\hline
+\hline
+Class name & Let extends Action \\
+\hline
+Parsing & 
+\begin{grammar}
+<let_exp> ::= `let' ((<let_status>  <binding>) | <binding_list>) `in' <exp>
+
+<let_status> ::= `rec' | `ext' | `method' | `discontinuous' | 'linear'
+
+<binding> ::= <parameter> <simple_exp>* `=' <exp>
+
+<parameter> ::= <term_id> | <parameter> `:' <type> | `(' <parameter> `)' | `(' <infix_op> `)' 
+\end{grammar}
+ \\
+\hline
+Typing & \\
+\hline
+Evaluation &  \\
+\hline
+Pretty printing &  Once evaluated  has string  ``it: T it = $T_1 -> T_2$" \\
+\hline
+\end{tabular} 
+\subsection{Adding a case}
+Class: Add_case extends Action
+
+\begin{tabular}{|l|p{15cm}|}
+\hline
+Parsing & \begin{grammar}
+<addCase> ::=  (<Lident> | <Uident> `.' <Lident>) `+=' <Case>   
+\end{grammar}  \\
+\hline
+Typing & 
+\\
+\hline
+Evaluation &  \\
+\hline
+Pretty printing &  \\
+\hline
+\end{tabular} 
+\subsection{Type synonyms}
+\section{Datatype declarations}
+Class: Let_type
+
+\begin{tabular}{|l|p{15cm}|}
+\hline
+Parsing & \begin{grammar}
+<Let_type> ::= `datatype' ( <Uident> | <infixOp> ) `=' <constructor_info> <trailer>? 
+
+<constructor_info> ::= <constructor> (`|' <constructor>) *
+
+<constructor> ::= <Uident> | <Uident> `of' <constructor_type>
+
+<constructor_type> ::= <type> | <constructor_type> `and' <constructor_type>
+\end{grammar}  
+   \\
+\hline
+Typing & 
+\\
+\hline
+Evaluation  \\
+\hline
+Pretty printing &  \\
+\hline
+\end{tabular} 
+\subsection{Class declarations}
+\subsubsection{Method}
+Class: Method extends Expression
+
+\begin{tabular}{|l|p{15cm}|}
+\hline
+Parsing & \begin{grammar}
+<method> ::= <Lident> `=' `{' <expression> `}'
+\alt `static' (`rec' | `ext' | `discontinous')* `=' `{' <expression>  <trailer>? `}'
+
+\end{grammar}  
+   \\
+\hline
+Typing & 
+\\
+\hline
+Evaluation &  \\
+\hline
+Pretty printing &  \\
+\hline
+\end{tabular} 
+
+Class: Class
+
+\begin{tabular}{|l|p{15cm}|}
+\hline
+Parsing & \begin{grammar}
+<Class> ::= `Class' <Uident> (`<' <parameterCommaList> `>' )?  `{' <attributeList> `}'  
+
+<attributeList> ::= (<field>|<method>)*
+
+<field> ::= (<term_id> | <parameter>) `;'
+\end{grammar}  
+   \\
+\hline
+Typing & 
+\\
+\hline
+Evaluation &  \\
+\hline
+Pretty printing &  \\
+\hline
+\end{tabular}
+
+\subsection{Class declarations  (including static methods and generic types)}
+\subsection{Augmenting declarations with trailing actions (with ... and ...)}
+Class: Trailer
+
+\begin{tabular}{|l|p{15cm}|}
+\hline
+Parsing & \begin{grammar}
+<trailer> ::= `with' <action_list>
+<action_list> ::= <action> | <action> `and' <action_list>
+\end{grammar}  
+   \\
+\hline
+Typing & 
+\\
+\hline
+Evaluation  \\
+\hline
+Pretty printing &  \\
+\hline
+\end{tabular} 
+
+\section{The Context}
+
+Context is a class of the combinatory language that is used in type
+inference.  We plan to extend the context class with the various
+global environments.  There is also a class of Actions which will be
+extended, too.
+
+\begin{program}
+@class Context {@ ... \\ 
+@act = { fun action -> action.do(this) }@  \\
+... \\
+@}@ 
+\end{program}
+allows for specialisation of both classes. 
+
+The existing context must be
+extended to support the following fields
+
+\subsection{globalTyEnv: ref (type_env)}
+\subsection{globalVEnv: ref (global_value_env) }
+\subsection{globalCEnv: ref (constructor_env) }
+\subsection{globalRefVarSub: ref sub where sub is a TyMap that produces types}
+
+
+\section{Data Sructures and Algorithms }
+\subsection{hash tables}
+\subsection{balanced search trees}
+\subsection{garbage collection (hard)} 
+
+\section{Auxiliary Programs}
+Here are features that are {\em not} within the natural class structure:
+
+\subsection{parsing of comments, infix operators, tuples and lists, etc}
+\subsection{ the unit type, exceptions, etc }
+
+
+
+\section{Integration and Testing}
+Integration and testing must work with the whole project team.  Marks
+will be the average of the class as a whole, adjusted according to
+feedback, or by negotiation. 
+
+\subsection{integration}
+\subsection{testing}
+
+
+\bibliographystyle{plain}
+\bibliography{dsl}
+
+\end{document}

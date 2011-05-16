@@ -1,0 +1,25 @@
+class NamedVariable extends Variable {
+name: String;
+get_name = { | () -> !this.name}
+static make = { | (x:String) -> 
+  let res = new NamedVariable in
+  res.name = x;
+  (res:Variable) 
+}
+
+static discontinuous parser = { ((
+  parseAnyLowerCase NamedVariable.make
+): ParserArgument -> ParserResult Variable)
+}
+with Variable.parser += | view(NamedVariable.parser,Parsed ps) -> (Parsed ps)
+and toString += | (x:NamedVariable) -> x.get_name()
+and equal += | (x:NamedVariable,y:NamedVariable) -> x.get_name() == y.get_name()
+and lessthan += | (x:InternalVariable,y:NamedVariable) -> False
+and lessthan += | (x:NamedVariable,y:InternalVariable) -> True
+}
+
+(*
+
+NamedVariable.parser (0,lexer "x");;
+
+*)

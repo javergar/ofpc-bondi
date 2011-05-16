@@ -1,0 +1,86 @@
+class TypeVariable extends Type {
+variable: Variable;
+get_variable = { | () -> !this.variable}
+static make = { fun x  ->   
+  let res = new TypeVariable in
+  res.variable = x;
+  (res:Type)
+}
+
+static discontinuous parser = { 
+  | (ndx,tokens) -> 
+      match parseValue Variable.parser (ndx,tokens) with 
+       | Parsed (ndx,var) -> Parsed (ndx,(TypeVariable.make var))
+       | _ -> NotParsed 
+}
+
+static next = { |() -> 
+  let res = new TypeVariable in
+  res.variable = InternalVariable.next();
+  res
+}
+
+static idSub = { 
+  let x = InternalVariable.next() in 
+  BalancedTree.make (x, TypeVariable.make(x),BLACK)
+} 
+
+applySub = { ((fun sub -> 
+  match sub.search (this.get_variable()) with 
+  | None -> this
+  | Some ty -> ty.applySub(sub)
+): BalancedTree<Variable,Type> -> Type) (* why is a type needed here? *) 
+} 
+
+
+
+add_sub   = { fun ctxt ty0  -> 
+ let sub0 = ctxt.get_substitution() in 
+ let ty = ty0.applySub(sub0) in 
+  if equal(this,ty) 
+  then Some ty
+  else  
+    let xv = this.get_variable() in 
+   if member xv (ctxt.get_avoided())
+    then (print this; printstring " is avoided\n"; None)
+    else 
+	if member xv (ctxt.get_fixed())
+	then 
+	  match ty with 
+	  | (y:TypeVariable) -> 
+	     let yv = y.get_variable() in 
+   		if member yv (ctxt.get_avoided())
+    		then (print y; printstring " is avoided\n"; None)
+		else 
+		  if member yv (ctxt.get_fixed())
+	     	  then (print this; 
+			printstring " and "; 
+			print y; 
+			printstring " are fixed\n"; 
+			None)
+	     	  else (
+			let sub1 = sub0.insert yv this in 
+			ctxt.set_substitution(sub1);
+		  Some this)
+	  | y -> (print this; printstring " is fixed\n"; None)
+
+	else (
+		if member xv (Variable.free ty) 
+		then (printstring "error: " ; print xv; printstring " recurs\n"; None)
+		else (
+			let sub1 = sub0.insert xv ty in 
+			ctxt.set_substitution(sub1);
+		Some ty))
+}
+
+
+
+with Type.simpleParser += | view(TypeVariable.parser,Parsed ps) -> Parsed ps
+and equal += | (x:TypeVariable,y:TypeVariable) -> x.get_variable() == y.get_variable()
+and Context.subunify += | (x:TypeVariable,y) -> fun ctxt -> x.add_sub ctxt y 
+and Context.subunify += | (x,(y:TypeVariable)) -> fun ctxt -> y.add_sub ctxt x
+and  toString += | (x:TypeVariable) -> toString(x.get_variable())
+}
+
+
+

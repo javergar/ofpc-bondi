@@ -1,0 +1,59 @@
+class LetRecAction extends ShellAction {
+identifier:Expression;
+params: List Expression;
+exp:Expression;
+get_indentifier = { | () -> !this.identifier}
+get_parameters= { | () -> !this.params}
+get_exp = { | () -> !this.exp}
+
+
+static make = { ((| (x,y,z) ->
+                   let res = new LetRecAction in
+                       res.identifier =  x;
+                       res.params = y;
+                       res.exp = z; res) : Expression * List Expression * Expression -> LetRecAction) 
+}
+
+paramsToString = { |() -> 
+	foldleft (fun x y -> x ^" "^(toString y)) "" (this.get_parameters()) 
+}
+
+static discontinuous parser = { 
+((stx_parser "let rec") .>> Expression.parser) .>>= (fun ident -> 
+(parseMany Expression.simpleParser) .>>= (fun params ->
+((stx_parser "=") .>> Expression.parser) .>>= 
+(fun sa -> ret (LetRecAction.make(ident,params,sa)))))
+}
+
+act = { | () -> 
+let var =  match (!this.identifier) with
+           ((| (x:ExpressionVariable) -> x.get_variable()
+             | _  -> Exception "Expected a term variable"): Expression[a] -> Variable) in
+let exp1 = match tail_split (!this.params) with (( 
+           | Some (params1,last) -> 
+                    Y_operator.make [foldright (fun x y -> Lambda.make (None,x,y) []) params1 (Lambda.make (None,(last:Expression),!this.exp) [])]  
+           | None  ->  Y_operator.make [Lambda.make(None,!this.identifier,!this.exp) []] 
+): Maybe (List Expression[a] * Expression[a]) -> Expression)
+
+in
+(LetAction.make (var,exp1)).act()
+}
+with
+ShellAction.parser += | view(LetRecAction.parser,Parsed ps) -> Parsed ps
+and toString += | (x:LetRecAction) ->  toString (x.get_indentifier()) ^ " = " ^
+                                    (toString (x.get_exp()))
+}
+
+
+(*
+
+let s =
+"let rec enact =
+let unblock =
+| B x -> x
+| x -> x"
+;;
+
+ShellAction.parser (0,lexer s);;
+
+*)

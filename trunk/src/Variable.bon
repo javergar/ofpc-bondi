@@ -1,0 +1,11 @@
+class Variable  {
+static make = {|() -> new Variable }
+static discontinuous parser = { (defaultParser 
+	: ParserArgument-> ParserResult Variable)
+}
+static ext free = { fun x -> ((select (is (_:Variable)) x): List Variable) }
+}
+
+(*
+Variable.parser (lexer "x",0);;
+*)

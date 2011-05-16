@@ -1,0 +1,20 @@
+class Sugar extends Expression {
+term = { ((|() -> this): Unit -> Expression) }
+infer_type_head = { fun unify -> this.term().infer_type_head(unify) }
+infer_type = { fun unify -> this.term().infer_type(unify) }
+reduce = { | () -> this.term().reduce() }
+expressionToString = { fun isArg -> 
+    let hString = addParens (this.get_arguments() != []) (this.headString()) in 
+    let addArg x y = x ^ " " ^ (y.expressionToString(True)) in 
+    let innerString = foldleft addArg hString (this.get_arguments())  
+    in 
+    addParens isArg innerString 
+}
+
+
+with equal += | ((x:Sugar),y) -> equal(x.term(),y)
+and equal += | (x,y:Sugar) -> equal(x,y.term())
+and Variable.free += | (x:Sugar) -> Variable.free (x.term())
+}
+
+

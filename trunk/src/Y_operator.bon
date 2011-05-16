@@ -1,0 +1,27 @@
+class Y_operator extends Operator {
+type_scheme = { |() -> 
+  let x = TypeVariable.next() in 
+  QuantifiedType.make (x.get_variable(),
+    FunctionType.make (FunctionType.make(x,x),x))
+}
+
+static make =  { fun args -> Expression.make (new Y_operator) args } 
+
+static parser = { parseUpper "Y" (Y_operator.make []) }
+
+reduce = { |() -> match this.get_arguments() with 
+  | Cons f ((Cons _ _) as args)-> Some (f.apply (Cons (Y_operator.make [f]) args))
+  | _ -> None
+}
+headString = { |() -> "Y" }
+with Expression.simpleParser += | view(Y_operator.parser,Parsed ps) -> Parsed ps
+}
+
+(* 
+
+let parse str = get_result(Expression.parser (0,lexer str));;
+
+let t1 = parse "Y (\\f. K ) S";;
+t1.eval();;
+
+*)

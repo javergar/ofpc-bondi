@@ -1,0 +1,31 @@
+class I_combinator extends Sugar {
+
+type_scheme = { |() -> 
+  let x = TypeVariable.next() in 
+  QuantifiedType.make ((x.get_variable()),(FunctionType.make (x,x)))
+}
+
+static make =  { fun args -> Expression.make (new I_combinator) args } 
+
+term  = { |() -> S_operator.make (Cons (K_operator.make []) (Cons (K_operator.make []) (this.get_arguments())))
+}
+
+static parser = { parseUpper "I" (I_combinator.make []) }
+
+infer_type_head = { ((fun ctxt ty -> ctxt.subunify_clean (this.type_scheme(),ty)
+): Context -> Type -> Maybe Type)
+}
+
+headString = { |() -> "I "  }
+expressionToString = { fun isArg -> 
+    let addArg x y = x ^ " " ^ (y.expressionToString(True)) in 
+    let innerString = foldleft addArg "I" (this.get_arguments())  
+    in 
+    addParens (isArg && (this.get_arguments() != []))  innerString 
+}
+
+
+with Expression.simpleParser += | view(I_combinator.parser,Parsed ps) -> Parsed ps
+}
+
+               
