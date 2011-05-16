@@ -1,0 +1,34 @@
+#The K_operator class.
+
+= Informal description =
+
+ * parse "K" = K 
+ * K: forall X.forall Y.X->Y->X 
+ * K x y -> x 
+ * string K = "K"
+
+
+= Implementation =
+
+{{{
+class K_operator extends Operator {
+static make =  { fun args -> Expression.make (new K_operator) args } 
+static parser = { parseUpper "K" (K_operator.make []) }               (* parse "K" = K *)
+type_scheme = { |() ->                                                (* K: forall X.forall Y.X->Y->X *)
+  let x = TypeVariable.next() in                                      
+  let y = TypeVariable.next() in                                      
+  QuantifiedType.make (x.get_variable(),
+  (QuantifiedType.make (y.get_variable(),
+    FunctionType.make2 (x,y,x) 
+))) }
+reduce = { (( |() -> match this.get_arguments() with ((               
+  | (Cons x (Cons y args)) -> Some (x.apply args)                     (* K x y -> x   *)
+  | _ -> None
+): List Expression -> Maybe Expression)
+): Unit -> Maybe Expression) }
+headString = { |() -> "K" }                                           (* string K = "K"  *)
+with 
+Expression.simpleParser +=                                            (* extend this static method   *) 
+  | view(K_operator.parser,Parsed ps) -> Parsed ps                    (* with the parsing rule for K *)
+} 
+}}}
