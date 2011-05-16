@@ -1,0 +1,121 @@
+class LetExpression extends Sugar {
+variable:ExpressionVariable;
+value:Expression;
+body:Expression;
+get_variable = { | () -> !this.variable}
+get_value = { | () -> !this.value}
+get_body = { | () -> !this.body}
+
+static make = { fun x y z ->
+  Expression.make  (
+	let res = new LetExpression in
+	res.variable = x;
+	res.value = y;
+	res.body = z;
+	res) 
+}
+
+static discontinuous parser = { 
+let lambdamake  = 
+((| (x:ExpressionVariable) -> fun y -> Lambda.make x y []
+): Expression -> Expression -> Expression) 
+in 
+let letmake  = 
+((| (x:ExpressionVariable) -> fun y z -> LetExpression.make x y z []
+): Expression -> Expression -> Expression -> Expression) 
+in 
+(stx_parser "let") .>> (
+Expression.simpleParser .>>= (fun ident -> 
+(parseMany ExpressionVariable.parser) .>>= (fun params ->
+(stx_parser "=") .>> (
+Expression.parser .>>= (fun exp ->  
+(stx_parser "in") .>> ( 
+Expression.parser .>>= (fun body ->  
+ret (letmake ident (foldright lambdamake params exp) body)
+)))))))
+}
+
+
+term = { |() -> 
+  Lambda.make (this.get_variable()) (this.get_body()) 
+ (Cons (this.get_value()) (this.get_arguments()))
+}
+
+infer_type_head = { ((| (ctxt:ExpressionContext) -> fun ty -> 
+    match this.get_value().infer_type(ctxt) (TypeVariable.next()) with 
+    | None -> None 
+    | Some vty1 ->  
+    match this.get_variable() with ((
+    	| (x:TypedExpressionVariable) -> 
+		match ctxt.subunify_clean (vty1,x.get_type_constraint()) with (
+		| None -> None  
+		| Some vty2 -> 
+		let cty = QuantifiedType.closure vty2 ctxt in 
+		ctxt.add2term_context (x.get_variable()) cty;
+		let result = this.get_body().infer_type(ctxt) ty
+		in 
+		ctxt.delete_type (x.get_variable());
+		result
+		)
+	| x ->  let cty = QuantifiedType.closure vty1 ctxt in 
+		ctxt.add2term_context (x.get_variable()) cty;
+		let result = this.get_body().infer_type(ctxt) ty
+		in 
+		ctxt.delete_type (x.get_variable());
+		result
+): ExpressionVariable -> Maybe Type)
+): Context -> Type -> Maybe Type)
+}
+
+
+
+headString = { |() -> 
+"let " ^ 
+(toString (this.get_variable())) ^ 
+" = " ^
+(toString (this.get_value())) ^ 
+" in " ^
+(toString (this.get_body())) 
+}
+
+with Expression.simpleParser += | view(stx_parser "in",Parsed(_,_)) -> NotParsed
+and Expression.simpleParser += | view(stx_parser "=",Parsed(_,_)) -> NotParsed
+and Expression.parser += | view(LetExpression.parser,Parsed ps) -> Parsed ps
+}
+
+
+
+(* 
+
+let parse = Expression.parse;;
+let ctxt0 = Context.make1 (TypeVariable.idSub);;
+
+let t1 = Expression.parse "let x = S in K";;
+t1.eval();;
+t1.infer_type(ctxt0) (TypeVariable.next());;
+
+
+let t3 = Expression.parse "let x = K in x x ";;
+t3.eval();;
+t3.infer_type(ctxt0) (TypeVariable.next());;
+
+
+let t4a = Expression.parse "let f x = x in f f";;
+
+t4a.infer_type_head(ctxt0) (TypeVariable.next());;
+
+let t4 = Expression.parse "let f x = x in f S";;
+
+t4.eval();;
+t4.infer_type(ctxt0) (TypeVariable.next());;
+
+
+let t5 = parse "let x = I in S x x";;
+t5.infer_type(ctxt0) (TypeVariable.next());;
+
+
+let t6 = parse "let (x:a -> a) = I in x";;
+t6.infer_type(ctxt0) (TypeVariable.next());;
+
+
+*)

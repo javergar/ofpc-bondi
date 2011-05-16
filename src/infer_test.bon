@@ -1,0 +1,184 @@
+let (desugar: Expression -> Expression) =
+| (x:Sugar) -> x.term()
+| x -> x;;
+
+let (delambda: Expression -> Expression) = 
+| (x:Case) -> Case.lambda(x)
+| x -> x
+;;
+
+
+let parse = Expression.parse;;
+let unif0 = Unify.make (Unify.idSub,[],[]);;
+
+parse "S".infer_type(unif0);;
+
+parse "S K".infer_type(unif0);;
+parse "S K K".infer_type(unif0);;
+
+parse "E K K I".infer_type(unif0);;
+parse "E K K (E S S I)".infer_type(unif0);;
+
+desugar(Expression.parse "\\ x. \\y. x y");;
+
+
+let test = Expression.parse "
+| x2 x1 ->  x2 x1
+| I
+"
+;;
+
+
+
+test.normal();;
+
+delambda test;;
+(delambda test).get_arguments();;
+(delambda test).eval();;
+(delambda test).eval().get_arguments();;
+map (fun x -> x.normal()) ((delambda test).eval().get_arguments());;
+
+match (delambda test).eval().get_arguments() with 
+| [_,x] -> x.eval();;
+
+
+desugar((delambda test).normal());;
+
+
+desugar(test);;
+
+test.normal();;
+
+
+test.eval();;
+test.eval().get_arguments();;
+
+map (fun x -> x.normal()) ( test.eval().get_arguments())
+;;
+
+
+Expression.parse "\\ z. F z z I". normal();;
+
+(Expression.apply test [parse "K S"]).normal();;
+
+
+desugar(test);;
+
+test.normal();;
+
+let t1 = parse " \\x. \\y. x y";;
+
+desugar(t1);;
+
+let t2 = parse" \\z. F z (\\x. \\y. x y) I";;
+
+
+S 
+(S 
+ (S 
+  (K F) 
+  (S K K)
+ )
+ (S 
+  (K (S K K)) 
+  (S K K)
+ )
+) 
+(K (S 
+    (S 
+     (S 
+      (K K) 
+      (S 
+       (K (S 
+           (S 
+            (K K) 
+            (S 
+             (S 
+              (K S) 
+              (S 
+               (K K) 
+               (S K K)
+              )
+             ) 
+             (K (S K K))
+            )
+           )
+          )
+         ) 
+        (S 
+         (K K) 
+         (S 
+          (K (S 
+              (K (S K K))
+             )
+          ) 
+          (S K K)
+         )
+        )
+       )
+      ) 
+      (K (S 
+          (K (S K K))
+          )
+      )
+     )
+ (S K K))
+)
+
+
+
+let test2 = test.eval();;
+let test3 = test2.normal();;
+test2.infer_type(unif0);;
+
+let test4 = parse "
+| x ->  x
+| I
+"
+;;
+
+test4.eval();;
+
+
+test4.infer_type(unif0);;
+test4.eval().infer_type(unif0);;
+
+
+let test5 = parse "S K K";;
+
+let car = Expression.parse" \\x. F x x (\\y. \\z. y)";;
+let cdr = Expression.parse" \\x. F x x (\\y. \\z. z)";;
+
+let test3 = Expression.apply cdr [test2].eval();;
+test3.infer_type(unif0);;
+
+
+
+enact_test.normal();;
+
+
+desugar(enact_test);;
+
+
+
+
+enact_test.infer_type(unif0);;
+
+
+
+
+let enact_test = Expression.parse "
+
+
+| x2 x1 -> x1
+| I
+
+"
+;;
+
+enact_test.infer_type(unif0);;
+
+
+
+Expression.parse "S (S F (S K K)) (K (K (S K K)))".infer_type(unif0);;
+

@@ -1,0 +1,22 @@
+class InternalVariable extends Variable {
+number: Int;
+get_number = { | () -> !this.number}
+static make = { | (n:Int) ->   
+  let res = new InternalVariable in 
+  res.number = n;
+  (res:Variable)
+}
+static discontinuous counter = { |() -> 0} 
+static next = { | () -> 
+  let n = InternalVariable.counter() in 
+  (InternalVariable.counter += |() -> n+1) ;
+  InternalVariable.make(n+1)
+}
+with toString += | (x:InternalVariable) -> "v" ^ (toString (x.get_number()))
+and equal += | (x:InternalVariable,y:InternalVariable) -> x.get_number() == y.get_number()
+and lessthan += | (x:InternalVariable,y:InternalVariable) -> x.get_number() < y.get_number()
+
+
+}
+
+

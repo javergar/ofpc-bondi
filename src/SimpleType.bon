@@ -1,0 +1,19 @@
+class SimpleType extends Type {
+the_type: Type; 
+get_the_type = { | () -> !(this.the_type) }
+static make = { ((| ty -> 
+  let res = new SimpleType in 
+  res.the_type = ty;
+  res
+): Type -> SimpleType)
+}
+static discontinuous parser = { 
+((stx_parser "(") .>> Type.parser )
+ .>>= 
+(| (ty:Type) -> (stx_parser ")") .>> ( ret ((SimpleType.make ty)):Type))
+}
+with 
+Type.parser += | view(SimpleType.parser,Parsed ps) -> Parsed ps
+and 
+toString += | (x:SimpleType) -> "(" ^ (toString (x.get_the_type()))  ^ ")" 
+}

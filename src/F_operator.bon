@@ -1,0 +1,53 @@
+class F_operator extends Operator {
+type_scheme =  { |() -> 
+  let x = TypeVariable.next() in 
+  let y = TypeVariable.next() in 
+  let z = TypeVariable.next() in 
+  QuantifiedType.make ((x.get_variable()), (
+  QuantifiedType.make ((y.get_variable()), (
+    FunctionType.make3( 
+	x, 
+	y, 
+	(QuantifiedType.make ((z.get_variable()),
+                             (FunctionType.make2  ((FunctionType.make  (z, x)),z,y)))), 
+	y)))))
+
+}
+
+static make =  { fun args -> Expression.make (new F_operator) args } 
+
+static parser = { parseUpper "F" (F_operator.make []) }
+
+static factorise = {  | (exp:Expression) -> 
+  match tail_split (exp.get_arguments()) with 
+  | None -> None 
+  | Some(args,right_component) -> 
+	Some (Expression.make (clone exp) args, right_component)
+} 
+
+reduce = {  |() -> 
+  match this.get_arguments() with 
+  | (Cons x (Cons y (Cons z args))) -> 
+	match F_operator.factorise(x.eval()) with 
+	| None -> Some(y.apply args)
+	| Some(left_comp,right_comp) ->  
+	  Some (z.apply (Cons (left_comp:Expression) (Cons (right_comp:Expression) args)))	        
+  | _ -> None
+}
+
+headString = { |() -> "F" }
+	
+
+with Expression.simpleParser += | view(F_operator.parser,Parsed ps) -> Parsed ps
+}
+
+
+
+
+(* tests 
+
+let t1 = get_result(Expression.parser(0,lexer "F K S S")).eval();;
+let t2 = get_result(Expression.parser(0,lexer "F (K F) S S")).eval();;
+
+
+*)

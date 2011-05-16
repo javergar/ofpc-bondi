@@ -1,0 +1,969 @@
+\usepackage{latexsym}
+\usepackage{comment}
+\usepackage{makeidx}
+\usepackage{url}
+%\usepackage{code}
+%\makeatactive
+
+
+
+%%TEXT
+
+\def\SN{strongly normalising}
+
+%% FORMULAS
+
+\newcommand{\ang}[1]{\mbox{$\langle #1 \rangle$}}
+\def\bnf{\ |\ }
+\def\CR{Church-Rosser}
+\def\geg{>_{_\Gamma}}
+\def\qed{$\Box$}
+\newcommand{\RED}{{\sf RED}}
+\newcommand{\CRED}{{\sf CRED}}
+\newcommand{\seq}[1]{\overline{#1}}
+\def\tog{\to_{_\Gamma}}
+\newcommand{\x}{\mbox{$\times$}}
+
+%% SEMANTICS
+
+\def\A{{\cal A}}
+\def\B{{\cal B}}
+\def\D{{\cal D}}
+
+
+%% FISH TYPES 
+
+\def\Arr{Arr}
+\def\Array{{\sf A}}
+\def\Bool{{\sf bool}}
+\def\Char{{\sf char}}
+\def\Comm{{\sf comm}}
+\def\Cost{{\sf cost}}
+\def\Datum{{\sf D}}
+\def\Data{{\sf T}}
+\newcommand{\Exp}[1]{{#1}}  %%%  {{\sf exp}\; #1}
+\def\Fact{{\sf fact}}
+\def\Float{{\sf float}}
+\def\Frac{{\sf frac}}
+\def\Functor{{\sf F}}
+\def\FunctorList{{\sf Fs}}
+\def\Int{{\sf int}}
+\def\Kind{{\sf K}}
+\def\L{\Lambda}
+\def\Nat{{\sf nat}}
+\def\Nt{{\sf nt}}
+\def\Phrase{{\sf P}}
+\newcommand{\Product}{{\sf Product}}
+\def\Scheme{{\sf S}}
+\def\ShapeKind{{\sf Sh}}
+\def\size{{\sf size}}
+\def\Coproduct{C}
+\def\Val{{\sf val}}
+\def\Var{{\sf var}}
+\newcommand{\Loc}[1]{{\sf loc}\; #1}
+\def\Top{{\sf top}}
+
+\newcommand{\FPi}[2]{\Pi^{#1}_{#2}}
+\newcommand{\Fcomp}[3]{#1\ang{#2}^{#3}}
+\newcommand{\Fmu}[2]{\mu^{#2}#1}
+
+\newcommand{\Ftimes}{\x}
+\newcommand{\Fsum}{+}
+\newcommand{\Funit}{1}
+
+
+
+%% FISH TERMS 
+
+\def\Abort{{\sf abort}}
+\def\AdHoc{{\sf adhoc}}
+\newcommand{\Add}[1]{{\sf add#1}}
+\def\AddF{{\sf addF}}
+\def\AddZ{{\sf addZ}}
+%\def\And{{\sf and}}
+\def\And{\wedge}
+\def\Append{{\sf append}}
+\def\Arity{{\sf arity}}
+\def\Assign{{\sf assign}}
+\newcommand{\Bang}[1]{#1{\sf\_shape}}
+\def\Booland{{\sf bool\_and}}
+\def\Check{{\sf check}}
+\def\Cond{{\sf cond}}
+\def\Condexp{{\sf condexp}}
+\def\Condsh{{\sf condsh}}
+\def\Conj{{\sf conj}}
+\def\Conquer{{\sf conquer}}
+\def\cons{{\sf cons}}
+\def\Copy{{\sf copy}}
+\def\Copies{{\sf copies}}
+\newcommand{\data}{{\sf data}}
+\def\Div{{\sf div}}
+\def\Divide{{\sf divide}}
+\def\Do{{\sf do}}
+\def\Done{{\sf done}}
+\newcommand{\Dyn}{{\sf dyn}}
+\newcommand{\Elim}[1]{{\sf elim#1}}
+\def\Else{{\sf else}}
+\def\End{{\sf end}}
+\def\Entry{{\sf entry}}
+\def\Entryexp{{\sf entryexp}}
+\def\Entrysh{{\sf entrysh}}
+\def\Eqsh{{\sf eqsh}}
+\def\Eq{{\sf eq}}
+\def\Error{{\sf error}}
+\def\FALSE{{\sf ff}}
+\def\Fill{{\sf fill}}
+\def\Fillup{{\sf fillup}}
+\def\Fix{{\sf fix}}
+\def\FixD{{\sf fixD}}
+\def\Flatten{{\sf flatten}}
+\def\Forall{{\sf forall}}
+\def\For{{\sf for}}
+\def\Fst{{\sf fst}}
+\def\Fstzip{{\sf fstzip}}
+\def\f2b{{\sf fact2bool}}
+\def\False{{\sf false}}
+\def\Finish{{\sf finish}}
+\def\Fold{{\sf fold}}
+\def\Foldright{{\sf foldright}}
+\def\Foldleft{{\sf foldleft}}
+\def\Foldp{{\sf foldp}}
+\def\FoldRp{{\sf foldRp}}
+\def\FoldReg{{\sf fold\_reg}}
+\def\FoldRReg{{\sf fold\_reg}}
+\def\Foldpr{{\sf fold\_pr}}
+\def\Foldsh{{\sf fold\_sh}}
+\def\FoldRpr{{\sf foldR\_pr}} 
+\def\FoldRsh{{\sf foldR\_sh}}
+\def\Fx{{\sf fx}}
+\def\Get{{\sf get}}
+\def\Getexp{{\sf getexp}}
+\def\Identity{{\sf identity}}
+\def\If{{\sf if}}
+\def\Ife{{\sf ife}}
+\def\Ifsh{{\sf ifsh}}
+\def\Import{{\sf import }}
+\def\In{{\sf in}}
+\def\Initial{{\sf initial}}
+\def\Inl{{\sf Inl}}
+\def\Inr{{\sf Inr}}
+\newcommand{\Intr}{{\sf intr}}
+\def\Iprod{{\sf iprod}}
+\def\Iter{{\sf iter}}
+\def\Joinzip{{\sf joinzip}}
+\def\l{\lambda}
+\def\Len{{\sf len}}
+\def\Lendim{{\sf lendim}}       
+\def\Length{{\sf length}}
+\def\Lensh{{\sf lensh}} 
+\def\Less{{\sf less}}
+\def\Let{{\sf let}}
+\def\Map{{\sf map}}
+\def\Mappr{{\sf map\_pr}}
+\def\Mapsh{{\sf map\_sh}}
+\def\Mcopy{{\sf mcopy}}
+\def\Mod{{\sf mod}}
+\def\New{{\sf new}}
+\def\Newblock{{\sf newblock}}
+\def\Newexp{{\sf newexp}}
+\def\Newvar{{\sf newvar}}
+\def\Nil{{\sf nil}}
+\def\Not{{\sf not}}
+\def\Number{{\sf number}}       
+\def\Numdim{{\sf numdim}}       
+\def\Or{{\sf or}}
+\def\Outl{{\sf outl}}
+\def\Output{{\sf output}}
+\def\Print{{\sf print}}
+\def\Outr{{\sf outr}}
+\def\Pair{{\sf pair}}
+\def\Plus{{\sf plus}}
+\def\Proc2fun{{\sf proc2fun}}
+\def\Typecase{{\sf typecase}}
+\def\Functorcase{{\sf functorcase}}
+\def\Polar{{\sf polar}}
+\def\Polycase{{\sf polycase}}
+\def\Polyfix{{\sf polyfix}}
+\def\Special{{\sf special}}
+\def\Comb{{\sf comb}}
+\def\Preddim{{\sf preddim}}
+\def\Primrec{{\sf prim\_rec}}
+\def\Rec{{\sf rec}}
+\def\Ref{{\sf ref}}
+\def\reduce{{\sf reduce}}
+\newcommand{\Return}[1]{{\sf return}\ #1}
+\def\s2i{{\sf size2int }}
+\def\Onesh{{\sf onesh}}
+\def\Reduce{{\sf reduce}}
+\def\ReduceR{{\sf reduceR}}
+\def\Reg{{\sf reg}}
+\def\IsReg{{\sf isreg}}
+\def\MkReg{{\sf mkreg}}
+\def\Irreg{{\sf irreg}}
+\def\Regular{{\sf regular}}
+\def\Samesh{{\sf samesh}}
+\def\Second{{\sf second}}
+\newcommand{\Select}{{\sf select}}
+\def\Seq{{\sf seq}}
+\def\Snd{{\sf snd}}
+\def\Shape{{\sf shape}}
+\def\Lshape{{\sf lshape}}
+\def\ShapeD{{\sf shapeD}}
+\def\shape{{\sf \_shape}}
+\def\Shp{{\sf shp}}
+\def\Single{{\sf single}}
+\def\SingleV{{\sf singleV}}
+\def\Skip{{\sf skip}}
+\def\Sndzip{{\sf sndzip}}
+\def\Space{{\sf Space}}
+\def\Splitzip{{\sf splitzip}}
+\def\Sub{{\sf sub}}
+\def\Subexp{{\sf subexp}}
+\def\Succ{{\sf Succ}}
+\def\Succdim{{\sf succdim}}     
+\def\Than{{\sf than}}
+\def\Then{{\sf then}}
+\def\til{\mbox{\~{}}}
+\def\transpose{{\sf transpose}}
+\def\True{{\sf true}}
+\def\TRUE{{\sf tt}}
+\newcommand{\Tup}[1]{{\sf tup#1}}
+\def\Un{{\sf un}}
+\def\Undim{{\sf undim}} 
+\def\update{{\sf update}}
+\def\v2e{{\sf var2exp }}
+\def\Vec{{\sf vec}}
+\def\View{{\sf view}}
+\def\Wf{{\sf wf}}
+\def\Where{{\sf where}}
+\def\While{{\sf while}}
+\def\Whiletrue{{\sf whiletrue}}
+\def\With{{\sf with}}
+\def\Zero{{\sf Zero}}
+\def\Zerodim{{\sf zerodim}}
+\newcommand{\Zip}{{\sf zip}}
+\def\Zipop{{\sf zipop}}
+
+\def\FISh{{\bf FISh}}
+\def\Bal{{\sf bal}}
+\def\Balanced{{\sf balanced}}
+\def\Fstfun{{\sf fstfun}}
+\def\Sndfun{{\sf sndfun}}
+\def\Onefun{{\sf onefun}}
+\def\Size{{\sf size}}
+\def\Bottom{{\sf bottom}}
+
+\def\Prfun{{\sf prfun}}
+\def\Twofun{{\sf two}}
+\def\Prmap{{\sf prmap}}
+\def\Fstmap{{\sf fstmap}}
+\def\Sndmap{{\sf sndmap}}
+\def\Pmap{{\sf pmap}} 
+\def\Qmap{{\sf qmap}} 
+\def\Prfold{{\sf prfold}}
+\def\Fstfold{{\sf fstfold}}
+\def\Sndfold{{\sf sndfold}}
+\def\Przip{{\sf przip}}
+\def\Pzip{{\sf pzip}}
+\def\Qzip{{\sf zip}}
+\def\FoldR{{\sf foldR}}
+\def\Zipwith{{\sf zipwith}}
+\def\Zipwithsh{{\sf zipwith\_sh}}
+\def\Zipwithpr{{\sf zipwith\_pr}}
+\def\Equal{{\sf equal}}
+\def\Equalv{{\sf equalv}}
+\def\Unit{{\sf Unit}}
+\def\identity{{\sf identity}}
+
+\def\Map{{\sf map}}
+\def\ListMap{{\sf listMap}}
+\def\TreeMap{{\sf treeMap}}
+\def\Nil{{\sf nil}}
+\def\Cons{{\sf cons}}
+\def\Leaf{{\sf leaf}}
+\def\Node{{\sf node}}
+\def\ListListMap{{\sf listListMap}}
+
+\def\BTreeMap{{\sf bTreeMap}}
+\def\BLeaf{{\sf bLeaf}}
+\def\BNode{{\sf bNode}}
+\def\List{{\sf list}}
+\def\NList{{\sf nlist}}
+\def\Tree{{\sf tree}}
+\def\ListList{{\sf listList}}
+
+
+
+%% LANGUAGES 
+
+\def\APL{{\sc APL}}
+\def\Fish{{\sc FISh}}
+\def\FML{{\sc FML}}
+\def\Goldfish{{\sc Goldfish}}
+\def\Haskell{{\sc Haskell}}
+\def\Miranda{{\sc Miranda}$^{\copyright}$}
+\def\ML{{\sc ML}}
+\def\Sisal{{\sc Sisal}}
+\def\phluid{{\sc phluid}}
+\def\PP{{\sc P2}}
+\def\Pascal{{\sc Pascal}}
+\def\Polyp{{\sc Polyp}}
+\def\Turbot{{\sc Turbot}}
+
+\def\Charity{{\sc Charity}}
+\def\Gofer{{\sc Gofer}}
+\def\PolyP{{\sc Polyp}}
+\def\FML{{\sc fml}}
+\def\FISh{{\sc FISh}}
+\def\MetaML{{\sc MetaML}}
+\def\P2{{\sc P2}}
+
+
+
+\newcommand{\bd}{\[\begin{diagram}}
+\newcommand{\ed}{\end{diagram}\]}
+
+
+\def\figbox#1{{\framebox[\textwidth]{\parbox{\textwidth}{#1}}}}
+
+\newcommand{\jdg}[3]{#2 \vdash_{#1} #3}
+
+\newcommand{\FV}{{\rm fv}}
+\newcommand{\DV}{{\rm dom}}
+\newcommand{\SV}{{\rm shdom}}
+\newcommand{\sub}[3]{#1\{#3/#2\}}  % #2 is a variable and #3 is a term
+
+\newcommand{\CtX}{\Delta}
+\newcommand{\Ctx}{\Gamma}
+
+\newcommand{\Rule}[4]{
+\makebox{  %%%{\rm (#1)}                                
+$\displaystyle
+\frac{\begin{array}{l}#2\\\end{array}}
+{\begin{array}{l}#3\\\end{array}}$
+ #4}}
+
+\newcommand{\Rul}[4]{
+\makebox{{\rm #1}                               
+$\displaystyle
+\frac{\begin{array}{l}#2\\\end{array}}
+{\begin{array}{l}#3\\\end{array}}$
+ #4}}
+
+%%SPACING 
+
+\newcommand{\vsp}{$ \hspace*{\fill} \\[4mm] \hspace*{\fill} $}
+\newcommand{\hsp}{$\hspace*{\fill}$}
+
+\def\pdo{\phantom{\Do\ }}
+
+\newcommand{\floatfraction}{0.9}
+
+
+\newcommand{\lb}{[\![}
+\newcommand{\rb}{]\!]}
+\def\Sig{{\sf sigma}}
+\newcommand{\dagg}[1]{#1^{\dagger}}
+
+
+\def\Btree{{\sf btree}}
+\def\Ra{\Rightarrow}
+
+
+\def\D{{\cal D}}\def\Set{{\bf Set}}
+\def\Kappa{A}
+\def\Swap{{\sf swap}}
+\def\Closure{{\sf closure}}
+\def\mgu{{\cal U}}
+\def\W{{\cal W}}
+\def\Aux{{\sf aux}}
+\def\BinaryOp{{\sf binaryOp}}
+\def\UnaryOp{{\sf unaryOp}}
+\def\BinaryRel{{\sf binaryRel}}
+\def\UnaryRel{{\sf unaryRel}}
+\def\Vector{{\sf vector}}
+\newcommand{\Extend}[3]{{\sf under}\ #1\ {\sf apply}\ #2\ {\sf else}\ #3}
+\newcommand{\ExtendTo}[4]{{\sf under}\ #1\ {\sf apply}\ #2\ {\sf else}\ #3\ {\sf to}\ #4}
+\def\Align{{\sf align}}
+\def\Unalign{{\sf unalign}}
+\def\IsAligned{{\sf isAligned}}
+\def\BasicEntry{{\sf basic\_entry}}
+\def\MapAlign{{\sf mapalign}}
+\def\Sh{{\cal S}}
+\def\Condeq{{\sf condeq}}
+\def\Of{{\sf of}}
+\newcommand{\Name}{{\sf name}}
+\def\Extendvar{{\sf extendvar}}
+\def\Void{{\sf Void}}
+\def\Exn{{\sf exn}}
+\def\fml{{\sc fml}}
+\def\Match{{\sf match}}
+\def\C{\mbox{$\cal C$}}
+\def\D{\mbox{$\cal D$}}
+\def\Datafunctor{{\tt datafunctor}}
+\def\Datatype{{\tt datatype}}
+\def\Cat{{\bf Cat}}
+\def\Function{{\sf function}}
+\def\Under{{\sf under}}
+\def\Apply{{\sf apply}}
+\def\Cycle{{\sf cycle}}
+\def\Premium{{\sf premium}}
+\def\Prim{{\sf prim}}
+\def\Induct{{\sf induct}}
+
+\newenvironment{program}{\[\begin{array}{l}}{\end{array}\]}
+\newenvironment{tech}{}{}
+\newenvironment{tlca}{}{}
+
+
+%\comment{offcut}
+
+\newenvironment{eqn}{\[\begin{array}{rcl}}{\end{array}\]}
+
+% new constructor names
+
+
+\def\Nun{{\sf nun}}
+\def\Ths{{\sf ths}}
+\def\Bth{{\sf bth}}
+\def\Pik{{\sf pik}}
+\def\Onl{{\sf onl}}
+\def\Onr{{\sf onr}}
+\def\Evr{{\sf evr}}
+\def\Asl{{\sf asl}}
+\def\Asr{{\sf asr}}
+\def\Rbk{{\sf rbk}}
+\def\Dig{{\sf dig}}
+\def\Dg{{\sf dg}}
+\def\Ind{{\sf ind}}
+\def\Tag{{\sf tag}}
+\def\First{{\sf first}}
+\def\Second{{\sf second}}
+
+
+
+\def\Set{{\bf Set}}
+\def\Kappa{A}
+\def\Swap{{\sf swap}}
+\def\Closure{{\sf closure}}
+\def\mgu{{\cal U}}
+\def\W{{\cal W}}
+\def\Aux{{\sf aux}}
+\def\BinaryOp{{\sf binaryOp}}
+\def\UnaryOp{{\sf unaryOp}}
+\def\BinaryRel{{\sf binaryRel}}
+\def\UnaryRel{{\sf unaryRel}}
+\def\Vector{{\sf vector}}
+\def\Align{{\sf align}}
+\def\Unalign{{\sf unalign}}
+\def\IsAligned{{\sf isAligned}}
+\def\BasicEntry{{\sf basic\_entry}}
+\def\MapAlign{{\sf mapalign}}
+\def\Sh{{\cal S}}
+\def\Condeq{{\sf condeq}}
+\def\Of{{\sf of}}
+\def\Extendvar{{\sf extendvar}}
+\def\fml{{\sc fml}}
+\def\Match{{\sf match}}
+\def\C{\mbox{$\cal C$}}
+\def\D{\mbox{$\cal D$}}
+\def\Datafunctor{{\tt datafunctor}}
+\def\Datatype{{\tt datatype}}
+\def\Cat{{\bf Cat}}
+\def\Function{{\sf function}}
+\def\Under{{\sf under}}
+\def\Apply{{\sf apply}}
+\def\Cycle{{\sf cycle}}
+\def\Prim{{\sf prim}}
+\def\Induct{{\sf induct}}
+
+
+
+
+
+\def\List{{\sf List}} 
+\def\Rose{{\sf Rose}}
+\def\Btree{{\sf Btree}}
+
+\def\Stree{{\sf St}}
+\def\String{{\sf string}}
+\def\Nested{{\sf Nested}}
+
+\def\Head{{\sf head}}
+\def\Tail{{\sf tail}}
+\def\Abstractors{{\sf abstractors}}
+\def\Compose{{\sf compose}}
+\def\Blist{{\sf blist}}
+\def\Bnil{{\sf bnil}}
+\def\Bcons{{\sf bcons}}
+\def\Three{{\sf three}}
+\def\thr{{\sf thr}}
+\def\ThreeOfAKind{{\sf threeOfAKind}}
+\def\Triplet{{\sf triplet}}
+\def\Bind{{\sf bind}}
+
+\def\Type{{\sf type}}
+\def\Sole{{\sf sole}} 
+\def\Nest{{\sf Nest}}
+
+\def\One{{\sf One}}
+
+\def\Ad{{\sf ad}}
+\def\Max{{\sf max}}
+
+\def\Args{\mbox{$ \overline{X}$}}
+\def\Arg{{\sf arg}}
+\def\Abs{{\sf abs}}
+\def\Proj{{\sf Proj}}
+\def\proj{{\sf proj}}
+\def\aux{{\sf aux}}
+\def\Step{{\sf step}}
+
+\def\Concrete{{\sf concr}}
+\def\Abstract{{\sf abstr}}
+\def\Concr{{\sf concr}}
+\def\Abstr{{\sf abstr}}
+
+
+
+
+\def\General{{\sf general\_}}
+
+\def\Abs{{\sf abs}}
+\def\Con{{\sf con}}
+\def\PAIR{{\sf PAIR}}
+\def\SUM{{\sf SUM}}
+\def\Out{{\sf out}}
+\def\Complex{{\sf complex}}
+\def\Cart{{\sf cart}}
+
+\def\Functor{{\sf functor}}
+\def\Proj{{\sf proj}}
+\def\F{{\bf F}}
+\def\Endo{{\sf endo}}
+\def\Co{{\sf Co}}
+\def\oX{\overline{X}}
+\def\Or{{\sf or}}
+\def\Times{{\sf times}}
+
+\def\NAME{{\sf name}}
+\def\Nm{{\sf nm}}
+%
+%\def\TITLE{{\sf title}}
+%
+%\def\Title{{\sf \_title}}
+%\def\Dub{{\sf dub}} 
+
+\def\IFCPlus{{\sf cfiplus}}
+
+\def\Mapone{{\sf map1}}
+\def\Maptwo{{\sf map2}}
+
+\def\Has{{\sf has}}
+\def\Or{{\sf or}}
+\def\Zerofun{{\sf zero}}
+\def\Onefun{{\sf one}}
+\def\Bthfun{{\sf two}}
+\def\Basefun{{\sf bfun}}
+\def\Nextfun{{\sf nfun}}
+
+\def\Ap{{\sf ap}}
+\def\At{{\sf at}}
+\def\Use{{\sf use}}
+
+
+\def\Datum{{\sf datum}}
+
+\def\When{{\sf when}}
+\def\BOOL{{\sf Bool}} 
+\def\Param{{\sf Param}}
+
+\def\Big{{\sf big}}
+\def\Bulk{{\sf bulk}}
+
+\def\Invert{{\sf invert}}
+
+
+
+
+
+\def\V{{\cal V}}
+\def\Nomatch{{\sf nomatch}}
+\def\Point{{\sf Point}}
+\def\Null{{\sf null}}
+\def\Colour{{\sf colour}}
+\def\Comma{{\sf Comma}}
+\def\Arrow{{\sf Arrow}}
+\def\V{{\cal V}}
+
+\def\Rnode{{\sf Rnode}}
+\def\Num{{\sf num}}
+\def\Point{{\sf Point}}
+\def\Colour{{\sf Colour}}
+\def\Move{{\sf move}}
+\def\Position{{\sf position}} 
+\def\Circle{{\sf circle}}
+\def\Centre{{\sf centre}} 
+\def\Radius{{\sf radius}}
+\def\Class{{\sf class}} 
+\def\This{{\sf this}}
+\def\Rest{{\sf Rest}}
+\def\Extends{{\sf extends}} 
+
+\def\Rnode{{\sf Rnode}}
+\def\Num{{\sf num}}
+\def\Point{{\sf Point}}
+\def\Colour{{\sf Colour}}
+\def\Move{{\sf move}}
+\def\Try{{\sf try}}
+
+\def\Value{{\sf value}}
+\def\Next{{\sf next}}
+\def\Double{{\sf double}}
+\def\Previous{{\sf previous}}
+\def\Super{{\sf super}}
+
+\def\Red{{\sf Red}}
+\def\Green{{\sf Green}}
+\def\Blue{{\sf Blue}}
+\def\Smaller{{\sf smaller}}
+\def\Host{{\sf Host}} 
+\def\Bool{{\sf Bool}}
+\def\Nomatch{{\sf nomatch}}
+
+\def\Pred{{\sf pred}}
+\def\Sum{{\sf sum}}
+
+\renewcommand\floatpagefraction{1.0} 
+\renewcommand{\Elim}{{\sf elim}}
+\def\Dummy{{\sf dummy}}
+\def\Extract{{\sf extract}}
+\def\Pattern{{\sf pattern}}
+\def\Leading{{\sf leading}}
+\def\Snoc{{\sf soc}}
+\def\Factorial{{\sf factorial}}
+\def\Singleton{{\sf singleton}}
+\def\linfun{\leadsto}
+\def\Cell{{\sf Cell}}
+\def\Tuple{{\sf Tuple}}
+\def\Two{{\sf Two}}
+\def\lin{{\sf lin}}
+\newcommand\linabs[2]{\l #1.#2}
+\def\Interval{{\sf interval}}
+\def\Interest{{\sf interest}}
+\def\Lower{{\sf lower}}
+\def\Salary{{\sf salary}}
+\def\Division{{\sf division}}
+\def\Employee{{\sf employee}}
+\def\Profit{{\sf profit}}
+\def\JList{{\sf jlist}}
+\def\Join{{\sf join}}
+\def\All{{\sf all}}
+\def\FoldleftOver{{\sf foldleftover}}
+\def\Over{{\sf over}}
+\def\Total{{\sf total}}
+\def\NameN{{\sf Name}}
+\def\Start{{\sf Start}}
+\def\Date{{\sf Date}}
+\def\Simple{{\sf simple}}
+\def\Permanent{{\sf permanent}}
+\def\Update{{\sf update}}
+\def\Sublist{{\sf sublist}}
+\def\Prefix{{\sf prefix}}
+\def\Substructure{{\sf substructure}}
+\def\Shift{{\sf shift}}
+\def\Free{\tilde{}\,}
+\def\Self{{\sf Self}}
+\def\MyType{{\sf MyType}}
+\def\Fail{{\sf fail}} 
+\def\dlb{\{\!\!\{}
+\def\drb{\}\!\!\}}
+\def\dle{\ll}
+
+
+
+\setlength\hfuzz{2pt}
+
+
+\def\Counter{{\sf counter}}
+\def\Minus{{\sf minus}} 
+\def\IsZero{{\sf isZero}} 
+
+\def\N{{\sf N}} 
+\def\Nd{{\sf N}}
+\def\Constructor{{\sf constructor}}
+\def\ltype{:\!\!\cdot\ }
+\def\NAT{{\sf Nat}}
+\def\Conjunction{{\sf conjunction}}
+\def\Inner{{\sf inner}}
+\def\Extract{{\sf extract}}
+\def\Choice{{\sf choice}} 
+\def\Cast{{\sf cast}}
+\def\IDENTITY{{\sf Identity}} 
+\def\Pair{{\sf pair}}
+\def\Un{{\sf un}}
+\def\Inl{{\sf inl}}
+\def\Inr{{\sf inr}}
+
+\def\Department{{\sf department}}
+
+
+
+
+\def\ch{\ \&\ }
+\def\bind{\theta}
+\def\None{{\sf none}}
+
+
+%Pure/macros_for_book 
+
+
+                    
+
+\newcommand{\at}[3]{{\tt at } \; #1 \; {\tt use }\;  #2 \; {\tt else }\; #3}
+\newcommand{\app}[2]{#1 \; #2}
+\def\bind{\theta}
+\newcommand\vmatch[2]{\{#2\,/ #1\}}
+\newcommand\vvmatch[2]{\{#2\,/\!\!/ #1\}}
+\newcommand{\rew}{\longrightarrow}
+\def\wild{?}
+
+
+
+\newcommand{\fv}[1]{{\sf fv}(#1)}
+\newcommand{\fm}[1]{{\sf fm}(#1)}
+\newcommand{\cv}[1]{{\sf cv}(#1)}
+\newcommand{\ems}{ \{ \} }
+\newcommand{\sm}{\setminus}
+\newcommand\none{{\sf none}}
+\newcommand{\dom}[1]{{\sf dom}(#1)}
+\newcommand{\var}[1]{{\sf var}(#1)}
+\newcommand{\eqalpha}{=_{\alpha}}
+\newcommand{\set}[1]{\{ #1 \}}
+\long\def\ignore#1{\relax}
+
+\def\Successor{{\sf successor}}
+\def\Is{{\sf is}}
+
+\def\Left{{\sf left}}
+\def\Right{{\sf right}}
+
+
+\def\Snd{{\sf snd}}
+\def\Bigger{{\sf bigger}} 
+\def\Get{{\sf get\_}}
+\def\Centre{{\sf centre}} 
+\newcommand\bTv[1]{{\sf BTV}(#1)}
+\def\ByType{{\sf \_by\_type}}
+\def\Is{{\sf is}}
+\def\Circle{{\sf Circle}}
+\def\Top{{\sf top}}
+\def\Pair{{\sf pair}}
+\def\Cons{{\sf cons}}
+\def\True{{\sf true}}
+\def\False{{\sf false}}
+\def\Rest{{\sf rest}}
+\newcommand\neutral[1]{{\sf neut}(#1)}
+\newcommand\positive[1]{{\sf pos}(#1)}
+\renewcommand\figbox[1]{#1}
+\def\Increase{{\sf increase\_}}
+\def\Salary{{\sf salary}}
+\def\List{{\sf list}}
+\def\Point{{\sf point}}
+\def\Colour{{\sf colour}}
+\def\Bool{{\sf bool}}
+\def\Int{{\sf int}}
+\def\Float{{\sf float}}
+\def\Unit{{\sf unit}}
+\def\Un{{\sf un}}
+\def\Choice{{\sf choice}}
+\def\Circle{{\sf circle}} 
+\def\Nil{{\sf nil}}
+\def\Identity{{\sf identity}}
+\def\UpdateT{{\sf updateT}}
+\def\Size{{\sf size}}
+\def\id{{\sf id}}
+
+%\input{typed_macros_for_book}
+
+\def\Append{{\sf append}}
+
+\def\List{{\sf list}}
+\def\Equal{{\sf equal}}
+\def\Plus{{\sf plus}}
+\def\Update{{\sf update}}
+\def\Bool{{\sf bool}}
+\def\Nat{{\sf nat}}
+\def\Pair{{\sf pair}}
+\def\Nil{{\sf nil}}
+\def\Cons{{\sf cons}}
+\def\If{{\sf if}}
+\def\Then{{\sf then}}
+\def\Else{{\sf else}}
+\def\True{{\sf true}}
+\def\False{{\sf false}}
+\def\Fst{{\sf fst}}
+\def\Fix{{\sf fix}}
+\def\Zero{{\sf zero}}
+\def\Succ{{\sf succ}}
+\def\Or{{\sf or}}
+\def\Let{{\sf let}}
+\def\In{{\sf in}}
+\def\Type{{\sf type}}
+\def\Check{{\sf check}}
+\def\bind{{\sf bind}}
+\def\Letrec{{\sf letrec}}
+\def\Implies{{\sf implies}}
+\def\Inl{{\sf inl}}
+\def\Inr{{\sf inr}}
+\def\Search{{\sf search}}
+
+
+
+\def\W{{\cal W}}
+\def\mgu{{\cal U}}
+\def\bnf{\ |\ }
+\def\Ra{\Rightarrow}
+\def\l{\lambda}
+\def\L{\Lambda}
+
+\def\bind{\theta}
+\newcommand\fTv[1]{{\sf FTV}(#1)}
+\newcommand\fTvl[1]{{\sf FTV}_l(#1)}
+\newcommand\fTvf[1]{{\sf FTV}_f(#1)}
+\newcommand\ftv[1]{{\sf ftv}(#1)}
+\newcommand\aTv[1]{{\sf ATV}(#1)}
+
+%\input{macros_for_book}
+
+
+\def\Append{{\sf append}}
+
+\def\List{{\sf list}}
+\def\Equal{{\sf equal}}
+\def\Plus{{\sf plus}}
+\def\Update{{\sf update}}
+\def\Bool{{\sf bool}}
+\def\Nat{{\sf nat}}
+\def\Pair{{\sf pair}}
+\def\Nil{{\sf nil}}
+\def\Cons{{\sf cons}}
+\def\If{{\sf if}}
+\def\Then{{\sf then}}
+\def\Else{{\sf else}}
+\def\True{{\sf true}}
+\def\False{{\sf false}}
+\def\Fst{{\sf fst}}
+
+\def\Fix{{\sf fix}}
+\def\Zero{{\sf zero}}
+\def\Succ{{\sf succ}}
+\def\Or{{\sf or}}
+\def\Let{{\sf let}}
+\def\In{{\sf in}}
+\def\Type{{\sf type}}
+\def\Check{{\sf check}}
+\def\bind{{\sf bind}}
+\def\Letrec{{\sf letrec}}
+\def\Implies{{\sf implies}}
+\def\Inl{{\sf inl}}
+\def\Inr{{\sf inr}}
+\def\Rec{{\sf rec}}
+\def\New{{\sf new}}
+\def\Solve{{\sf solve}}
+\def\Some{{\sf some}}
+\def\None{{\sf none}}
+\def\Match{{\sf match}}
+\def\Mid{{\sf mid}}
+\def\With{{\sf with}}
+\def\Leaf{{\sf leaf}}
+\def\Node{{\sf node}}
+\def\Tree{{\sf tree}}
+\def\Data{{\sf data}} 
+\def\Assign{{\sf assign}}
+\def\Of{{\sf of}}
+\def\Comm{{\sf comm}}
+\def\Skip{{\sf skip}}
+\def\As{{\sf as}}
+\def\Map{{\sf map}}
+\def\Evr{{\sf evr}}
+\def\Rep{{\sf rep}}
+\def\Rpp{{\sf rpp}}
+\def\Complex{{\sf complex}}
+\def\Times{{\sf times}}
+\def\AddCase{{\sf add\_case}}
+\def\Point{{\sf point}}
+\def\Un{{\sf un}}
+\def\Unit{{\sf unit}}
+\def\Colour{{\sf colour}}
+\def\Move{{\sf move}}
+\def\Class{{\sf class}}
+\def\Position{{\sf position}}
+\def\This{{\sf this}}
+\def\Rest{{\sf rest}}
+\def\Extends{{\sf extends}}
+\def\Balance{{\sf balance}}
+\def\Account{{\sf account}}
+\def\System{{\sf system}}
+\def\DetourPath{{\sf detourPath}}
+\def\DetourGoal{{\sf detourGoal}}
+\def\DetourStage{{\sf detourStage}}
+\def\SignPosts{{\sf signPosts}}
+\def\Goal{{\sf goal}}
+\def\Stage{{\sf stage}}
+\def\Detour{{\sf detour}}
+
+\def\At{{\sf at}}
+
+
+\def\bind{\theta}
+\def\Mp{{\sf mp}}
+\def\Intro{{\sf intro}}
+\def\SystemF{System~{\bf F}}
+\def\SystemQF{System~{\bf QF}}
+
+\def\Predecessor{{\sf predecessor}}
+\def\Iterate{{\sf iterate}}
+\def\Subtract{{\sf subtract}}
+\def\Atom{{\sf atom}}
+\def\Split{{\sf split}}
+\def\Alt{{\sf alt}}
+\def\Label{{\sf label}}
+\def\Even{{\sf even}}
+
+\newcommand\Cl[2]{{\cal C}(#1,#2)}
+\newcommand\encode[1]{\lb #1 \rb} 
+
+\newcommand\Push[2]{{\sf push}(#1,#2)}
+%\newcommand\push[2]{{\sf push}\ #1\ #2}
+\newcommand\Pull[4]{{\sf pull}(#1,#2,#3,#4)}
+
+\newcommand\indexem[2]{\index {#1}{\em #1#2}}
+
+\def\Cross{\backslash \!\!\!/}
+\def\Mere{{\sf mere}}
+\def\Merge{{\sf merge}}
+\def\Redder{{\sf redder}} 
+\def\Mystery{{\sf myst}}
+
+\newcommand\Extnd[4]{[#1]\, #2 \to #3 \bnf #4}
+\newcommand\Case[3]{[#1]\, #2 \to #3 }
+\newcommand\Static[3]{#1 \to #2 \bnf #3}
+
+\newcommand\breath[1]{\subsection{\quad #1}}
+
+\newcommand\translate[1]{\lb #1 \rb}
+%\newcommand\constr[1]{<\!\!#1\!\!>}
+\newcommand\constr[1]{\widehat #1}
+\newcommand\lam[1]{\backslash #1}
+\def\Figure{{\sf figure}}
+\newenvironment{declare}
+{
+\[\begin{array}{rcll} 
+}
+{
+\end{array}\]
+}
+
+
+\def\bondi{{\bf bondi}}

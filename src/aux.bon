@@ -1,0 +1,64 @@
+(*
+%open "aux.bon";;
+*)
+
+%open "BalancedTree.bon";;
+
+
+		(*** Lists *) 
+
+
+let rec length = 
+| [] -> 0 
+| Cons _ xs -> length xs +1;;
+
+let rec (reverse: List a -> List a) = foldleft (fun x y -> Cons y x) Nil;;
+
+let rec (member : a -> b -> Bool) x y = 
+if equal (x,y) 
+then True
+else match y with 
+
+| y1 y2 ->  member x y1 || (member x y2) 
+| _ -> False
+;;
+
+let rec intersect  = 
+| [] -> fun ys -> False
+| Cons x xs -> fun ys -> member x ys || (intersect xs ys)
+;;
+
+let rec delete x = 
+| [] -> []
+| Cons y ys -> 
+  if x == y 
+  then delete x ys 
+  else Cons y (delete x ys)
+;;
+
+let rec subtract whole part = foldright delete part whole;;
+
+let remove_duplicates = foldleft (fun xs x -> if member x xs then xs else Cons x xs) [];;
+
+
+
+
+
+let (tail_split: List a -> Maybe (List a * a)) xs = 
+match reverse xs with 
+| Cons y ys -> Some (reverse ys, y)
+| [] -> None 
+;;
+
+
+let (elimSome: Maybe a -> a) = | Some x -> x;;
+
+
+(* move this to print.bon ?? *) 
+
+let addParens b str = 
+  if b 
+  then "(" ^ str ^ ")"
+  else str 
+;;
+

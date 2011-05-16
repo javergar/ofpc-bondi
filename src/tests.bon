@@ -1,0 +1,351 @@
+
+(* 
+
+let res = new TypedLambda in 
+res.set_binder (enactvar) ;
+res.set_body k_op;
+res.set_term (apply k_op k_op);
+
+(apply2 res k_op b_op).eval();;
+
+
+
+
+
+
+  (apply2 y_op (tylam enactvar k_op) b_op).eval();;
+
+
+
+
+
+(apply enact b_op).eval();;
+
+
+
+
+let test3 e = (apply unblock (apply enact (quote e))).eval();;
+test3 s_op;;
+test3 b_op;;
+test3 false;;
+
+let test4 = 
+
+(*** tests ...
+
+s_op.eval() == s_op;;
+(apply s_op s_op).eval() == apply s_op s_op;;
+b_op;;
+(apply b_op b_op).eval() == apply b_op b_op;;
+(apply2 b_op b_op (apply b_op b_op)).eval();;
+
+
+(apply3 s_op b_op b_op b_op).eval() == (apply2 b_op b_op (apply b_op b_op)).eval();;
+
+(apply2 false f_op s_op).eval() == s_op;;
+(apply2 y_op (apply k_op f_op) f_op).eval() == apply f_op f_op;;
+
+(apply4 e_op s_op k_op (apply k_op false) s_op).eval() == k_op ;;
+(apply4 e_op s_op k_op (apply k_op false) k_op).eval() == false;;
+
+(apply3 e_op s_op k_op (apply k_op false)).typ();;
+
+
+match subunify_apply [] [] 
+(instantiate i_type_scheme) (instantiate f_type_scheme)  with 
+| Some (_,ty) -> ty
+;;
+
+
+
+infer_apply (Some(instantiate i_type_scheme)) f_op;;
+
+
+i_op.typ_aps [f_op];;
+
+
+(apply i_op f_op).typ();;
+
+(apply2 s_op (apply2 s_op f_op i_op) (apply k_op i_op)).typ();;
+
+
+end tests *) 
+
+
+
+
+(***  tests .....
+
+
+let x1 = newvar "x1";;
+let x2 = newvar "x2";;
+let x3 = newvar "x3";;
+
+lam x1 x1 ==apply i_op i_op ;;
+lam x1 x2 == apply k_op x2;;
+lam x1 (apply x1 x2) == apply2 s_op (apply i_op i_op) (apply k_op x2);;
+
+let y = newvar "y";;
+
+(lam y (apply2 false f_op (apply s_op y))) == 
+apply2 s_op (lam y (apply false f_op)) (lam y (apply s_op y));;
+
+(lam y (apply false f_op)) == apply k_op (apply false f_op);;
+
+(lam y (apply s_op y)) == apply i_op s_op;;
+
+
+*) 
+
+
+
+(*** tests ...
+
+let x0 = nextTyVar();;
+let x = TypeVar x0;;
+
+
+
+let x1 = newvar "x1";;
+let x2 = newvar "x2";;
+let x3 = newvar "x3";;
+
+let c1 = 
+let y = new Constructor in
+y.set_name("C1");
+y.set_ctype(QuantF [x0] x x);
+y;;
+
+
+let c2 = 
+let y = new Constructor in
+y.set_name("C2");
+y.set_ctype(QuantF [x0] x x);
+y;;
+
+
+(apply3 e_op k_op i_op k_op).typ();;
+
+
+let z = nextvar() in 
+(lam z (apply3 e_op success i_op (apply k_op (apply k_op z)))).typ();;
+
+
+
+(extension x1 x1 i_op).typ();;
+
+
+
+(apply(extension x1  f_op s_op) k_op).eval() == f_op;;
+
+(extension x1  f_op s_op).typ();;
+
+
+let etest x y = 
+if (apply(extension c1 c1 i_op) x).eval() == y
+then print "True"
+else print ((apply(extension c1 c1 i_op) x).eval());;
+
+
+etest c1 c1;;
+etest c2 c2;;
+etest k_op k_op;;
+
+
+
+
+let test = lam x2 (lam x1 (
+	extension c1 (apply x2 c1) (apply2 s_op (apply k_op i_op) x2)) )
+;;
+
+
+(extension c1 c1 i_op).typ();;  
+
+(*
+(extension (apply x1 x2) (apply x1 x2) i_op).get_args();;
+*)
+
+
+
+(extension (apply x1 x2) (apply x1 x2) i_op).typ();;
+
+(apply (extension (apply x1 x2) (apply x1 x2) i_op) (apply c1 c2)).eval();;
+
+
+
+(apply (extension (apply c1 c2) (apply c1 c2) i_op) (apply c1 c2)).eval();;
+
+
+
+
+(apply2 (extension (apply x1 c1) (apply x1 c1) i_op) (apply k_op c1) c2).eval() == c1;;
+
+(apply2 (extension (apply x1 x2) (apply x1 x2) i_op) (apply k_op c1) c2).eval() == c1;;
+
+
+(extension (apply c1 x1) (apply c1 x1) i_op).typ();;
+
+--------------------
+
+
+
+(extension (apply c1 c2) (apply c1 c2) i_op).typ();;
+
+(extension (apply x1 c1) (apply x1 c1) i_op).typ();;
+
+
+
+
+
+
+end tests *) 
+(* tests 
+
+(apply2 (lam x1 (lam x2 (apply x2 x1)))  s_op b_op).eval();; 
+
+
+(apply2 enactap s_op b_op).eval();;
+
+
+
+*) 
+
+
+(* tests 
+
+
+let x = nextTyVar() in 
+let y = nextTyVar() in 
+print (TypeVar x);
+print (TypeVar y);
+let sub = makeSub x (TypeVar y) in 
+let z =  nextTypedVar (TypeVar x) in 
+applySubToAll sub z;
+z.typ();;
+
+
+
+let x = nextTypedVar i_type_scheme;;
+let res = new TypedLambda;;
+
+res.set_binder (x) ;;
+res.set_body s;;
+res.set_term (lam x s);;
+res;;
+
+
+
+
+let x = nextTypedVar i_type_scheme in
+let res = new TypedLambda in 
+res.set_binder (x) ;
+res;;
+
+
+
+
+
+f.get_term();;
+f.typ();;
+
+
+......................
+
+*)
+ 
+(* test 
+
+(e_op3 i_op i_op xty).typ();;
+(e_op3 i_op i_op (arrowTy xty xty)).typ();;
+
+
+e_op3 xty xty i_op f_op;;
+
+
+e_op (instantiate i_type_scheme) (instantiate i_type_scheme) (instantiate i_type_scheme) ;;
+e_op (instantiate i_type_scheme) (instantiate k_type_scheme) i_type_scheme ;;
+
+let test1 = apply k_op (apply2 k_op (apply2 s_op (apply k_op k_op) i_op) false );;
+
+let test = apply3 e_op i_op test1 false;;
+test.typ();;
+*)
+
+
+(case (apply x2 x1) ((apply2 enactvar x2 x1))).typ();;
+
+let h1 = extension (apply x2 x1) ((apply2 i_op     x2 x1)) i_op;;
+let h2 = extension (apply x2 x1) ((apply2 enactvar x2 x1)) i_op;;
+
+
+let enact = apply y_op (tylam enactvar (extension (apply x2 x1) (apply i_op (apply2 enactvar x2 x1)) i_op));;
+
+
+
+(case x1 x1).typ();;
+(extension x1 x1 i_op).typ();;
+
+
+
+
+
+let f = tylam enactvar enactvar;;
+(apply y_op f).typ();;
+
+let g = tylam enactvar (lam x1 (apply enactvar (apply b_op x1)));;
+
+g.typ();;
+
+let gty = match g.typ() with 
+| Some ty -> ty
+;;
+
+subunify_apply [] []  y_type_scheme gty;;
+
+
+
+(case (apply x2 x1) (apply2 enactvar x2 x1)).typ();;
+
+
+
+
+let enact0 = (lam enactvar (extension (apply x2 x1) (apply enactap (apply2 enactvar x2 x1)) i_op));;
+
+
+(* tests 
+
+
+
+
+let xty = TypeVar (nextTyVar());;
+let zty = TypeVar(nextTyVar()) 
+let x = nextTypedVar(TypeVar(nextTyVar()));;
+let y = nextTypedVar(TypeVar(nextTyVar()));;
+
+
+
+
+infer x xty;;
+
+
+(case xty xty (i_op) i_op).typ();;
+(case xty xty k_op k_op).typ();;
+(case xty xty x x).typ();;
+(case xty xty (apply f_op f_op) k_op).typ();;
+(case xty xty ( f_op) k_op).typ();;
+(case xty xty (apply b_op x) x).typ();;
+(case xty xty (i_op) k_op).typ();;
+
+
+let x = nextTypedVar(TypeVar(nextTyVar())) in 
+(case xty xty (apply b_op x) x).typ();;
+
+
+(extension x x i_op).typ();;
+(extension k_op k_op i_op).typ();;
+(extension (apply b_op k_op) k_op i_op).typ();;
+
+
+
+*)
+

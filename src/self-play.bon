@@ -1,0 +1,420 @@
+%open "aux.bon";;
+%open "BalancedTree.bon";;
+
+%open "lexer.bon";;
+
+%open "Variable.bon";;
+  %open "NamedVariable.bon";;       
+  %open "InternalVariable.bon";; 
+
+%open "Type.bon";;
+%open "Context.bon";;
+  %open "TypeVariable.bon";;
+  %open "FunctionType.bon";;
+  %open "QuantifiedType.bon";;
+  
+
+%open "Expression.bon";;
+  %open "Operator.bon";; 
+  %open "E_operator.bon";;
+
+     %open "S_operator.bon";;
+     %open "K_operator.bon";;
+     %open "Y_operator.bon";;
+     %open "F_operator.bon";;
+     %open "B_operator.bon";;
+
+  %open "TermVariable.bon" ;; 
+    %open "TypedTermVariable.bon" ;; 
+
+
+  %open "Sugar.bon";;
+    %open "I_combinator.bon";;
+    %open "Lambda.bon";;
+    %open "LetTerm.bon";;
+    %open "LetRecTerm.bon";;
+    %open "Case.bon";;
+
+let parse = Expression.parse;;
+let ctxt0 = Context.make1 (TypeVariable.idSub);;
+
+
+let test = Expression.parse "
+  | F x3 x2 x1 ->  F x3 x2 x1
+  | I
+"
+;;
+
+
+test.infer_type(ctxt0) (TypeVariable.next());;
+
+
+
+Case.lambda(test);;
+
+
+Expression.parse "\\z.F z (S (K (S (K I ))) z) (E F F I)". infer_type(ctxt0) (TypeVariable.next());;
+
+
+
+
+parse "\\x.F x x (E Y Y (S (K I )))". infer_type(ctxt0) (TypeVariable.next());;
+parse "(E Y Y (S (K I )))". infer_type(ctxt0) (TypeVariable.next());;
+parse "\\x.F x x I". infer_type(ctxt0) (TypeVariable.next());;
+
+parse "\\x.F x x". infer_type(ctxt0) (TypeVariable.next());;
+parse "\\x.F x x I". infer_type(ctxt0) (TypeVariable.next());;
+
+let enact_typable = Expression.parse "
+
+let rec (enact: all a . a -> a) = 
+  let unblock = 
+  | B x -> x
+  | I
+  in 
+  let evalop = \\x . unblock (enact x) 
+  in
+  let enactOne =   
+  | B Y x1 -> enact (x1 (B Y x1))
+  | I
+  in 
+| x2 x1 -> enactOne (enact x2 x1)
+| I
+
+in enact
+"
+;;
+
+
+
+  | B K x2 x1 -> enact (K x2 x1) 
+  | B S x3 x2 x1 -> enact (S x3 x2 x1)
+  | B F x3 x2 x1 -> enact (F (evalop x3) x2 x1)
+  | B B x4 x3 x2 x1 -> B B x4 x3 x2 x1
+  | B x5 x4 x3 x2 x1 -> enact (x5 x4 x3 x2 x1)
+
+
+let enact_typable = Expression.parse "
+
+  | B x -> x
+  | I
+
+"
+;;
+
+
+
+
+let ctxt0 = Context.make1 (TypeVariable.idSub);;
+
+enact_typable.infer_type(ctxt0) (TypeVariable.next());;
+
+
+
+let enact_typable = Expression.parse "
+let rec (enact: all a . a -> a) = 
+  let unblock = 
+  | B x -> x
+  | I
+  in 
+  let evalop = \\x . unblock (enact x) 
+  in
+  let enactOne =   
+  | B Y x1 -> enact (x1 (B Y x1))
+  | I
+  in 
+| x2 x1 -> enactOne (enact x2 x1)
+| I
+
+in enact
+"
+;;
+
+enact_typable.infer_type(ctxt0) (TypeVariable.next());;
+
+
+let ub1 = parse"\\x. F x x (E B I (S (K I)))";;
+ub1.infer_type(ctxt0) (TypeVariable.next());;
+
+
+let (desugar: Expression -> Expression) =
+| (x:Sugar) -> x.term()
+| x -> x;;
+ 
+
+let unblock = parse "
+  | B x -> x
+  | I
+";;
+
+
+unblock.infer_type(ctxt0) (TypeVariable.next());;
+
+
+
+let evalop = parse "
+let unblock = 
+  | B x -> x
+  | I
+in
+\\x . unblock x
+";;
+
+evalop.infer_type(ctxt0) (TypeVariable.next());;
+
+
+let enact = parse "
+  | B x2 x1 ->   B x2 x1
+  | I
+"
+;;
+
+
+let enact = parse "
+  | B B x1 ->  B B x1
+  | I
+"
+;;
+
+Case.lambda(enact);;
+
+(\v2811.F v2811 (I  v2811) (\v2808.((\v2810.F v2810 (S (K I ) v2810) (\v2809.E B (E B (\x1.B B x1) (S (K (S (K I ))) v2809)) (S (K (S (K I )))) v2809))) v2808))
+
+let enact = parse "
+\\w.E B (E B (B B) (S (K (S (K I))) w)) (S (K (S (K I )))) w
+";;
+
+let enact = parse "
+S (K (S (K I))) w)) (S (K (S (K I )))) w
+";;
+
+
+
+enact.infer_type(ctxt0) (TypeVariable.next());;
+
+
+let enact = parse "
+
+let rec (enact: all a . a -> a) = 
+  let unblock = 
+  | B x -> x
+  | I
+  in 
+  let enactOne = 
+  | B Y x1 -> enact (x1 (B Y x1))
+  | I
+  in 
+| x2 x1 -> enactOne (enact x2 x1)
+| I
+
+in enact
+"
+;;
+
+  | B K x2 x1 -> enact (K x2 x1) 
+  | B S x3 x2 x1 -> enact (S x3 x2 x1)
+  | B F x3 x2 x1 -> enact (F (unblock (enact x3)) x2 x1)
+  | B B x4 x3 x2 x1 -> B B x4 x3 x2 x1
+  | B x5 x4 x3 x2 x1 -> enact (x5 (enact x4) x3 x2 (enact x1))
+
+
+
+let enact = parse "
+
+let rec (enact: all a . a -> a) = 
+  let unblock = 
+  | B x -> x
+  | I
+  in 
+  let enactOne = 
+  | B Y x1 -> enact (x1 (B Y x1))
+  | B K x2 x1 -> enact (K x2 x1) 
+  | B S x3 x2 x1 -> enact (S x3 x2 x1)
+  | B F x3 x2 x1 -> enact (F (unblock (enact x3)) x2 x1)
+  | B B x4 x3 x2 x1 -> B B x4 x3 x2 x1
+  | B x5 x4 x3 x2 x1 -> enact (x5 (enact x4) x3 x2 (enact x1))
+  | I
+  in 
+| x2 x1 -> enactOne (enact x2 x1)
+| I
+
+in enact
+"
+;;
+
+
+
+let enact = parse "
+
+let rec (enact: all a . a -> a) = 
+  in 
+  in 
+  let evalop = \\x . unblock (enact x) 
+  in
+  let enactOne = 
+  | B Y x1 -> enact (x1 (B Y x1))
+  | B K x2 x1 -> enact (K x2 x1) 
+  | B S x3 x2 x1 -> enact (S x3 x2 x1)
+  | B F x3 x2 x1 -> enact (F (evalop x3) x2 x1)
+  | B B x4 x3 x2 x1 -> B B x4 x3 x2 x1
+  | B x5 x4 x3 x2 x1 -> enact (x5 (evalop x4) x3 (reblock x2) (evalop x1))
+  | I
+  in 
+| x2 x1 -> enactOne (enact x2 x1)
+| I
+
+in enact
+"
+;;
+
+
+
+(*
+
+enact_typable.infer_type(ctxt0);;
+enact_typable.normal();;
+
+*)
+
+let enact_opt = parse "
+
+let rec (enact: all a. a -> a) = 
+  let unblock = 
+  | B x -> x
+  | I
+  in 
+  let reblock x2 = 
+  | y x -> x2 (y x)
+  | S (K x2) B 
+  in 
+  let evalop = \\x . unblock (enact x) 
+  in
+  | y1 x1 -> ((
+    | B Y -> enact (x1 (B Y x1))
+    | y2 x2 -> (( 
+      | B K -> enact x2
+      | y3 x3 -> ((
+	| B S -> enact (S x3 x2 x1)
+	| B F -> enact (F (evalop x3) x2 x1)
+	| y4 x4 -> ((
+	  | B B -> B B x4 x3 x2 x1
+	  | B x5 -> enact (x5 (evalop x4) x3 (reblock x2) (evalop x1))
+	  | (\\x5. x5 x4 x3 x2 x1)
+	  ) y4)
+	| (\\x4. x4 x3 x2 x1)
+	) y3)
+      | (\\ x3. x3 x2 x1)
+      ) y2) 
+    | (\\ x2. x2 x1)
+    ) (enact y1))
+  | I 
+in 
+enact
+"
+;;
+
+
+
+(* its normal form ...
+
+
+enact_opt.normal();;
+
+
+*) 
+
+
+let enact_opt2 = parse "
+
+let rec (enact: all a. a -> a) = 
+  let unblock = 
+  | B x -> x
+  | I
+  in 
+  let reblock x2 = 
+  | y x -> x2 (y x)
+  | S (K x2) B 
+  in 
+  let evalop = \\x . unblock (enact x) 
+  in
+  | y1 x1 -> ((
+     | y2 x2 ->  E B (E Y (enact (x1 (B Y x1)))  () y2 x2  | B Y -> 
+ (( 
+      | B K -> enact x2
+      | y3 x3 -> ((
+	| y4 x4 -> ((
+	  E B 	(| S -> enact (S x3 x2 x1)
+		 | F -> enact (F (evalop x3) x2 x1)
+               	 | x4 -> B x4 x3 x2 x1 
+	        )
+		(| B x5 -> E 	B 
+			(B B x4 x3 x2 x1) 
+			(enact (x5 (evalop x4) x3 (reblock x2) (evalop x1))) 
+			x5
+	  | (\\x5. x5 x4 x3 x2 x1)
+	  ) y4 x4)
+	| (\\x4. x4 x3 x2 x1)
+	) y3)
+      | (\\ x3. x3 x2 x1)
+      ) y2) 
+    | (\\ x2. x2 x1)
+    ) (enact y1))
+  | I 
+in 
+enact
+"
+;;
+
+
+(* tests 
+
+
+let parse = parse;;
+let ap x y = Expression.apply x [y];;
+
+let unblock = parse "
+  | B x -> x
+  | I
+"
+;;
+
+
+(ap unblock (parse "B S")).eval();;
+(ap unblock (parse "S")).eval();;
+(ap unblock (parse "S B")).eval();;
+
+
+let reblock =  parse "
+\\ x2 . 
+  | y x -> x2 (y x)
+  | S (K x2) B 
+"
+;;
+
+(ap (ap reblock (parse"F")) (parse "K")).normal();;
+(ap (ap reblock  (parse "B")) (parse"F S")).normal();;
+
+
+let enact_test str = 
+let e = parse str in 
+(ap unquote ((ap enact_typable (quote e)).normal())).normal() == e.normal();;
+
+
+let enact_test str = 
+let e = parse str in 
+(ap unquote ((ap enact_opt (quote e)).normal())).normal() == e.normal();;
+
+enact_test "F";;
+enact_test "S S K F";;
+enact_test "K S F";;
+enact_test "Y K K";;
+enact_test "F S K F";;
+enact_test "F (S K) K F";;
+enact_test "B S F K S";;
+enact_test "E S F K S";;
+enact_test "E S F K K";;
+enact_test "E S F K (S S)";;
+enact_test "E (S S) F K S";;
+
+
+*) 

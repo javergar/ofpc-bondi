@@ -1,0 +1,41 @@
+
+
+let rec (quote: Expression -> Expression) e = 
+match e.factorise() with ((
+| Some (e1,e2) ->  B_operator.make [quote e1,quote e2]
+| None -> B_operator.make [e]
+): Maybe (Expression * Expression) -> Expression) 
+;;
+
+
+
+let unquote = Expression.parse "
+let rec unquote = 
+| B y x -> (unquote y) (unquote x) 
+| I
+in 
+unquote
+"
+;;
+
+
+(*
+
+tests
+
+let parse = Expression.parse;;
+
+let ap x y = x.apply [y];;
+
+
+let q0 = quote (parse "K");;
+let q1 = quote (parse "F S F");;
+let q2 = quote (parse "K S F");;
+
+(ap unquote q0).eval();;
+(ap unquote q1).normal();;
+(ap unquote q2).eval();;
+
+
+
+*)

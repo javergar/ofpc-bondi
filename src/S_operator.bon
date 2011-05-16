@@ -1,0 +1,47 @@
+class S_operator extends Operator {
+
+type_scheme = { |() -> 
+  let x = TypeVariable.next() in 
+  let y = TypeVariable.next() in 
+  let z = TypeVariable.next() in 
+    QuantifiedType.make (x.get_variable(),
+  (QuantifiedType.make (y.get_variable(),
+  QuantifiedType.make (z.get_variable(),
+           (FunctionType.make3 ((FunctionType.make2 (x,y,z)),(FunctionType.make (x,y)),x,z))))))
+}
+
+static make =  { fun args -> Expression.make (new S_operator) args } 
+
+static parser = { parseUpper "S" (S_operator.make []) }
+
+reduce = {  |() -> match this.get_arguments() with 
+  | (Cons x (Cons y (Cons z args))) -> 
+	Some (x.apply (Cons z (Cons (y.apply [z]) args)))
+  | _ -> None 
+}
+headString = { |() -> "S" }
+
+with Expression.simpleParser += | view(S_operator.parser,Parsed ps) -> Parsed ps
+}
+
+(* tests 
+
+(get_result(Expression.parser (0,lexer "S B F K"))).eval()
+;;
+
+Expression.parser (0,lexer "S");;
+
+
+  let x = TypeVariable.next() in 
+subtract [x] [x];;
+
+
+	println x;
+  Variable.free (  (QuantifiedType.make ((x.get_variable()),x)))
+
+;;
+
+
+
+
+*) 

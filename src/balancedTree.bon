@@ -1,0 +1,31 @@
+class  BalancedTree <a,b> = Leaf | Node of a * b * BalancedTree a b * BalancedTree a b;;
+
+let rec get_value x = 
+| Leaf -> None 
+| Node (key,y,l,r) -> 
+  if x < key 
+  then get_value x l 
+  else if x == key
+  then Some y
+  else get_value x r
+;;
+
+let rec insert_value x y = 
+| Leaf -> Node (x,y,Leaf,Leaf)
+| Node(key,v,l,r) -> 
+  if x < key 
+  then Node (key,v,insert_value x y l,r) 
+  else if x == key
+  then Node (x,y,l,r)
+  else Node (key,v,l,insert_value x y r) 
+;;
+
+let rec get_best x =
+| Leaf -> None 
+| Node (key,y,l,r) -> 
+  if x <= key 
+  then Some y 
+  else get_best x r 
+;;
+
+

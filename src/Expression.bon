@@ -1,0 +1,175 @@
+class Expression {
+arguments: List Expression; 
+
+	(** getting and making *) 
+
+get_arguments = { | () -> !this.arguments}
+
+static make = { fun (exp:Expression) args -> 
+  exp.arguments = args;
+  exp
+} 
+ 
+	(** applying an expression to a list of arguments *) 
+
+apply  = { fun args ->  
+  let res = clone this in 
+  res.arguments = append !(this.arguments) args;
+  res
+}
+
+	(** parsing *) 
+
+static discontinuous parser = { (defaultParser: ParserArgument-> ParserResult Expression) }
+
+static discontinuous simpleParser = { 
+(stx_parser "(") .>> (
+Expression.parser .>>= (fun exp -> 
+(stx_parser ")") .>>
+ret exp
+))
+}
+
+static discontinuous applyParser = { 
+  Expression.simpleParser .>>= (fun se -> 
+  (parseMany Expression.simpleParser) .>>= (fun es -> 
+  ret (se.apply(es))))
+}
+
+static parse = { fun str -> 
+ let tokens = lexer str in 
+ match Expression.parser (0,tokens) with ((
+ | Parsed (ndx,e) -> 
+    if ndx == (lengthv tokens)
+    then e
+    else Exception ("at index", ndx)
+): ParserResult Expression -> Expression)
+}
+
+	(** typing *) 
+
+infer_type_head =  { ((fun ctxt ty -> None): Context  -> Type -> Maybe Type) }
+
+infer_type = { (( fun ctxt ty -> None): Context  -> Type -> Maybe Type) }
+
+
+static infer_type_argument = { fun ctxt ty arg -> 
+  let aty = TypeVariable.next() in 
+  let rty = TypeVariable.next() in 
+  let fty = FunctionType.make(aty,rty) 
+  in 
+  match ty with 
+  | None -> None 
+  | Some ty1 -> 
+    match ctxt.subunify_clean (fty,ty1)  with 
+    | Some ty2 -> 
+      match  arg.infer_type(ctxt) aty with (
+       | Some aty2 -> Some (rty.applySub(ctxt.get_substitution()))
+       | _ -> None
+      )
+    | _ -> None
+ 
+}
+
+
+	(** evaluating *) 
+
+
+reduce = { (( | () -> None): Unit -> Maybe Expression ) }
+eval = { 
+  let rec (eval0: Expression -> Expression) x = 
+	match x.reduce() with 
+	| Some y -> eval0 y
+	| None -> x
+  in |() -> eval0 this
+}
+
+normal = { |() -> 
+  let rec (n: Expression -> Expression) e  = 
+  let e1 = e.eval() in 
+  e1.arguments = map n (e1.get_arguments()); 
+  e1
+ in n this
+}
+
+
+	(** printing *) 
+
+
+headString = { | () -> "" }
+
+expressionToString = { 
+  let rec e2s isArg e = 
+    let addArg x y = x ^ " " ^ (e2s True y) in 
+    let innerString = foldleft addArg (e.headString()) (e.get_arguments())  
+    in 
+    addParens (isArg && not (e.get_arguments() == [])) innerString 
+  in 
+  fun isArg -> e2s isArg this
+}
+
+with equal += | (x:Expression,y:Expression) -> 
+	equal(x.headString(), y.headString()) &&
+	(equal(x.get_arguments(), y.get_arguments()))
+and toString += | (x:Expression) -> x.expressionToString(False)
+and Variable.free += | (x:Expression) -> Variable.free(x.get_arguments()) 
+and Expression.parser += | view(Expression.applyParser,Parsed ps) -> Parsed ps
+and infer_type += | (exp: Expression) -> fun (ctxt:Context) (ty:Type) -> 
+  let args = exp.get_arguments() in 
+  let add_argty ty e = ((FunctionType.make (TypeVariable.next(),ty)):Type) in 
+  let headty = ((foldleft add_argty ty args): Type)
+  in  
+  foldleft (Expression.infer_type_argument(ctxt)) (exp.infer_type_head(ctxt) headty) args
+}
+
+
+
+
+(* 
+
+let parse = Expression.parse;;
+let ctxt0 = Context.make1 (TypeVariable.idSub);;
+
+parse "(K B)".infer_type(ctxt0) (TypeVariable.next());;
+
+parse "S";;
+parse "K";;
+parse "S K K K";;
+
+(parse "S").infer_type(ctxt0) (TypeVariable.next());;
+(parse "S K").infer_type(ctxt0) (TypeVariable.next());;
+(parse "S K K").infer_type(ctxt0) (TypeVariable.next());;
+(parse "S K K K").infer_type(ctxt0) (TypeVariable.next());;
+
+parse "S K (F F) K";;
+
+
+(parse "K (K K K)").eval();;
+(parse "K (K K K)").normal();;
+
+parse "(S S)";;
+
+
+parse "S (S S) S";;
+
+parse "I";;
+
+parse "x y (z:a)";;
+
+let ctxt0 = Context.make (Context.idSub,[],[]) in 
+Expression.parse "K K".infer_type(ctxt0);;
+
+parse "(K B)".infer_type(ctxt0) (TypeVariable.next());;
+
+ctxt0.get_substitution();;
+
+(v23,R,(v1,B),(v28,R,(v22,B),(v17,B)))
+
+
+*)
+
+
+
+
+
+

@@ -1,0 +1,62 @@
+class Context {
+substitution : BalancedTree <Variable,Type>; (* for type variables *) 
+avoided : List Variable ;
+fixed : List Variable;
+get_substitution = { | () -> !this.substitution}
+set_substitution = { fun nm -> this.substitution = nm}
+get_avoided = { | () -> !this.avoided}
+set_avoided = { fun nm -> this.avoided = nm}
+get_fixed = { | () -> !this.fixed}
+set_fixed = { fun nm -> this.fixed = nm}
+
+static make = { | (sub,a,f) -> 
+  let res = new Context in 
+  res.substitution = sub;
+  res.avoided = a;
+  res.fixed = f;
+  res
+}
+
+static make1 = { fun sub -> 
+  let res = new Context in 
+  res.substitution = sub;
+  res.avoided = [];
+  res.fixed = [];
+  res
+}
+
+static discontinuous subunify  = { ((| _ -> | _ -> None
+):Type[a] * Type[b] -> Context -> Maybe Type)
+}
+
+
+subunify_clean  = { | (ty1,ty2) -> 
+  let sub = this.get_substitution() in 
+  Context.subunify(ty1.applySub(sub),ty2.applySub(sub)) this
+}
+}
+
+
+
+(* tests 
+
+let x = TypeVariable.next();;
+let y = TypeVariable.next();;
+
+let ctxt0 = Context.make (Context.idSub,[],[]);;
+let ctxt1 = Context.make (Context.idSub,[x.get_variable()],[]);;
+let ctxt2 = Context.make (Context.idSub,[],[x.get_variable()]);;
+
+
+
+
+
+let ctxt0 = Context.make (Context.idSub,[],[]);;
+
+
+x.applySub(ctxt0.get_substitution()) == y;;
+
+
+
+
+*)

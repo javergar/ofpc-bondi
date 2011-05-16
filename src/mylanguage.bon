@@ -1,0 +1,68 @@
+(*
+%cd "/home/cbj/bondi-private/svn/papers/enact";;
+*)
+
+%open "aux.bon";;
+%open "BalancedTree.bon";;
+
+%open "lexer.bon";;
+
+%open "Variable.bon";;
+  %open "InternalVariable.bon";; 
+
+%open "Type.bon";;
+%open "Context.bon";;
+  %open "TypeVariable.bon";;
+  %open "FunctionType.bon";;
+  %open "QuantifiedType.bon";;
+  
+
+%open "Expression.bon";;
+  %open "Operator.bon";; 
+
+     %open "S_operator.bon";;
+     %open "K_operator.bon";;
+     %open "Y_operator.bon";;
+ 
+  %open "NamedVariable.bon";;       
+  %open "TermVariable.bon" ;; 
+    %open "TypedTermVariable.bon" ;; 
+
+
+  %open "Sugar.bon";;
+    %open "I_combinator.bon";;
+    %open "Lambda.bon";;
+    %open "LetTerm.bon";;
+    %open "LetRecTerm.bon";;
+
+    %open "F_operator.bon";;
+    %open "E_operator.bon";;
+
+
+    %open "Case.bon";;
+
+    %open "B_operator.bon";;
+  %open "quotation.bon";;
+  %open "equality.bon";;
+(*
+  %open "self-Interpretation.bon";;
+  %open "enact_jens.bon";;
+*)
+
+  %open "ShellAction.bon";;
+  %open "TermAction.bon";;
+  %open "LetAction.bon";;
+
+  %open "Shell.bon";;
+
+
+
+
+(* tests code
+
+Type.parser (lexer "all a.b",Parsed 0 []);;
+Expression.parser (lexer "S",Parsed 0 []);;
+Expression.parser (lexer "S (K S) K",Parsed 0 []);;
+
+
+*)

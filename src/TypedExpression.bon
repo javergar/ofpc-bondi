@@ -1,0 +1,23 @@
+class TypedExpression extends Expression {
+static discontinuous parser = { 
+(stx_parser "(") .>> (
+ Expression.parser .>>= ( fun se  -> (
+(stx_parser ":") .>> (
+Type.parser .>>= (fun ty -> (
+(stx_parser ")") .>>= (
+ret (Expression.make (Some ty) se []))))))))
+}
+with 
+Expression.parser += | view(TypedExpression.parser,Parsed ps) -> Parsed ps
+}
+
+
+(* 
+Expression.parser (0,lexer "S:a");;
+Expression.parser (0,lexer "(S:a)");;
+
+
+match Expression.parser (0,lexer "(S:a)") with 
+| Parsed(_,x) -> x.get_typ();;
+
+*)

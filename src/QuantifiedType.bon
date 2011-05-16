@@ -1,0 +1,204 @@
+class QuantifiedType extends Type {
+boundVariable: Variable;
+bodyType: Type;
+get_boundVariable = { | () -> !this.boundVariable}
+get_bodyType = { | () -> !this.bodyType}
+
+static make = { | (x,ty) -> 
+  let res = new QuantifiedType in 
+  res.boundVariable = x ;
+  res.bodyType = ty;
+  (res:Type)
+}
+
+static parser =  { 
+((stx_parser "all") .>> (Variable.parser)) .>>=
+(fun var -> ((stx_parser ".") .>> Type.parser) .>>=
+(fun ty -> ret (QuantifiedType.make (var,ty))))
+}
+
+static closure = { ((fun monotype ctxt -> 
+ let mty = monotype.applySub(ctxt.get_substitution()) in 
+ let bound = remove_duplicates(subtract (Variable.free mty) (Variable.free ctxt)) in 
+foldright (fun x (ty:Type) -> QuantifiedType.make(x,ty)) bound mty ): Type -> Context -> Type)
+}
+
+
+instantiate = { | () -> 
+  let rec (inst: Type -> BalancedTree <Variable, Type> ->  List Variable -> 
+		 Type * BalancedTree <Variable, Type> * List Variable) = 
+  | (q:QuantifiedType) -> 
+	let x = ((InternalVariable.next()):Variable) in 
+	let xty = TypeVariable.make(x)  in 
+	fun sub bvs -> 
+	let sub1 = sub.insert (q.get_boundVariable()) xty in 
+	inst(q.get_bodyType()) sub1 (Cons x bvs)
+  | data -> fun sub bvs -> (data,sub,bvs) 
+  in 
+  match inst(this) (TypeVariable.idSub) [] with 
+  | (ty,sub1,bvs1) -> (ty.applySub(sub1),bvs1) 
+}
+
+
+instantiate2 = { | q -> 
+	let x = ((InternalVariable.next()):Variable) in 
+	let xty = TypeVariable.make(x)  in 
+	let sub1 = TypeVariable.idSub.insert (q.get_boundVariable()) xty in
+	let sub2 = sub1.insert (this.get_boundVariable()) xty in
+	(this.get_bodyType().applySub(sub2), q.get_bodyType().applySub(sub2),x)
+}
+
+applySub = { 
+	let mk ty x = ((QuantifiedType.make(x,ty)):Type) in 
+	fun (sub: BalancedTree <Variable, Type>) ->   
+	match this.instantiate() with  
+	| (ty,bvs) -> foldleft mk (ty.applySub(sub)) bvs
+}
+
+with Type.parser += | view(QuantifiedType.parser,Parsed ps) -> (Parsed ps)
+and Variable.free +=  | (x:QuantifiedType) -> 	delete (x.get_boundVariable()) (Variable.free(x.get_bodyType()))
+
+and Context.subunify += | (ty1,(ty2:QuantifiedType)) ->  fun ctxt -> 
+	match ty2.instantiate() with 
+	| (body2,bvs) -> 
+	   ctxt.set_fixed(append (bvs:List Variable) (ctxt.get_fixed())) ;
+	   ctxt.subunify_clean (ty1,body2)
+	
+and Context.subunify += | ((ty1: QuantifiedType),ty2) -> fun ctxt -> 
+	match ty1.instantiate() with 
+	| (body1,bvs) -> 
+	   ctxt.subunify_clean (body1,ty2)
+
+and Context.subunify += | (x:TypeVariable,y) -> fun ctxt -> x.add_sub ctxt y 
+and Context.subunify += | (x,(y:TypeVariable)) -> fun ctxt -> y.add_sub ctxt x
+
+and equal += | ((ty1:QuantifiedType),(ty2:QuantifiedType)) -> 
+	match ty1.instantiate2(ty2) with 
+	| (body1,body2,_) -> equal (body1,body2)
+
+and toString += | (x:QuantifiedType) -> 
+	"("^"(all " ^ (toString (x.get_boundVariable())) ^")." ^ (toString (x.get_bodyType())) ^")"
+}
+
+
+
+(** tests 
+
+
+let x = TypeVariable.next();;
+let y = TypeVariable.next();;
+
+let ctxt0 = Context.make1 (TypeVariable.idSub);;
+let ctxt1 = Context.make (TypeVariable.idSub,[x.get_variable()],[]);;
+let ctxt2 = Context.make (TypeVariable.idSub,[],[x.get_variable()]);;
+
+let qx = QuantifiedType.make(x.get_variable(),x);;
+let qy = QuantifiedType.make(y.get_variable(),y);;
+
+ctxt0.rebindAvoided (x.get_variable()) (y.get_variable());;
+
+
+
+
+ctxt0.rebindFixed (x.get_variable());;
+
+
+
+Context.ctxty (qx,qy) ctxt0;;
+
+let ctxt0 = Context.make (TypeVariable.idSub,[],[]);;
+
+Context.subunify(x,y) ctxt0;;
+
+let ctxt0 = Context.make (TypeVariable.idSub,[],[]);;
+Context.subunify(qx,y) ctxt0;;
+
+let ctxt2 = Context.make (TypeVariable.idSub,[],[x.get_variable()]);;
+Context.subunify(y,x) ctxt2;;
+
+let ctxt0 = Context.make (TypeVariable.idSub,[],[]);;
+Context.subunify(y,qx) ctxt2;;
+
+
+Context.ctxty (qx,qy) ctxt1;;
+
+
+*)
+
+
+(* tests
+
+
+
+ let i_sch = 
+ let x = TypeVariable.next() in 
+  QuantifiedType.make ((x.get_variable()), x)
+;;
+
+ i_sch.instantiate()
+
+let k_sch = 
+  let x = TypeVariable.next() in 
+  let y = TypeVariable.next() in 
+  (QuantifiedType.make (y.get_variable(),x 
+));;
+
+
+let test = 
+  let x = TypeVariable.next() in 
+  let y = TypeVariable.next() in 
+
+	let ctxt = Context.make(TypeVariable.idSub,[],[]) in 
+	let z = ctxt.rebindFree (x.get_variable()) in 
+	let sub = ctxt.get_substitution() in 
+	sub (y.get_variable()) 
+;;
+
+
+let s_sch = 
+  let x = TypeVariable.next() in 
+  let y = TypeVariable.next() in 
+  let z = TypeVariable.next() in 
+    QuantifiedType.make (x.get_variable(),
+  (QuantifiedType.make (y.get_variable(),
+  QuantifiedType.make (z.get_variable(),
+           (FunctionType.make3 ((FunctionType.make2 (x,y,z)),(FunctionType.make (x,y)),x,z))))))
+;;
+QuantifiedType.instantiate s_sch
+ ;;
+
+let x = InternalVariable.next() in 
+
+Variable.free (QuantifiedType.make(x,TypeVariable.make x))
+;;
+
+
+
+let bottomty = 
+  let x = TypeVariable.next() in 
+  QuantifiedType.make ((x.get_variable()), x)
+;;
+
+bottomty.applySub(TypeVariable.idSub);;
+
+let fty =   
+  let x = TypeVariable.next() in 
+  let y = TypeVariable.next() in 
+  let z = TypeVariable.next() in 
+  QuantifiedType.make ((x.get_variable()), (
+  QuantifiedType.make ((y.get_variable()), (
+    FunctionType.make3( 
+	x, 
+	y, 
+	(QuantifiedType.make ((z.get_variable()),
+                             (FunctionType.make2  ((FunctionType.make  (z, x)),z,y)))), 
+	y)))))
+
+
+
+fty.applySub(TypeVariable.idSub);;
+
+
+*)
+
+

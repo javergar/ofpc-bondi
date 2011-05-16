@@ -1,0 +1,15 @@
+
+
+	(** Extensions *)
+
+(* this is a new account of extensions in which the default function
+is used exactly once, as the third argument to the case
+*) 
+
+
+let (extension: Expression -> Expression -> Expression -> Expression) p s r = 
+  match r.typ() with ((
+  | (Some (QuantF [] uty rty)) -> apply (case uty rty p s) r 
+  | None  -> Exception "extension"): Maybe Type -> Expression)
+;;
+

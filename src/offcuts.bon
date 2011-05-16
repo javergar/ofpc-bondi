@@ -1,0 +1,497 @@
+(*
+
+let (unify_apply: List TyVar -> Type -> Type -> Maybe (TySub * Type))
+ quantified x y = 
+  let z = nextTyVar() in 
+  match x with 
+  | QuantF [] x1 x2 -> 
+	  match instantiate_full([],x1) with (
+	| (quantified,x3) -> 
+		match unify quantified (x3,y) with 
+		| None -> None
+		| Some sub -> Some (sub,applySub sub x2)
+	)
+  | _ -> 	match unify quantified (x,arrowTy y (TypeVar z)) with 
+		| None -> None
+		| Some sub -> Some (sub,applySub sub (TypeVar z))
+;;
+
+
+*)
+(* patterns are expressions with special typing rules *) 
+
+
+class Pattern extends Expr { 
+infer = { |() -> ((Exception "infer"): Maybe Type) }
+applySubToPattern = { (( | _ ->  Exception "applySubToPattern"): TySub -> Unit) }
+}
+
+class PatternVar extends Pattern {
+var: TypedVar;
+get_var = { | () -> !this.var}
+set_var = { fun nm -> this.var = nm}
+typ = { | () -> this.get_var().typ()}
+infer = { |() -> let ty = TypeVar(nextTyVar()) in this.get_var().set_ty(ty); Some ty} 
+applySubToPattern = { ((| sub -> this.get_var().set_ty(applySub sub (this.get_var().get_ty()))): TySub -> Unit) }
+} 
+
+class PatternOp extends Pattern {
+oper: Operator;
+get_oper = { | () -> !this.oper}
+set_oper = { fun nm -> this.oper = nm}
+typ = { | () -> this.get_oper().typ()}
+infer = { |() -> this.get_oper().typ() }
+applySubToPattern = { ((| sub -> ()):  TySub -> Unit) }
+}
+
+class PatternAp extends Pattern {
+comp1: Pattern;
+comp2: Pattern;
+get_comp1 = { | () -> !this.comp1}
+set_comp1 = { fun nm -> this.comp1 = nm}
+get_comp2 = { | () -> !this.comp2}
+set_comp2 = { fun nm -> this.comp2 = nm}
+factorise = { | () -> Some(this.get_comp1(),this.get_comp2()) } 
+typ = { | () -> match this.get_comp1().typ() with 
+		| Some (QuantF _ _ resty) -> Some resty}
+infer = { |() -> 
+	match (this.get_comp1().typ(),this.get_comp2().typ()) with ((
+	| (Some ty1, Some ty2) -> 
+	  begin 
+		match ty1 with ((
+		| QuantF _ argty resty -> 
+	  	    match unify [] [] (argty,ty2) with ((
+	            | Some sub -> this.applySubToPattern(sub); Some (applySub sub resty)
+		    | _ -> None): Maybe TySub -> Maybe Type)
+		| TypeVar x -> 
+		  let y = TypeVar(nextTyVar()) in 
+		  let sub = makeSub x (arrowTy ty2 y) in 
+		  this.applySubToPattern(sub); Some y
+		| _ -> None): Type -> Maybe Type)
+	  end
+	| (_,_) -> None): Maybe Type * Maybe Type -> Maybe Type) 
+}
+applySubToPattern = { ((| sub -> this.get_comp1().applySubToPattern(sub); 
+				 this.get_comp2().applySubToPattern(sub)): TySub -> Unit) }
+}
+
+let patvar x = let y = new PatternVar in y.set_var(x);y ;;
+let patoper op = let x = new PatternOp in x.set_oper(op);x;;
+let patap p1 p2 = let x = new PatternAp in x.set_comp1(p1);x.set_comp2(p2);x;;
+
+(* tests 
+
+let x = patvar() in (patap (patoper s_op) x).infer(); x.typ();;
+
+
+*)
+
+
+class Extension extends Apply {
+pattern: Pattern;
+body: Expr;
+default: Expr;
+term: Apply; (* the extension term *) 
+get_pattern = { | () -> !this.pattern}
+set_pattern = { fun nm -> this.pattern = nm}
+get_body = { | () -> !this.body}
+set_body = { fun nm -> this.body = nm}
+get_default = { | () -> !this.default}
+set_default = { fun nm -> this.default = nm}
+get_term = { | () -> !this.term}
+set_term = { fun nm -> this.term = nm}
+typ = { |() -> this.get_default().typ() }
+}
+
+
+
+(* old code 
+apply s_op 
+  (apply2 s_op 
+    (apply2 s_op f_op false) 
+    (apply k_op 
+      (apply 
+         (case p1 
+               (apply 
+                  (case p2 s) 
+                   false)
+         )
+         (apply k_op false)
+      )
+    )
+  )
+	*)
+
+
+(* delete ??
+
+*)
+
+
+(* restore 
+typ_aps = { (( 
+
+  | Cons x (Cons y (Cons z args)) -> 
+   let attempt = 
+    match (x.typ(),y.typ(),z.typ()) with ((
+    | (Some xty, Some yty, Some zty) -> 
+	let zs = freeTyVars zty in 
+	  match zty with ((
+	  | QuantF bd z1 z2 -> 
+	    begin
+	      match rebind (idSub,[]) bd with ((
+	      | (sub1,_) -> print xty; print yty; print zty; print (applySub sub1 z1); 
+	      match unify [] [] (xty,applySub sub1 z1) with 
+	      | Some sub2 -> 
+		  let z3 = applySub sub2 (applySub sub1 z2) in 
+		  begin
+		    match unify [] zs (yty,z3) with ((
+		    | Some _ -> foldleft infer_apply (Some zty) args
+		    | _ -> None): Maybe TySub ->  Maybe Type) 
+		  end 
+	      | _ -> None): TySub * List TyVar -> Maybe Type)
+ 	    end	
+	  | _ -> None):  Type -> Maybe Type)
+    | _ -> None): Maybe Type * Maybe Type * Maybe Type -> Maybe Type)
+     in 
+     begin
+     match attempt with 
+     | Some ty -> 
+	match x with ((
+	| (x1:Operator) -> Some ty 
+	| _ -> None) : Expr[a] -> Maybe Type)
+     | _ -> (None: Maybe Type)
+     end   | Cons x args -> foldleft infer_apply (Some (instantiate e_type_scheme2)) (Cons x args)
+  | _ -> None )
+		: List Expr -> Maybe Type)
+}
+*)
+}
+*)
+
+
+
+class E extends Operator {
+operty: Type;
+specty: Type;
+argty: Type;
+resty: Type;
+get_operty = { | () -> !this.operty}
+set_operty = { fun x -> this.operty = x}
+get_specty = { | () -> !this.specty}
+set_specty = { fun x -> this.specty = x}
+get_argty = { | () -> !this.argty}
+set_argty = { fun x -> this.argty = x}
+get_resty = { | () -> !this.resty}
+set_resty = { fun x -> this.resty = x}
+reduce = { ((
+  | Cons w (Cons x (Cons y (Cons z args))) -> 
+	begin
+	let w1 = w.eval() in 
+	let z1 = z.eval() in 
+	match (w1.factorise(),z1.factorise()) with ((
+	| (None,None) -> 
+		if equal(w1,z1) 
+		then (True,foldleft apply_exp x args)
+		else (True,foldleft apply_exp y (Cons z1 args))
+	| (_,_) -> (True,foldleft apply_exp y (Cons z1 args))
+	) : Maybe (Expr * Expr) * Maybe (Expr * Expr) -> Bool * Expr)
+	end
+  | args -> ((False,init_apply (new E) args): Bool * Expr)
+): List Expr -> Bool * Expr) 
+}
+typ = { | () -> 
+  let oty = this.get_operty() in 
+  let sty = this.get_specty() in 
+  let fty = arrowTy (this.get_argty()) (this.get_resty()) 
+  in 
+  Some (arrowTy oty (arrowTy sty (arrowTy fty fty))) 
+}
+with toString += | (e:E) -> 
+	"E(" 
+(*
+^ 
+	(toString (e.get_operty())) ^ ","  ^ 
+	(toString (e.get_specty())) ^ ","  ^ 
+	(toString (e.get_argty())) ^ ","  ^ 
+	(toString (e.get_resty())) ^ ")"  
+*)
+and equal += | ((_:E),(_:E)) -> True
+}
+
+
+
+
+let rec (case: Expr -> Expr -> Expr) p s =
+
+match p.factorise() with 
+| Some (p1,p2) ->   
+
+let x = nextvar() in 
+let y = nextvar() in 
+let z = nextvar() in 
+let r = nextvar() in 
+let r1 = lam x (lam y (apply r (apply x y))) 
+in 
+lam r (lam z (apply3 f_op z (apply r z) (lam x (apply3 
+	(case p1 (case p2 s))  false x (apply r1 x)))))
+
+| None -> 
+  match p with ((
+  | (x: Variable) -> apply k_op (lam x s)
+  | (x:Operator) -> apply2 e_op x s): Expr[a] -> Expr)
+;;
+
+
+let extension p s r = apply (case p s) r 
+;;
+
+
+
+let e_type_scheme2 =   
+	(* only safe if the first argument takes it principle type, 
+	   and only useful for extending identity functions. *) 
+
+  let x = nextTyVar() in 
+  let y = nextTyVar() in 
+  QuantF [x,y]
+      (TypeVar x) 
+      (arrowTy 
+	(arrowTy 
+	  (TypeVar x) 
+	  (arrowTy (TypeVar y) (TypeVar x))
+        )
+	(arrowTy 
+ 	  (arrowTy 
+	    (TypeVar y)
+            (arrowTy (TypeVar y) (TypeVar y))
+          )
+	  (arrowTy 
+	    (TypeVar y)
+            (arrowTy (TypeVar y) (TypeVar y))
+          )
+     	)
+      )
+;;
+
+
+let e_type_scheme_identity =   
+	(* only safe if the first argument takes it principle type, 
+	   and only useful for extending identity functions. *) 
+
+  let x = nextTyVar() in 
+  let y = nextTyVar() in 
+  let z = nextTyVar() in 
+  QuantF [x,y]
+      (TypeVar x) 
+      (arrowTy 
+	(TypeVar x) 
+	(arrowTy 
+	  (arrowTy (TypeVar y) (TypeVar y))
+          (arrowTy (TypeVar y) (TypeVar y))
+        ))
+;;
+
+
+
+let rec  (extension: Expr -> Expr -> Expr -> Expr) p s r = 
+  let x = nextvar() in 
+  let y = nextvar() in 
+  let z = nextvar() in 
+  let r1 = lam x (lam y (apply r (apply x y)))  
+  in
+  match p.factorise() with 
+  | Some (p1,p2) ->   
+    lam z (apply3 f_op z (apply r z) (lam x (apply 
+	(extension p1 
+	  (extension p2 s (apply r1 x))
+	   r1) x)))
+| None -> 
+  match p with ((
+  | (x: Variable) -> lam x s
+  | (x:Operator) -> apply3 e_op x s r): Expr[a] -> Expr)
+;;
+
+
+
+
+(* the binary approach *) 
+
+
+	(*** Patterns *) 
+
+class Pattern extends Expr {
+expectedTy: Type;
+get_expectedTy = { | () -> !this.expectedTy}
+set_expectedTy = { fun nm -> this.expectedTy = nm}
+infer = { | () -> 
+  match this.typ() with ((
+  | Some ty -> 
+	match unify [] [] (ty,this.get_expectedTy()) with ((
+  	| Some sub -> applySubToAll sub this
+  	| None -> Exception "infer"):Maybe TySub -> Unit)
+  | None -> Exception "infer"):Maybe Type -> Unit)
+}
+}
+
+
+
+
+
+
+class Constructor extends Operator {
+name: String;
+ctype: Type; 
+get_name = { | () -> !this.name}
+set_name = { fun nm -> this.name = nm}
+get_ctype = { | () -> !this.ctype}
+set_ctype = { fun nm -> this.ctype = nm}
+typ = { |() -> Some (instantiate (this.get_ctype())) }
+reduce = { ((fun args -> (False,init_apply this args))
+		: List Expr -> Bool * Expr) } 
+with equal += | ((x:Constructor),(y:Constructor)) -> 
+	equal(x.get_name(),y.get_name())
+and toString += | (x:Constructor) -> x.get_name()
+}
+
+class I extends Operator {
+reduce = { ((
+  | (Cons x args) -> 
+	(True, foldleft apply_exp x args)
+  | args -> (False,new I)
+): List Expr -> Bool * Expr)
+}
+typ = { | () -> Some(instantiate i_type_scheme)}
+with toString += | (_:I) -> "I" 
+and equal += | ((_:I),(_:I)) -> True
+}
+
+
+
+factorise = { (( | zs -> 
+  let x = this.get_binder() in  
+  let s = this.get_body() in 
+  if equal (TermVariable.make x,s )
+  then ((S_operator.make []): Expression, 
+	Cons ((K_operator.make []): Expression) 
+		(Cons ((K_operator.make []): Expression) zs)) 
+  else if not (member (this.get_binder()) (Variable.freeVariables s))
+  then ((K_operator.make []): Expression, Cons s zs)
+  else match (s,s.get_arguments())  with ((
+  | (_, []) -> ((Exception "factorisation"): Expression * List Expression) 
+  | (s0, ss) ->  
+	match tail_split ss with ((
+	| (ss1,sn) -> 
+	    let s2 = ((Expression.apply s0 ss1):Expression) 
+	    in 
+	   (((new S_operator): Expression), 
+	      Cons ((Lambda.make(x,s2)):Expression) (
+	      Cons ((Lambda.make(x,sn)):Expression) 
+		zs))
+	): List Expression * Expression -> Expression * List Expression)
+  ): Expression * List Expression -> Expression * List Expression)
+): List Expression -> Expression * List Expression)
+}
+
+
+(*
+
+let ap x y = Expression.apply x [y];;
+let nextvar = TermVariable.next;;
+
+let s_op  = S_operator.make ;;
+let k_op  = K_operator.make ;;
+let y_op  = Y_operator.make ;;
+let f_op  = F_operator.make ;;
+let e_op  = E_operator.make ;;
+let b_op  = B_operator.make ;;
+let i_op  = I_combinator.make;;
+
+let extn x y z = Case.extension(x,y,z)  ;;
+
+let parse str = get_result(Expression.parser (0,lexer str));;
+
+*)
+
+(* older versions that are easier to type-check 
+
+
+
+let enact = Expression.parse "
+
+let rec enact = 
+  let unblock = 
+  | B x -> x
+  | I
+  in 
+  let reblock =  \\x1 .\\ x2 . ( 
+  | B x -> S(K x2)B 
+  | K x2
+    ) (enact x1) 
+  in 
+  let evalop = \\x . unblock (enact x) 
+  in
+  let enactOne = 
+  | y1 x1 -> ((
+    | B Y -> enact (x1 (B Y x1))
+    | y2 x2 -> (( 
+
+      | B K -> enact x2
+      | y3 x3 -> ((
+	| B S -> enact (S x3 x2 x1)
+	| B F -> enact (F (evalop x3) x2 x1)
+	| y4 x4 -> ((
+	  | B B -> B B x4 x3 x2 x1
+	  | B x5 -> enact (x5 (evalop x4) x3 (reblock x1 x2) (evalop x1))
+	  | (\\x5. x5 x4 x3 x2 x1)
+	  ) y4)
+	| (\\x4. x4 x3 x2 x1)
+	) y3)
+      | (\\ x3. x3 x2 x1)
+      ) y2) 
+    | (\\ x2. x2 x1)
+    ) y1)
+  | I 
+  in 
+  | y x -> enactOne (enact y x)
+  | I
+
+in 
+enact
+"
+;;
+
+enact.normal();;
+
+
+
+*)
+
+
+
+static get_best = { fun (m:Int) (ys: List (Int * a)) -> 
+  let rec (gb: Int -> List (Int * a) -> Int * a) m = ((
+    |  [] -> Exception "wrong index" 
+    | Cons (n,x) xs ->  if m==0 || n<=m then(n,x) else gb m xs 
+    ): List (Int * a) -> Int * a )
+  in 
+  if length ys == 0 
+  then Exception "Not_found"
+  else gb m ys 
+}
+
+add2context = { fun x ty -> 
+let ty1 = ty.applySub(this.get_substitution()) in 
+let n = this.incr_counter() in 
+let cxt = this.get_context() in 
+let xlist1 = Cons(n,ty1) (cxt x) in 
+let cxt1 y = if equal(y,x) then xlist1 else cxt y in 
+this.set_context(cxt1);
+this.set_freeVariables(append (Variable.free(ty1)) (this.get_freeVariables()))
+}
+
+(*** environments *) 
+
+
+get_type = { fun x -> get_value x (this.get_context())}
+  

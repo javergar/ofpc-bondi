@@ -1,0 +1,25 @@
+ 
+
+
+		(** Syntactic Equality *)
+
+(* do this using parser !! 
+
+let equal = 
+ let equalvar = nextTypedVar equal_type_scheme;;
+ let x11 = nextbinder() in  
+ let x12 = nextbinder() in  
+ let x21 = nextbinder() in  
+ let x22 = nextbinder() in  
+  apply y_op (tylam equalvar 
+	(extension (apply x12 x11) 
+		   (extension (apply x22 x21) 
+				(apply2 
+					(apply2 equalvar x12 x22) 
+					(apply2 equalvar x11 x21) 
+					false)
+				(apply equalap (apply2 equalvar x2 x1)) i_op));;
+
+
+
+*)

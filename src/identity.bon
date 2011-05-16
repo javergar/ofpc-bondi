@@ -1,0 +1,11 @@
+
+
+let id_test = Expression.parse "
+let (id : all a . a -> a) = I in id id"
+;;
+
+id_test.infer_type(unif0);;
+
+
+So, the plan is to introduce a type environment for type inference. 
+Rather, each term variable carries its own type. 

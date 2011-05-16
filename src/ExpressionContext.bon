@@ -1,0 +1,84 @@
+class ExpressionContext extends Context {
+counter: Int; (* for tracking declarations *) 
+term_context: List (Variable *Type); (* for term variables *) 
+get_counter = { | () -> !this.counter}
+incr_counter = { |() -> this.counter = !this.counter + 1; !this.counter}
+get_term_context = { | () -> !this.term_context}
+set_term_context = { fun nm -> this.term_context = nm}
+
+static make = { | (ctr,ctxt,sub,a,f) -> 
+  let res = new ExpressionContext in 
+  res.counter = ctr;
+  res.term_context = ctxt;
+  res.substitution = sub;
+  res.avoided = a;
+  res.fixed = f;
+  res
+}
+
+static make1 = { fun sub -> 
+  let res = new ExpressionContext in 
+  res.counter = 0;
+  res.term_context = [];
+  res.substitution = sub;
+  res.avoided = [];
+  res.fixed = [];
+  res
+}
+
+add2term_context = { fun x ty -> this.set_term_context(Cons (x,ty) (this.get_term_context())) }
+
+find_type = { fun (x:Variable) -> 
+  let rec (ft: List (Variable * Type) -> Maybe Type) = 
+  | [] -> None 
+  | Cons (v,ty) gamma -> if v == x then Some ty else ft gamma 
+  in 
+  ft (this.get_term_context())
+}
+
+
+delete_type = { fun (x:Variable) -> 
+  let rec (dt: List (Variable * Type) ->  List (Variable * Type)) = 
+  | [] -> [] 
+  | Cons (v,ty) gamma -> if v == x then gamma else (Cons (v,(ty:Type)) (dt gamma))
+  in 
+  this.set_term_context(dt (this.get_term_context()))
+}
+
+with Variable.free += | (x:ExpressionContext) -> 
+  let sub = x.get_substitution() in 
+  let aux vs = | (_,ty) -> append (Variable.free ty) vs in 
+  let context_vars = foldleft aux [] (x.get_term_context()) in 
+  let (aux2: List Variable -> Variable -> List Variable) vs v = 
+  match sub.search(v) with 
+  | None -> Cons v vs 
+  | Some ty -> append (Variable.free(ty.applySub(sub))) vs 
+  in 
+  foldleft aux2 [] context_vars 
+
+}
+
+
+
+(* tests 
+
+let x = TypeVariable.next();;
+let y = TypeVariable.next();;
+
+let ctxt0 = Context.make (Context.idSub,[],[]);;
+let ctxt1 = Context.make (Context.idSub,[x.get_variable()],[]);;
+let ctxt2 = Context.make (Context.idSub,[],[x.get_variable()]);;
+
+
+
+
+
+let ctxt0 = Context.make (Context.idSub,[],[]);;
+
+
+x.applySub(ctxt0.get_substitution()) == y;;
+
+
+
+
+*)

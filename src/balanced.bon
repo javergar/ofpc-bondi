@@ -1,0 +1,1 @@
+datatype Balanced a = Leaf of a | Node of Balanced a * Balanced a
