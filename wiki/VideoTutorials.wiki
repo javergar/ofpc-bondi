@@ -5,3 +5,8 @@
 == Installing svn ==
 
 <wiki:video url="http://www.youtube.com/watch?v=gNR7uMOnlg4"/>
+
+
+More videos coming soon on:
+ * Parsing
+ * Building class stubs
