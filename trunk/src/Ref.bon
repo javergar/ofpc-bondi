@@ -1,0 +1,23 @@
+class REF extends Operator {
+exp : Ref a;;
+static make =  { fun val-> (REF.make val) } 
+static parser = { ((stx_parser "Ref") .>>  Expression.parser) .>>= (fun x -> ret (REF.make x)) }
+(*
+type_scheme = { |() -> 
+  let x = TypeVariable.next() in 
+  let y = TypeVariable.next() in 
+  QuantifiedType.make (x.get_variable(),
+  (QuantifiedType.make (y.get_variable(),
+    FunctionType.make2 (x,y,x) 
+)))
+}
+reduce = { |() -> match this.get_arguments() with 
+  | (Cons x (Cons y args)) -> Some (x.apply args)
+  | _ -> None
+}
+*)
+
+headString = { |() -> "SW" }
+with Expression.simpleParser += | view(REF.parser,Parsed ps) -> Parsed ps
+}
+
