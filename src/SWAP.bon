@@ -1,0 +1,19 @@
+class SWAP extends Operator {
+static make =  { fun args -> Expression.make (new SWAP) args } 
+static parser = { (stx_parser "SWAP") .>>  ret (SWAP.make []) }
+type_scheme = { |() -> 
+  let x = TypeVariable.next() in 
+  let y = TypeVariable.next() in 
+  let f = FunctionType.make2 (x,x,y) in 
+  QuantifiedType.make (x.get_variable(), 
+  (QuantifiedType.make (y.get_variable(), 
+   FunctionType.make3(f,x,x,y)
+)))
+}
+reduce = { |() -> match this.get_arguments() with 
+  | (Cons f (Cons x (Cons y args))) -> Some (f.apply (Cons y (Cons x args)))
+  | _ -> None
+}
+headString = { |() -> "SWAP" }
+with Expression.simpleParser += | view(SWAP.parser,Parsed ps) -> Parsed ps
+}
