@@ -1,0 +1,16 @@
+class Boolean_wildcard extends Boolean {
+
+  (* Making *)
+  static make = {
+    fun x -> let boolean_wildcard = new Boolean_wildcard in
+    boolean_wildcard.value = x;
+    boolean_wildcard
+  }
+  
+  (* Parsing *)
+  static parser = {
+    (stx_parser "_Bool") .>>=
+    ( fun x -> ret (Boolean_wildcard.make _) )
+  }
+
+}

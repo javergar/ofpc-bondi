@@ -1,0 +1,17 @@
+class If_Statement extends Expression {
+
+  (* Making *)
+  static make = { fun args -> Expression.make (new If_Statement) args }
+
+  (* Parsing *)
+  static parser = {
+    (stx_parser "if") .>>
+    (Expression.parser .>>= (fun exp1 ->
+    (stx_parser "then") .>>
+    (Expression.parser .>>= (fun exp2 ->
+    (stx_parser "else") .>>
+    (Expression.parser .>>= (fun exp3 ->
+    ret (If_Statement.make [exp1,exp2,exp3])))))))
+  }  
+
+}

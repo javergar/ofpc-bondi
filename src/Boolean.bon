@@ -1,0 +1,21 @@
+class Boolean extends Expression {
+
+  value: Bool;
+  get_value = { | () -> !this.value}
+
+  (* Making *)
+  static make = {
+    fun x -> let boolean = new Boolean in
+    boolean.value = x;
+    boolean
+  }
+
+  (* Parsing *)
+  static parser = {
+    (stx_parser "True" .<|> stx_parser "False") .>>= ( fun x ->
+       match x with
+       | "True" -> ret (Boolean.make True)
+       | "False" -> ret (Boolean.make False) )
+  }
+
+}
