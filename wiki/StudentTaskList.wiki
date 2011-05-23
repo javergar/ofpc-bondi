@@ -5,19 +5,19 @@ This page lists tasks that were allocated to individual or groups of students on
 
 *Float* -  Ivan
 
-*Alpha* -  Danny
+*Alphabets Chars+Strings* -  Danny
 
 *Let-terms* -  Le
 
 *Dynamic patterns* - Ayta
 
-*References + arrays* - Anh + Jaden
+*References + arrays* - Anh + Jonathan
 
 *Sockets* -  Adi
 
-*Shell Actions + Let deductions* - Eric
+*Shell Actions + Let declarations* - Eric
 
-*Linear* - Ninh
+*Linear declarations* - Minh
 
 *Type synonyms* - Jason
 
@@ -27,14 +27,18 @@ This page lists tasks that were allocated to individual or groups of students on
 
 *Context* - Jose + Barry
 
-*Hash tables* - Li Hai
+*Hash tables* - Lihan Li
 
-*BST* - Gustav
+*BST* - Gustavo
 
 *Auxilaries* - Yufeng
 
-*Garbage collection* - Bernard
+*Context* - Bernard
 
 *Auxilaries* - Yu
+
+*Boolean + Conditional* * - Jing Jin
+
+*Trailer* - Thi
 
 *Integration + Testing* - Raza 
