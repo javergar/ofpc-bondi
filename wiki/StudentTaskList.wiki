@@ -1,0 +1,40 @@
+#labels Featured
+This page lists tasks that were allocated to individual or groups of students on 16-May-2005. Allocated by Barry, recorded by Jose.
+
+*Int* - Frank
+
+*Float* -  Ivan
+
+*Alpha* -  Danny
+
+*Let-terms* -  Le
+
+*Dynamic patterns* - Ayta
+
+*References + arrays* - Anh + Jaden
+
+*Sockets* -  Adi
+
+*Shell Actions + Let deductions* - Eric
+
+*Linear* - Ninh
+
+*Type synonyms* - Jason
+
+*Datatype* - Luka
+
+*Class declarations* -Joan
+
+*Context* - Jose + Barry
+
+*Hash tables* - Li Hai
+
+*BST* - Gustav
+
+*Auxilaries* - Yufeng
+
+*Garbage collection* - Bernard
+
+*Auxilaries* - Yu
+
+*Integration + Testing* - Raza 
