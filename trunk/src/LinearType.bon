@@ -1,0 +1,110 @@
+class LinearType extends Type {
+linArgumentType: Type;
+
+get_linArgumentType = { | () -> !this.linArgumentType}
+
+static make = { | ty1 ->
+  let res = new LinearType in 
+  res.linArgumentType = ty1;
+  (res:Type)
+}
+
+(*
+static make = { | (ty1,ty2) ->
+  let res = new LinearType in 
+  res.argumentType = ty1;
+  res.resultType = ty2;
+  (res:Type)
+}
+
+static make2 = { |(ty1,ty2,ty3) ->
+FunctionType.make (ty1,(FunctionType.make (ty2,ty3)))
+}
+static make3 = { |(ty1,ty2,ty3,ty4)->
+FunctionType.make (ty1,(FunctionType.make2 (ty2,ty3,ty4)))
+}
+
+
+static discontinuous parser = { 
+  Type.simpleParser .>>=    
+ (fun ty1 -> ((stx_parser "- >") .>>     (*stx_parser must use white space to parse tokens!! *)
+  Type.parser) .>>= 
+ (fun ty2 -> ret (FunctionType.make (ty1,ty2))))
+}
+*)
+
+static discontinuous parser = { 
+((stx_parser "lin") .>> Type.parser) .>>= (fun x -> ret (LinearType.make (x)))
+}
+
+
+(*   Type.simpleParser .>>= 
+applySub = { fun sub ->
+  FunctionType.make(this.get_argumentType().applySub(sub), 
+		      this.get_resultType().applySub(sub))
+}
+
+static subunify_apply  = { fun ctxt -> 
+| None -> (| _ -> None)
+| Some fty -> 
+  begin
+  | None -> None 
+  | Some argty -> 
+	let x = TypeVariable.next() in 
+	let y = TypeVariable.next() in 
+	let fty2 = FunctionType.make(x,y) in 
+	match ctxt.subunify_clean (fty,fty2)  with 
+	| None -> None 
+	| Some fty3 -> 
+		match ctxt.subunify_clean (argty,x) with 
+		| None -> None 
+		| Some _ -> Some (y.applySub(ctxt.get_substitution()))
+	
+  end 
+}
+
+
+with Type.parser += | view(FunctionType.parser,Parsed ps) -> (Parsed ps)
+and Context.subunify += | (ty1:FunctionType,(ty2:FunctionType)) -> 
+ 	let ty11 = ty1.get_argumentType() in 
+	let ty12 = ty1.get_resultType() in 
+	let ty21 = ty2.get_argumentType() in 
+	let ty22 = ty2.get_resultType() in 
+	fun ctxt -> 
+	begin
+	match Context.subunify (ty21,ty11) ctxt with
+	| None -> None
+	| Some ty31 -> 
+	   match ctxt.subunify_clean (ty12,ty22)  with
+	   | None -> None
+	   | Some ty32 -> Some (FunctionType.make (ty31.applySub(ctxt.get_substitution()), ty32))
+	end
+
+and equal += | (x:FunctionType,y:FunctionType) -> 
+	x.get_argumentType() == y.get_argumentType() && 
+	x.get_resultType() == y.get_resultType() 
+
+and  toString += | (x:linearType) -> 
+  "(" ^ toString(x.get_argumentType()) ^ " -> " ^ (toString(x.get_resultType())) ^ ")" 
+}
+*)
+
+headString = { |() -> "LinearType" }
+with Type.simpleParser += | view(LinearType.parser,Parsed ps) -> Parsed ps
+}
+
+(** tests 
+
+
+let x = TypeVariable.next();;
+let y = TypeVariable.next();;
+
+let ctxt0 = Context.make (Context.idSub,[],[]);;
+let ctxt1 = Context.make (Context.idSub,[x.get_variable()],[]);;
+let ctxt2 = Context.make (Context.idSub,[],[x.get_variable()]);;
+
+
+
+
+*)
+
