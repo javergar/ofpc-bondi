@@ -1,0 +1,29 @@
+(*
+	Component of: Let.bon
+	contain <let_status> parser
+*)
+
+class LetStatus {
+
+(* Make *)
+status:String;
+
+static make = { fun x -> let let_status = new LetStatus in 
+                         let_status.status = x;let_status
+              }
+
+
+(* let_status parser - ext - rec - discontinuos - linear - method *)
+static discontinuous parser = { 
+	(((((stx_parser "ext") 
+	.<|> 
+	(stx_parser "rec")) 
+	.<|> 
+	(stx_parser "discontinuos")) 
+	.<|> 
+	(stx_parser "linear")) 
+	.<|> 
+	(stx_parser "method")) .>>= (fun x -> ret (LetStatus.make x))
+}
+
+}
