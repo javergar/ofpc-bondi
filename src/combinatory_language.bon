@@ -26,6 +26,9 @@
     %open "K_operator.bon";; 	(*       | K   	*)
     %open "Y_operator.bon";; 	(*       | Y   	*)
 
+    %open "DatumOperator.bon" ;;(* o += | d  *) 
+      %open "Integer.bon" ;;    (* d += | i  *) 
+
 
   	(** Adding term variables (and their types **) 
 

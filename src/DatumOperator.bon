@@ -1,0 +1,4 @@
+(* barry did one line here  *)
+
+class DatumOperator extends Operator {}
+

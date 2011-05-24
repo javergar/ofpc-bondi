@@ -1,0 +1,38 @@
+
+(* Barry did the parser    static parser = {
+
+	| (i,toks) -> 
+   	   match entry(toks,i) with 
+   	   | IntToken x -> Parsed (i+1, Integer.make (string2int x))
+    	   | _ -> NotParsed
+	}
+}
+
+*) 
+
+
+
+class Integer extends DatumOperator {
+
+value: Int;
+get_value = { | () -> !this.value}
+
+(* Making *)
+   static make = {
+      fun x -> let res = new Integer in
+      res.value = x;
+      res
+   }
+
+
+
+(*Parsing*)
+   static parser = {
+
+	| (i,toks) -> 
+   	   match entry(toks,i) with 
+   	   | IntToken x -> Parsed (i+1, Integer.make (string2int x))
+    	   | _ -> NotParsed
+	}
+}
+
