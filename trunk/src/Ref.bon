@@ -1,23 +1,26 @@
 class REF extends Operator {
-exp : Ref a;;
-static make =  { fun val-> (REF.make val) } 
-static parser = { ((stx_parser "Ref") .>>  Expression.parser) .>>= (fun x -> ret (REF.make x)) }
-(*
+exp: ref Expression;
+static make =  { fun val args -> 
+	let res = new REF in
+	res.exp = Ref val;
+	Expression.make res args
+} 
+static parser =  { ((stx_parser "Ref") .>>  Expression.parser) .>>= (fun x -> ret (REF.make x [])) }
+
+
 type_scheme = { |() -> 
-  let x = TypeVariable.next() in 
-  let y = TypeVariable.next() in 
-  QuantifiedType.make (x.get_variable(),
-  (QuantifiedType.make (y.get_variable(),
-    FunctionType.make2 (x,y,x) 
-)))
+  let x = TypeVariable.next() in
+  QuantifiedType.make (x.get_variable(),FunctionType.make (FunctionType.make(x,x), x))
 }
-reduce = { |() -> match this.get_arguments() with 
-  | (Cons x (Cons y args)) -> Some (x.apply args)
+
+reduce = {  |() -> match this.get_arguments() with 
+  | (Cons x args) -> Some (x.apply args)
   | _ -> None
 }
-*)
 
-headString = { |() -> "SW" }
+headString = { |() -> "Ref" }
 with Expression.simpleParser += | view(REF.parser,Parsed ps) -> Parsed ps
 }
+(* get_result (Expression.parser(0, lexer "Ref X"));; *)
+(* Expression.parse "Ref x";; *)
 
