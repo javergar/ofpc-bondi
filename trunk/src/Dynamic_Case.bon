@@ -1,0 +1,31 @@
+class Dynamic_Case extends Case {
+pattern : Expression;
+body: Expression ;
+get_pattern = { | () -> !this.pattern}
+get_body = { | () -> !this.body}
+static make = { | (pat,bdy) -> 
+  let res = new Case in 
+  res.pattern = pat;
+  res.body = bdy;
+  Expression.make res 
+} 
+
+static extension =  { | (pat,body,default) ->  Case.make (pat,body) [default] }
+
+static discontinuous parser = { 
+let rec p plist = 
+((Variable.parser) .>>= 
+                         (fun var -> println (toString var);
+                         (stx_parser ",") .>> (p (append plist [var]))))
+.<|> 
+(Variable.parser .>>= (fun x -> (ret (append plist [x]))))
+in
+(stx_parser "|") .>> 
+(stx_parser "{") .>>
+(p []) .>>
+(stx_parser "}") .>> (
+Expression.parser .>>= (fun pat -> 
+(stx_parser "- >") .>> (
+ Expression.parser)) .>>= (fun default -> 
+ret (Case.make (pat,bdy) [default]))))))
+}
