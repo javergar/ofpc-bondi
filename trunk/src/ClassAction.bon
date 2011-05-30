@@ -1,0 +1,25 @@
+class ClassAction extends ShellAction {
+
+
+(* getting and making *)
+name: String;
+get_name = { | () -> !this.name }
+static make = { | (x:String) ->
+    let res = new ClassAction in
+        res.name = x;
+        res
+}
+
+
+(* parsing *)
+
+
+static discontinuous parser = {
+    (stx_parser "class") .>> (parseUpperCase .>>= (fun cname -> 
+        (stx_parser "{ }") .>> (ret (ClassAction.make cname))))
+}
+
+headString = { |() -> "class" }
+with ShellAction.parser += | view(ClassAction.parser, Parsed ps) -> Parsed ps
+
+}
