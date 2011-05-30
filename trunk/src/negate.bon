@@ -2,12 +2,16 @@ class Negate extends DatumOperator {
 static make =  { fun args -> Expression.make (new Negate) args } 
 static parser = { (stx_parser "negate") .>>  (ret (Negate.make []))}
 type_scheme = { |() -> 
-    FunctionType.make3 (IntTy,IntTy,IntTy) 
+    FunctionType.make2 (IntType.make(),IntType.make(),IntType.make())
 }
 reduce = { |() -> match this.get_arguments() with 
-  | (Cons x (Cons y args)) -> Some (Cons (x negateint y) args)
-  | _ -> None
+  ((| (Cons x args) -> Some (Integer.make (negateint (x.get_int_value())) args)
+    | _ -> None) : List Expression -> Maybe Expression)
 }
 headString = { |() -> "negate" }
 with Expression.simpleParser += | view(Negate.parser,Parsed ps) -> Parsed ps
 }
+
+
+let t1 = Expression.parse "negate 5";;
+t1.eval();;

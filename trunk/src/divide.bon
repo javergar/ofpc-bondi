@@ -2,12 +2,16 @@ class Divide extends DatumOperator {
 static make =  { fun args -> Expression.make (new Divide) args } 
 static parser = { (stx_parser "divide") .>>  (ret (Divide.make []))}
 type_scheme = { |() -> 
-    FunctionType.make3 (IntTy,IntTy,IntTy) 
+    FunctionType.make2 (IntType.make(),IntType.make(),IntType.make()) 
 }
 reduce = { |() -> match this.get_arguments() with 
-  | (Cons x (Cons y args)) -> Some (Cons (x divideint y) args)
-  | _ -> None
+  ((| (Cons x (Cons y args)) -> Some (Integer.make ((x.get_int_value()) divideint (y.get_int_value())) args)
+    | _ -> None) : List Expression -> Maybe Expression)
 }
 headString = { |() -> "divide" }
 with Expression.simpleParser += | view(Divide.parser,Parsed ps) -> Parsed ps
 }
+
+
+let t1 = Expression.parse "divide 5 5";;
+t1.eval();;
