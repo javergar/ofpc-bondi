@@ -12,11 +12,9 @@ static make = { | (x:String) ->
 
 
 (* parsing *)
-
-
 static discontinuous parser = {
     (stx_parser "class") .>> (parseUpperCase .>>= (fun cname -> 
-        (stx_parser "{ }") .>> (ret (ClassAction.make cname))))
+        (stx_parser "{") .>> ((stx_parser "}") .>> (ret (ClassAction.make cname)))))
 }
 
 headString = { |() -> "class" }
