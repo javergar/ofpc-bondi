@@ -1,0 +1,13 @@
+class Greatthan extends DatumOperator {
+static make =  { fun args -> Expression.make (new Greatthan) args } 
+static parser = { (stx_parser "greatthan") .>>  (ret (Greatthan.make []))}
+type_scheme = { |() -> 
+    FunctionType.make3 (IntTy,IntTy,IntTy) 
+}
+reduce = { |() -> match this.get_arguments() with 
+  | (Cons x (Cons y args)) -> Some (Cons (greatthan (x,y) args)
+  | _ -> None
+}
+headString = { |() -> "greatthan" }
+with Expression.simpleParser += | view(Greatthan.parser,Parsed ps) -> Parsed ps
+}

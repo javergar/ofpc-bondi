@@ -1,0 +1,13 @@
+class Greatthanorequal extends DatumOperator {
+static make =  { fun args -> Expression.make (new Greatthanorequal) args } 
+static parser = { (stx_parser "greatthanorequal") .>>  (ret (Greatthanorequal.make []))}
+type_scheme = { |() -> 
+    FunctionType.make3 (IntTy,IntTy,IntTy) 
+}
+reduce = { |() -> match this.get_arguments() with 
+  | (Cons x (Cons y args)) -> Some (Cons (greatthanorequal (x,y) args)
+  | _ -> None
+}
+headString = { |() -> "greatthanorequal" }
+with Expression.simpleParser += | view(Greatthanorequal.parser,Parsed ps) -> Parsed ps
+}

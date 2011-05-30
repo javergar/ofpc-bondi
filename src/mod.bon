@@ -1,0 +1,13 @@
+class Mod extends DatumOperator {
+static make =  { fun args -> Expression.make (new Mod) args } 
+static parser = { (stx_parser "mod") .>>  (ret (Mod.make []))}
+type_scheme = { |() -> 
+    FunctionType.make3 (IntTy,IntTy,IntTy) 
+}
+reduce = { |() -> match this.get_arguments() with 
+  | (Cons x (Cons y args)) -> Some (Cons (x modint y) args)
+  | _ -> None
+}
+headString = { |() -> "mod" }
+with Expression.simpleParser += | view(Mod.parser,Parsed ps) -> Parsed ps
+}

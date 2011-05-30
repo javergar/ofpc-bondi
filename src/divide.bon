@@ -1,0 +1,13 @@
+class Divide extends DatumOperator {
+static make =  { fun args -> Expression.make (new Divide) args } 
+static parser = { (stx_parser "divide") .>>  (ret (Divide.make []))}
+type_scheme = { |() -> 
+    FunctionType.make3 (IntTy,IntTy,IntTy) 
+}
+reduce = { |() -> match this.get_arguments() with 
+  | (Cons x (Cons y args)) -> Some (Cons (x divideint y) args)
+  | _ -> None
+}
+headString = { |() -> "divide" }
+with Expression.simpleParser += | view(Divide.parser,Parsed ps) -> Parsed ps
+}
