@@ -1,6 +1,0 @@
-class UnitTy extends TyConstant {
-static make =  { TyConstant.make (new UnitTy) "Unit" } 
-static parser = { parseUpper "Unit" (UnitTy.make) }
-with Type.parser += | view(UnitTy.parser,Parsed ps) -> Parsed ps
-}
-
