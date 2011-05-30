@@ -65,6 +65,14 @@
   %open "Shell.bon";;
 
 
+ %open "TypeConstant.bon";;
+   %open "UnitType.bon";;
+   %open "IntType.bon";;
+   %open "FloatType.bon";;
+   %open "BoolType.bon";;
+
+
+
 
 
 (* tests code
