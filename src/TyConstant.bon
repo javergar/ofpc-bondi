@@ -1,0 +1,10 @@
+class TyConstant extends Type {
+tyName : String;
+static make =  { fun (tyc:TyConstant) name -> tyc.tyName = name; tyc } 
+getName = {|() -> !this.tyName }
+with equal += | (x:TyConstant,y:TyConstant) -> x.getName() == y.getName() 
+and toString += |(x:TyConstant) -> x.getName()
+}
+
+
+
