@@ -5,7 +5,7 @@ static make =  { fun val args ->
 	res.exp = Ref val;
 	Expression.make res args
 } 
-static parser =  { ((stx_parser "Ref") .>>  Expression.parser) .>>= (fun x -> ret (REF.make x [])) }
+static parser =  { ((stx_parser "Ref") .>>  (Expression.parser .>>= (fun x -> ret (REF.make x [])))) }
 
 
 type_scheme = { |() -> 
