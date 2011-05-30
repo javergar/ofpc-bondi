@@ -1,0 +1,28 @@
+class Float extends DatumOperator {
+float_value: float;
+get_float_value = { |() -> !this.float_value}
+
+(* Making *)
+   static make = {
+      fun x args -> let res = new Float in
+      res.float_value = x;
+       Expression.make (res) args
+   }
+
+(* Parsing *)
+   static parser = { fun args ->
+     match fetch_token args with
+     | Some (FloatToken x) -> Parsed ((fst args) +1, Float.make (string2float x) [])
+     | _ -> NotParsed
+       }
+headString = { |() -> "it: Float it = "^(toString (this.get_float_value())) }
+with Expression.simpleParser += | view(Integer.parser,Parsed ps) -> Parsed ps
+}
+
+
+
+
+
+
+
+
