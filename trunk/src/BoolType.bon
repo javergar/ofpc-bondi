@@ -1,0 +1,6 @@
+class BoolType extends TypeConstant {
+static make =  { | () ->  TypeConstant.make (new BoolType) "Bool" } 
+static parser = { parseUpper "Bool" (BoolType.make()) }
+with Type.parser += | view(BoolType.parser,Parsed ps) -> Parsed ps
+}
+

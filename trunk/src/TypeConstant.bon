@@ -1,9 +1,9 @@
-class TyConstant extends Type {
+class TypeConstant extends Type {
 tyName : String;
-static make =  { fun (tyc:TyConstant) name -> tyc.tyName = name; tyc } 
+static make =  { fun (tyc:TypeConstant) name -> tyc.tyName = name; tyc } 
 getName = {|() -> !this.tyName }
-with equal += | (x:TyConstant,y:TyConstant) -> x.getName() == y.getName() 
-and toString += |(x:TyConstant) -> x.getName()
+with equal += | (x:TypeConstant,y:TypeConstant) -> x.getName() == y.getName() 
+and toString += |(x:TypeConstant) -> x.getName()
 }
 
 

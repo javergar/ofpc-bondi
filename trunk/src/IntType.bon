@@ -1,0 +1,6 @@
+class IntType extends TypeConstant {
+static make =  { |() -> TypeConstant.make (new IntType) "Int" } 
+static parser = { parseUpper "Int" (IntType.make()) }
+with Type.parser += | view(IntType.parser,Parsed ps) -> Parsed ps
+}
+

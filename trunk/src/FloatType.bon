@@ -1,0 +1,6 @@
+class FloatType extends TypeConstant {
+static make =  { | () ->  TypeConstant.make (new FloatType) "Float" } 
+static parser = { parseUpper "Int" (FloatType.make()) }
+with Type.parser += | view(FloatType.parser,Parsed ps) -> Parsed ps
+}
+
