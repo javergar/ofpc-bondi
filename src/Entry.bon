@@ -1,0 +1,33 @@
+class Entry extends Operator {
+exp1: Expression;
+exp2: Expression;
+static make =  { fun val1 val2 args -> 
+	let res = new Entry in
+	res.exp1 = val1;
+	res.exp2 = val2;
+	Expression.make res args
+} 
+
+static parser =  { (stx_parser "entry") .>> (Expression.parser .>>= (fun x -> (Expression.parser .>>= (fun y -> (ret (Entry.make x y [])))))) }
+
+
+
+(*
+type_scheme = { |() -> 
+  let x = TypeVariable.next() in
+  QuantifiedType.make (x.get_variable(),FunctionType.make (FunctionType.make(x,x), x))
+}
+
+reduce = {  |() -> match this.get_arguments() with 
+  | (Cons x args) -> Some (x.apply args)
+  | _ -> None
+}
+*)
+
+headString = { |() -> "entry" }
+with Expression.simpleParser += | view(Entry.parser,Parsed ps) -> Parsed ps
+
+}
+(* get_result (Expression.parser(0, lexer "entry X y"));; *)
+(* Expression.parse "entry x y";; *)
+
