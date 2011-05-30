@@ -85,8 +85,5 @@ let ctxt0 = Context.make (Context.idSub,[],[]);;
 let ctxt1 = Context.make (Context.idSub,[x.get_variable()],[]);;
 let ctxt2 = Context.make (Context.idSub,[],[x.get_variable()]);;
 
-
-
-
 *)
 

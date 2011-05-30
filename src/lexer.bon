@@ -178,6 +178,9 @@ let parseUpper str  = parseOne (UpperCaseIdentToken str) ;;
 
 let parseAnyLowerCase x = parseApplyOne LowerCaseIdentToken x;;
 
+let parseAnyUpperCase = parseApplyOne UpperCaseIdentToken _;;
+
+
 let  (parseMany : (ParserArgument -> ParserResult a) -> ParserArgument -> ParserResult (List a)) p args = 
 let rec (pm: (ParserArgument -> ParserResult a) -> List a -> ParserArgument -> ParserResult (List a)) 
 	p es args = 
