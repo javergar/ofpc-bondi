@@ -1,0 +1,52 @@
+(*
+    This file requires:
+        LetBinding.bon
+        LetStatus.bon
+    contain <let_exp> parser, <binding_list> parser
+
+*)
+
+class Let extends ShellAction {
+
+
+binding: Binding;
+body: Maybe Expression;
+binding_list: List Binding;
+let_status:Maybe LetStatus;
+(* Make *)
+static make = { fun binding_list_rs bdy ->
+        let let_action = new Let in 
+        let_action.binding_list = binding_list_rs;          
+        let_action.body = bdy;
+        let_action
+              }
+
+static make1 = { fun let_stat binding_res bdy ->
+        let let_action = new Let in 
+        let_action.let_status = let_stat;
+        let_action.binding = binding_res;          
+        let_action.body = bdy;
+        let_action
+              }
+
+(* Parser *)
+
+static discontinuous binding_list_parser = {
+let rec blist_parser blist =
+(Binding.parser .>>= (fun var -> println (toString var);
+        (stx_parser ",") .>> (blist_parser (append blist [var]))))
+.<|> 
+(Binding.parser .>>= (fun x -> (ret (append blist [x]))))
+ in
+blist_parser
+}
+
+(* (p1 .>>= (fun x -> Let.make  )  .<|>  (p2 .>>= (fun x -> Let.make  ) *)
+
+static discontinuous parser = { 
+        (((stx_parser "let") .>> LetStatus.parser) .>>= (fun let_stat ->  (Binding.parser) .>>= (fun binding_res -> (stx_parser "in" .>> Expression.parser) .>>= (fun bdy -> (ret (Let.make1 (Some let_stat) binding_res (Some bdy))))))) .<|> 
+        (((stx_parser "let") .>> (Let.binding_list_parser [])) .>>= (fun binding_list_rs -> (stx_parser "in" .>> Expression.parser) .>>= (fun body -> (ret (Let.make binding_list_rs (Some body))))))
+}
+
+}
+
