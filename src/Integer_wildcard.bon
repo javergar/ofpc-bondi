@@ -1,0 +1,15 @@
+class Integer_wildcard extends Integer {
+
+(* Making *)
+   static make = { (| () -> 
+       Expression.make (new Integer_wildcard) args 
+   }
+
+(* Parsing *)
+   static parser = {
+      (stx_parser "_Int") .>>=
+      (fun x -> ret (Integer_wildcard.make() ))
+   }
+headString = { |() -> "it: Int it = _Int" }
+with Expression.simpleParser += | view(Integer_wildcard.parser,Parsed ps) -> Parsed ps
+}
