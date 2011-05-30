@@ -1,0 +1,13 @@
+class Plus extends DatumOperator {
+static make =  { fun args -> Expression.make (new Plus) args } 
+static parser = { (stx_parser "plus") .>>  (ret (Plus.make []))}
+type_scheme = { |() -> 
+    FunctionType.make3 (IntTy,IntTy,IntTy) 
+}
+reduce = { |() -> match this.get_arguments() with 
+  | (Cons x (Cons y args)) -> Some (Cons (x plusint y) args)
+  | _ -> None
+}
+headString = { |() -> "plus" }
+with Expression.simpleParser += | view(Plus.parser,Parsed ps) -> Parsed ps
+}

@@ -1,0 +1,14 @@
+class Minus extends DatumOperator {
+static make =  { fun args -> Expression.make (new Minus) args } 
+static parser = { (stx_parser "minus") .>>  (ret (Minus.make []))}
+type_scheme = { |() -> 
+    FunctionType.make3 (IntTy,IntTy,IntTy) 
+)))
+}
+reduce = { |() -> match this.get_arguments() with 
+  | (Cons x (Cons y args)) -> Some (Cons (x minusint y) args)
+  | _ -> None
+}
+headString = { |() -> "minus" }
+with Expression.simpleParser += | view(Minus.parser,Parsed ps) -> Parsed ps
+}

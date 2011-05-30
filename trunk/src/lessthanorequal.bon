@@ -1,0 +1,13 @@
+class Lessthanorequal extends DatumOperator {
+static make =  { fun args -> Expression.make (new Lessthanorequal) args } 
+static parser = { (stx_parser "lessthanorequal") .>>  (ret (Lessthanorequal.make []))}
+type_scheme = { |() -> 
+    FunctionType.make3 (IntTy,IntTy,IntTy) 
+}
+reduce = { |() -> match this.get_arguments() with 
+  | (Cons x (Cons y args)) -> Some (Cons (lessthanorequal (x,y) args)
+  | _ -> None
+}
+headString = { |() -> "lessthanorequal" }
+with Expression.simpleParser += | view(Lessthanorequal.parser,Parsed ps) -> Parsed ps
+}

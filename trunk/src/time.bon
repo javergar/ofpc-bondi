@@ -1,0 +1,14 @@
+class Time extends DatumOps {
+static make =  { fun args -> Expression.make (new Time) args } 
+static parser = { (stx_parser "time") .>>  (ret (Time.make []))}
+type_scheme = { |() -> 
+    FunctionType.make3 (IntTy,IntTy,IntTy) 
+)))
+}
+reduce = { |() -> match this.get_arguments() with 
+  | (Cons x (Cons y args)) -> Some (Cons (x timesint y) args)
+  | _ -> None
+}
+headString = { |() -> "time" }
+with Expression.simpleParser += | view(Time.parser,Parsed ps) -> Parsed ps
+}
