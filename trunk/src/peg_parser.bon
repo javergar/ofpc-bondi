@@ -178,6 +178,17 @@ match fetch_token args with
 
 let parseUpper str  = parseOne (UpperCaseIdentToken str) ;;
 
+let elim = fun (x: lin (a -> b)) -> |{y} x y -> y;;
+
+let parseOne (x: lin (a -> b)) (args:ParserArgument) =
+match fetch_token args with
+((|{y} Some y -> Parsed(fst args +1,elim x y)
+ | _ -> NotParsed
+): Maybe a1 -> ParserResult b1)
+;;
+
+let parseUpperCase = (parseOne UpperCaseIdentToken);;
+
 let parseAnyLowerCase x = parseApplyOne LowerCaseIdentToken x;;
 
 let  (parseMany : (ParserArgument -> ParserResult a) -> ParserArgument -> ParserResult (List a)) p args = 
