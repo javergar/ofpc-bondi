@@ -4,7 +4,7 @@ static make = { | () -> new Trailer}
 
 actions:List ShellAction;
 
-static parser = { ((stx_parser "with") .>> ShellAction.parser)
+static parser = { ((stx_parser "with") .>> ShellAction.parser);
 parseMany ((stx_parser "and") .>> ShellAction.parser) }
 
 
