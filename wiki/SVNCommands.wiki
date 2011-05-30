@@ -1,0 +1,19 @@
+= Basic SVN Commands.=
+
+Some students were having trouble with SVN so here are a few basic commands.
+
+
+Adding a new file -- svn add filename.bon
+
+Deleting a file -- svn delete filename.bon
+
+Updating svn on YOUR machine --svn update
+
+Committing -- 
+After you do any of the above, to make the changes permanent you need to commit.  svn commit -m "Added filename.c"
+
+I'm not a pro at this so if anyone wants to add/change something go ahead.
+
+For a detailed explanation of the commands please visit
+
+http://www.linuxfromscratch.org/blfs/edguide/chapter03.html
