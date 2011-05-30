@@ -1,0 +1,36 @@
+class Binding {
+ parameter: Expression;
+ simple_expression: Maybe (List Expression);
+ body: Expression;
+
+(* Make *)
+static make = { fun param simex bdy ->
+		let binding = new Binding in 
+		binding.parameter = param;
+		binding.simple_expression = simex;
+		binding.body = bdy;
+		binding
+               }
+
+(* Parser *)
+
+
+static discontinuous param_parser = {
+let param_parser1 = 
+	(ExpressionVariable.parser .<|> TypedExpressionVariable.parser) in
+let param_parser2 = param_parser1 .<|> (( lparen .>> param_parser1)  .>>= (fun x -> rparen .>> ret x))
+in
+param_parser2
+}
+
+
+static discontinuous parser = {
+	((Binding.param_parser ) .>>= (fun x -> 
+	parseMany(Expression.simpleParser) .>>= (fun y -> 
+	(stx_parser "=" .>> Expression.parser) .>>= (fun z -> 
+         (match y with
+         | Nil -> ret (Binding.make x None z)
+         | _ -> ret (Binding.make x (Some y) z))
+	))))
+}
+}
