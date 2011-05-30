@@ -12,6 +12,12 @@ class If_Statement extends Expression {
     (stx_parser "else") .>>
     (Expression.parser .>>= (fun exp3 ->
     ret (If_Statement.make [exp1,exp2,exp3])))))))
-  }  
+  }
 
+  (* Typing *)
+
+  (* Evaluation *)
+
+  (* Printing *)
+  
 }
