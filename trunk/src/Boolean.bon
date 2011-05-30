@@ -5,9 +5,9 @@ class Boolean extends Expression {
 
   (* Making *)
   static make = {
-    fun x -> let boolean = new Boolean in
-    boolean.value = x;
-    boolean
+    fun x -> let b = new Boolean in
+    b.value = x;
+    Expression.make b []
   }
 
   (* Parsing *)
@@ -17,5 +17,25 @@ class Boolean extends Expression {
        | "True" -> ret (Boolean.make True)
        | "False" -> ret (Boolean.make False) )
   }
+
+  (* Typing *)
+  infer_type_head =  { ((fun ctxt ty -> Some (BoolType.make())): Context  -> Type -> Maybe Type) }
+
+  (* Printing *)
+  headString = { |() -> (toString ( this.get_value() ))
+  }
+  with Expression.simpleParser += | view(Boolean.parser, Parsed ps) -> Parsed ps
+
+
+  (* Testing
+  
+  let parse = Expression.parse;;
+  let ctxt0 = Context.make1 (TypeVariable.idSub);;
+
+  parse "True";;
+  parse "True".infer_type(ctxt0) (TypeVariable.next());;
+  parse "False".infer_type(ctxt0) (TypeVariable.next());;
+
+  *)
 
 }
