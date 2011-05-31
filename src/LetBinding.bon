@@ -1,3 +1,9 @@
+(*
+	Component of: Let.bon
+	contain <binding> and <parameter> parser
+*)
+
+
 class Binding {
  parameter: Expression;
  simple_expression: Maybe (List Expression);
@@ -13,7 +19,9 @@ static make = { fun param simex bdy ->
                }
 
 (* Parser *)
-
+(* <parameter> is a recursive parser, param_parser1 is the first part
+	of the parser body, param_parser2 is where the recursive happen
+ *)
 
 static discontinuous param_parser = {
 let param_parser1 = 
@@ -23,7 +31,7 @@ in
 param_parser2
 }
 
-
+(* <binding> will require the <parameter> parser as defined above *)
 static discontinuous parser = {
 	((Binding.param_parser ) .>>= (fun x -> 
 	parseMany(Expression.simpleParser) .>>= (fun y -> 
