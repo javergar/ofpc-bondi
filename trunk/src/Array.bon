@@ -1,0 +1,28 @@
+class Array extends Expression {
+array_type: ArrayType;
+len: Int;
+arr: array Top;
+
+
+
+get_arrayLength = {|()-> !this.len}
+set_arrayLength = {fun x -> this.len = x}
+
+
+static make =  {|(ini, leng) ->    
+  Expression.make (
+        let res = new Array in
+	res.arr  = newarray ini leng;
+ 	res.len = leng;
+	(res:Expression))
+}
+
+
+static parser = { parseUpper "Array" (ArrayType.make()) }
+
+with Type.parser += | view(ArrayType.parser,Parsed ps) -> Parsed ps
+}
+
+(* this is a class array with the type of array inside *)
+(* we have to create another class array with has length and initilize value *)
+
