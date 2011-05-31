@@ -8,12 +8,15 @@
 
 class Let extends ShellAction {
 
-
 binding: Binding;
 body: Maybe Expression;
 binding_list: List Binding;
 let_status:Maybe LetStatus;
+
 (* Make *)
+(* Two different make method (make) (make1) are defined to tackle
+	two different result of the <let_exp> parser
+ *)
 static make = { fun binding_list_rs bdy ->
         let let_action = new Let in 
         let_action.binding_list = binding_list_rs;          
@@ -30,7 +33,8 @@ static make1 = { fun let_stat binding_res bdy ->
               }
 
 (* Parser *)
-
+(* There are two parsers defined: <binding_list> and <let_exp> *)
+(* <binding_list> is list of Binding.parser *)
 static discontinuous binding_list_parser = {
 let rec blist_parser blist =
 (Binding.parser .>>= (fun var -> println (toString var);
@@ -41,12 +45,15 @@ let rec blist_parser blist =
 blist_parser
 }
 
+(* <let_exp> parser will return to either (make) or (make1) *)
 (* (p1 .>>= (fun x -> Let.make  )  .<|>  (p2 .>>= (fun x -> Let.make  ) *)
 
 static discontinuous parser = { 
-        (((stx_parser "let") .>> LetStatus.parser) .>>= (fun let_stat ->  (Binding.parser) .>>= (fun binding_res -> (stx_parser "in" .>> Expression.parser) .>>= (fun bdy -> (ret (Let.make1 (Some let_stat) binding_res (Some bdy))))))) .<|> 
+        (((stx_parser "let") .>> LetStatus.parser) .>>= (fun let_stat ->  (Binding.parser) .>>= (fun binding_res -> (stx_parser "in" .>> Expression.parser) .>>= (fun bdy -> (ret (Let.make1 (Some let_stat) binding_res (Some bdy))))))) 
+
+.<|> 
+
         (((stx_parser "let") .>> (Let.binding_list_parser [])) .>>= (fun binding_list_rs -> (stx_parser "in" .>> Expression.parser) .>>= (fun body -> (ret (Let.make binding_list_rs (Some body))))))
 }
 
 }
-
