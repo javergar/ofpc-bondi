@@ -1,22 +1,32 @@
 class NewArray extends Operator {
 exp: Expression;
 ty: Type;
-static make =  { fun val1 val2 args -> 
+
+static make =  { fun val1 val2 -> 
 	let res = new NewArray in
 	res.exp = val2;
 	res.ty = val1;
-	Expression.make res args
+	ArrayType.make  args
 } 
 
 static parser =  { ((stx_parser "newarray") .>> (Type.parser .>>= (fun cty -> ( 
 	Expression.parser .>>= (fun x -> ret (NewArray.make cty x [])))))) }
 
-(*
+
 type_scheme = { |() -> 
-  let x = TypeVariable.next() in
-  QuantifiedType.make (x.get_variable(),FunctionType.make (FunctionType.make(x,x), x))
+	let x = TypeVariable.next() in 
+	let y = TypeVariable.next() in 
+
+  let x = TypeVariable.next() in 
+  let y = TypeVariable.next() in 
+  QuantifiedType.make (x.get_variable(),
+  (QuantifiedType.make (y.get_variable(),
+    FunctionType.make2 (x,y,x)))) 
+
 }
 
+
+(*
 reduce = {  |() -> match this.get_arguments() with 
   | (Cons x args) -> Some (x.apply args)
   | _ -> None

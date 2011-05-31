@@ -1,25 +1,27 @@
 class Lengthv extends Operator {
-exp: Expression;
 
-static make =  { fun val args -> 
+
+static make =  { fun args -> 
 	let res = new Lengthv in
-	res.exp = val;
 	Expression.make res args
 } 
 
-static parser =  { ((stx_parser "lengthv") .>> (Expression.parser .>>= (fun x -> ret (Lengthv.make x [])))) }
+(* static parser =  { ((stx_parser "lengthv") .>> (Expression.parser .>>= (fun x -> ret (Lengthv.make [])))) } *)
+static parser = { (stx_parser "lengthv") .>>  ret (Lengthv.make []) }
 
-(*
+
 type_scheme = { |() -> 
   let x = TypeVariable.next() in
-  QuantifiedType.make (x.get_variable(),FunctionType.make (FunctionType.make(x,x), x))
+	FunctionType.make(x,IntType.make())
+  (* not x, has to be something like array *)
 }
 
 reduce = {  |() -> match this.get_arguments() with 
-  | (Cons x args) -> Some (x.apply args)
-  | _ -> None
+	| (Cons x args) -> Some (Integer.make (lengthv x) args)
+	| _ -> None
+
 }
-*)
+
 headString = { |() -> "lengthv" }
 with Expression.simpleParser += | view(Lengthv.parser,Parsed ps) -> Parsed ps
 }

@@ -1,31 +1,455 @@
-class  BalancedTree <a,b> = Leaf | Node of a * b * BalancedTree a b * BalancedTree a b;;
+(*
+%open "BalancedTree.bon";;
+*)
 
-let rec get_value x = 
-| Leaf -> None 
-| Node (key,y,l,r) -> 
-  if x < key 
-  then get_value x l 
-  else if x == key
-  then Some y
-  else get_value x r
+datatype RB = RED | BLACK 
+with toString += | RED -> "R" 
+and toString += | BLACK -> "B"
 ;;
 
-let rec insert_value x y = 
-| Leaf -> Node (x,y,Leaf,Leaf)
-| Node(key,v,l,r) -> 
-  if x < key 
-  then Node (key,v,insert_value x y l,r) 
-  else if x == key
-  then Node (x,y,l,r)
-  else Node (key,v,l,insert_value x y r) 
+class BalancedTree <a,b> {
+key: a;
+value: b;
+color: RB;
+left:  Maybe (BalancedTree <a,b>);
+right: Maybe (BalancedTree <a,b>);
+
+get_key = { | () -> !this.key}
+set_key = { fun nm -> this.key = nm}
+get_value = { | () -> !this.value}
+set_value = { fun nm -> this.value = nm}
+get_color = { | () -> !this.color}
+set_color = { fun nm -> this.color = nm}
+get_left = { | () -> !this.left}
+set_left = { fun nm -> this.left = nm}
+get_right = { | () -> !this.right}
+set_right = { fun nm -> this.right = nm}
+
+
+static make = { ((| (k,v,c) -> 
+let bt = new BalancedTree <a,b> in 
+bt.set_key(k);
+bt.set_value(v);
+bt.color = c;
+bt.set_left(None);
+bt.set_right(None);
+bt
+): a * b * RB -> BalancedTree <a,b>)
+}
+
+
+static isRed = { fun (h:Maybe (BalancedTree <a,b>)) -> 
+  match h with 
+  | None -> False
+  | Some bt -> bt.get_color() == RED
+}
+
+keys = { |() -> 
+
+let rec (keys: BalancedTree<a,b> -> List a) bt = 
+  let lkeys = match bt.get_left() with ((
+  | None -> []
+  | Some btl -> keys (btl) 
+  ): Maybe BalancedTree<a,b> -> List a)
+  in 
+  let rkeys = match bt.get_right() with ((
+  | None -> []
+  | Some btl -> keys (btl) 
+  ): Maybe BalancedTree<a,b> -> List a)
+  in 
+  append lkeys (Cons (bt.get_key()) rkeys) 
+in 
+keys this 
+}
+
+size = { |() -> 
+let rec (s: BalancedTree<a,b> -> Int) bt = 
+  let lsize = match bt.get_left() with ((
+  | None -> 0
+  | Some btl -> s (btl) 
+  ): Maybe BalancedTree<a,b> -> Int)
+  in 
+  let rsize = match bt.get_right() with ((
+  | None -> 0
+  | Some btl -> s (btl) 
+  ): Maybe BalancedTree<a,b> -> Int)
+  in 
+  lsize + rsize + 1
+in 
+s this 
+}
+
+depth = { |() -> 
+let rec (s: BalancedTree<a,b> -> Int) bt = 
+  let lsize = match bt.get_left() with ((
+  | None -> 0
+  | Some btl -> s (btl) 
+  ): Maybe BalancedTree<a,b> -> Int)
+  in 
+  let rsize = match bt.get_right() with ((
+  | None -> 0
+  | Some btl -> s (btl) 
+  ): Maybe BalancedTree<a,b> -> Int)
+  in 
+  if lsize > rsize then lsize +1 else  rsize + 1
+in 
+s this 
+}
+update = { fun (f:b -> b) -> 
+
+let rec (upd: BalancedTree<a,b> -> Unit) bt = 
+  (match bt.get_left() with ((
+  | None -> ()
+  | Some btl -> upd btl
+  ): Maybe BalancedTree<a,b> -> Unit));
+  (match bt.get_right() with ((
+  | None -> ()
+  | Some btl -> upd btl
+  ): Maybe BalancedTree<a,b> -> Unit));
+  bt.set_value(f (bt.get_value()))
+in 
+upd this 
+}
+
+
+
+
+fold = { fun (f: c -> a*b -> c)  -> 
+ let rec (fld : BalancedTree<a,b> -> c -> c) bt x = 
+  let x1 = 
+  match bt.get_left() with ((
+  | None -> x
+  | Some bt1 -> fld bt1 x
+  ): Maybe BalancedTree<a,b> -> c)
+  in 
+  let x2 = f x1 (bt.get_key(),bt.get_value()) in 
+  match bt.get_right() with ((
+  | None -> x2
+  | Some bt1 -> fld bt1 x2
+  ): Maybe BalancedTree<a,b> -> c)
+in 
+fld this 
+}
+
+
+search = { fun (x:a) -> 
+  let rec (s:BalancedTree <a,b> -> Maybe b)  h = 
+  let key = h.get_key() in 
+  if x == key 
+  then Some (h.get_value()) else
+  if x < key
+  then match h.get_left() with 
+  | None -> None
+  | Some bt -> s bt 
+  else match h.get_right() with 
+  | None -> None
+  | Some bt -> s bt 
+in 
+ s this
+}
+
+static rec get_best = { fun (h:BalancedTree<Int,b>) (m:Int) (y:b) -> 
+  if m == 0 
+  then h.get_value()
+  else 
+  let key = h.get_key() in 
+  if m == key 
+  then h.get_value() else
+  if m < key
+  then match h.get_left() with 
+  | None -> y
+  | Some bt -> BalancedTree.get_best bt m y 
+  else match h.get_right() with 
+  | None -> y
+  | Some bt -> BalancedTree.get_best bt m (h.get_value())
+
+}
+
+rotateRight = { ((| () -> 
+  match this.get_left() with ((
+  | Some l -> 
+	this.set_left(l.get_right()); 
+	l.set_right(Some this); 
+	l 
+  ): Maybe (BalancedTree <a,b>) -> BalancedTree <a,b>)
+): Unit -> BalancedTree <a,b>)
+}
+
+rotateLeft = { ((| () -> 
+  match this.get_right() with ((
+  | Some r -> 	
+	this.set_right(r.get_left()); 
+	r.set_left(Some this); 
+	r
+  ): Maybe (BalancedTree <a,b>) -> BalancedTree <a,b>)
+): Unit -> BalancedTree <a,b>)
+}
+
+
+(*
+                    %open "BalancedTree.bon";;
+*)
+
+
+insert = { fun (x:a) (y:b) ->
+  let rec (ins: BalancedTree <a,b> -> BalancedTree <a,b>) h = 
+  (match (h.get_left(), h.get_right()) with ((
+  | (Some l,Some r) -> 
+    if l.get_color() == RED && r.get_color() == RED
+    then 
+    begin
+	h.set_color(RED); 
+	l.set_color(BLACK); 
+	r.set_color(BLACK)
+    end
+    else ()
+  | _ -> ()
+  ): (Maybe (BalancedTree <a,b>) * Maybe (BalancedTree <a,b>)) -> Unit));
+    let key = h.get_key() in 
+    if x == key 
+    then h.set_value(y)
+    else if x < key
+    then 
+    match h.get_left() with ((
+    | None -> 
+	let leaf = BalancedTree.make(x,y,RED) in 
+	h.set_left(Some leaf)
+    | Some bt -> 
+	let bt1 = ins bt in 
+	h.set_left(Some bt1)
+    ): Maybe (BalancedTree <a,b>) -> Unit)
+  else (
+    match h.get_right() with ((
+    | None -> 
+	let leaf = BalancedTree.make(x,y,RED) in 	
+	h.set_right(Some leaf)
+    | Some bt -> 
+	let bt1 = ins bt in 
+	h.set_right(Some bt1)
+    ): Maybe (BalancedTree <a,b>) -> Unit)); 
+
+let res = 
+  if BalancedTree.isRed(h.get_left())
+  then match h.get_left() with 
+     | Some l -> 
+	let new_left = 
+	  if BalancedTree.isRed(l.get_right())
+	  then l.rotateLeft()
+	  else l
+	in 
+	h.set_left(Some new_left); 
+	match new_left.get_left() with ((
+	| None -> h 
+        | Some ll -> 
+	  if BalancedTree.isRed(Some ll)
+	  then (
+		ll.set_color(BLACK);
+		h.rotateRight()
+		) 
+	  else h 
+	): Maybe (BalancedTree <a,b>) -> BalancedTree <a,b>)
+  else 
+
+  if BalancedTree.isRed(h.get_right())
+  then match h.get_right() with 
+       | Some r -> 
+	let new_right = 
+	  if BalancedTree.isRed(r.get_left())
+	  then r.rotateRight()
+	  else r
+	in 
+	h.set_right(Some new_right); 
+	match new_right.get_right() with ((
+	| None -> h 
+        | Some rr -> 
+	  if BalancedTree.isRed(Some rr)
+	  then (
+		rr.set_color(BLACK);
+		h.rotateLeft()
+		) 
+	  else h 
+	): Maybe (BalancedTree <a,b>) -> BalancedTree <a,b>)
+  else h 
+  in 
+  res
+  in 
+  ins this
+}
+
+(*
+
+delete = { fun (x:a)  ->
+
+let double_black t = t in 
+
+  let rec (del: BalancedTree <a,b> -> BalancedTree <a,b>) h = 
+   let key = h.get_key() in 
+    if x < key
+    then 
+    match h.get_left() with ((
+    | None -> h
+    | Some bt -> 
+	let bt1 = del bt in 
+	h.set_left(Some bt1);
+	h
+    ): Maybe (BalancedTree <a,b>) -> BalancedTree <a,b>)
+  else if x > key
+  then 
+    match h.get_right() with ((
+    | None -> h 
+    | Some bt -> 
+	let bt1 = del bt in 
+	h.set_right(Some bt1);
+	h 
+    ): Maybe (BalancedTree <a,b>) -> BalancedTree <a,b>)
+  else (* x == key *) 
+    (match (h.get_left(), h.get_right()) with ((
+  | (None,bt1) -> double_black bt1
+  | (bt1,None) -> double_black bt1
+  | (Some l,Some r) -> 
+    if l.get_color() == BLACK 
+    then 
+
+
+
+    begin
+	h.set_color(BLACK); 
+	l.set_color(RED); 
+	r.set_color(RED)
+    end
+    else ()
+  | _ -> ()
+  ): (Maybe (BalancedTree <a,b>) * Maybe (BalancedTree <a,b>)) -> Unit));
+    let key = h.get_key() in 
+    if x == key 
+    then h.set_value(y)
+    else 
+    ): Maybe (BalancedTree <a,b>) -> Unit)); 
+
+let res = 
+  if BalancedTree.isRed(h.get_left())
+  then match h.get_left() with 
+       | Some l -> 
+	if BalancedTree.isRed(l.get_left())
+	then h.rotateRight()
+	else if BalancedTree.isRed(l.get_right())
+	then h.rotateRightRight()
+	else h 
+  else 
+  if BalancedTree.isRed(h.get_right())
+  then match h.get_right() with 
+       | Some r -> 
+	if BalancedTree.isRed(r.get_right())
+	then h.rotateLeft()
+	else if BalancedTree.isRed(r.get_left())
+	then h.rotateLeftLeft()
+	else h 
+  else h 
+in 
+res
+  in 
+  del this
+}
+
+
+*)
+
+
+
+
+with toString += | (h:BalancedTree) -> 
+  match (h.get_left(),h.get_right()) with 
+  | (None,None) -> toString(h.get_key(),h.get_color())
+  | (None,Some bt) -> toString(h.get_key(),h.get_color(), 'N',bt)
+  | (Some bt,None) -> toString(h.get_key(),h.get_color(), bt,'N')
+  | (Some tl, Some tr) -> toString(h.get_key(),h.get_color(),tl,tr)
+}
+
+(*
+
+
+
+  let res1 = 
+  if (BalancedTree.isRed(h.get_right())) && not (BalancedTree.isRed(h.get_left())) 
+  then h.rotateLeft()
+  else h
+  in 
+  match res1.get_left() with ((
+  | Some l -> 
+   	(if BalancedTree.isRed(Some l) && BalancedTree.isRed(l.get_left())
+	then println "true"
+	else println "false"); 
+   	if BalancedTree.isRed(Some l) && BalancedTree.isRed(l.get_left())
+  	then res1.rotateRight()
+  	else res1
+  | _ -> res1
+
+
+*)
+
+
+(* tests 
+
+%open "BalancedTree.bon";;
+
+let rec f bt n = 
+  if n <= 0 
+  then bt
+  else f (bt.insert(n) ()) (n-1)
 ;;
 
-let rec get_best x =
-| Leaf -> None 
-| Node (key,y,l,r) -> 
-  if x <= key 
-  then Some y 
-  else get_best x r 
+
+let test n = f (BalancedTree.make(n,(),BLACK)) (n-1);;
+
+test 5;;
+test 10;;
+
+(test 1000).depth();;
+
+let rec g bt n k = 
+    if n <= 0 
+  then bt
+  else g (bt.insert(k) ()) (n-1) (k+1)
 ;;
 
 
+let test2 n = g (BalancedTree.make(n,(),BLACK)) (n-1) 0;;
+
+
+(test2 1000).depth();;
+
+
+let bt0 = test 100;;
+
+bt0.depth();;
+
+
+let bt1 = BalancedTree.make(1,());;
+bt1.insert 2 ();;
+bt1.insert 3 ();;
+bt1.insert 4 ();;
+
+let bt2 = BalancedTree.make(4,()).insert 3().insert 2().insert 1 ();;
+
+bt1.search(3);;
+bt1.search(5);;
+
+
+let f bt n = bt.insert(n) ();;
+foldleft f bt1 [1,7,6,8,3,4,5,2];;
+
+(5,Un,R,
+  Some ((1,Un,B,
+    None,
+    Some ((3,Un,B,
+	Some ((2,Un,B,None,None)),
+	Some ((4,Un,B,None,None)))))),
+  Some ((7,Un,B,
+    Some ((6,Un,B,None,None)),
+    Some ((8,Un,B,None,None)))))
+
+
+(5,Un,RED,
+  Some ((4,Un,BLACK,Some ((3,Un,BLACK,Some ((1,Un,BLACK,None,Some ((2,Un,BLACK,None,None)))),None)),None)),Some ((6,Un,BLACK,None,Some ((7,Un,BLACK,None,Some ((8,Un,BLACK,None,None)))))))
+
+*) 

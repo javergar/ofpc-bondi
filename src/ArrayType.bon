@@ -1,0 +1,14 @@
+class ArrayType extends TypeConstant {
+array_type: Type;
+
+get_array_type ={|() -> !this.array_type}
+set_array_type = {fun x -> this.array_type = x}
+static make =  {|() ->  TypeConstant.make (new ArrayType) "ArrayType" } 
+static parser = { parseUpper "ArrayType" (ArrayType.make()) }
+
+with Type.parser += | view(ArrayType.parser,Parsed ps) -> Parsed ps
+}
+
+(* this is a class array with the type of array inside *)
+(* we have to create another class array with has length and initilize value *)
+
