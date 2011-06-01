@@ -33,6 +33,7 @@ class Boolean extends Expression {
   let ctxt0 = Context.make1 (TypeVariable.idSub);;
 
   parse "True";;
+  parse "False";;
   parse "True".infer_type(ctxt0) (TypeVariable.next());;
   parse "False".infer_type(ctxt0) (TypeVariable.next());;
 
