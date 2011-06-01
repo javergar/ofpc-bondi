@@ -49,12 +49,12 @@ class If_Statement extends Expression {
   reduce = {
     | () ->
     if True (* Pending *)
-    then Some (this.get_res_t().eval())
-    else Some (this.get_res_f().eval())
+    then Some (this.get_res_t())
+    else Some (this.get_res_f())
   }
 
   (* Printing *)
-  headString = { |() -> ( toString (this.eval()) )
+  headString = { |() -> ( toString ("value_exp") ) (* Pending *)
   }
   with Expression.simpleParser += | view(If_Statement.parser, Parsed ps) -> Parsed ps
   
