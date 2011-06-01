@@ -1,23 +1,61 @@
 class If_Statement extends Expression {
 
+  cond: Expression;
+  get_cond = { | () -> !this.cond}
+  res_t: Expression;
+  get_res_t = { | () -> !this.res_t}
+  res_f: Expression;
+  get_res_f = { | () -> !this.res_f}
+
   (* Making *)
-  static make = { fun args -> Expression.make (new If_Statement) args }
+  (* static make = { fun args -> Expression.make (new If_Statement) args } *)
+  static make = {
+    fun exp1 exp2 exp3 -> let ifs = new If_Statement in
+    ifs.cond = exp1;
+    ifs.res_t = exp2;
+    ifs.res_f = exp3;
+    Expression.make ifs []
+  }
 
   (* Parsing *)
   static parser = {
     (stx_parser "if") .>>
-    (Expression.parser .>>= (fun exp1 ->
+    (Expression.simpleParser .>>= (fun exp1 ->
     (stx_parser "then") .>>
-    (Expression.parser .>>= (fun exp2 ->
+    (Expression.simpleParser .>>= (fun exp2 ->
     (stx_parser "else") .>>
-    (Expression.parser .>>= (fun exp3 ->
-    ret (If_Statement.make [exp1,exp2,exp3])))))))
+    (Expression.simpleParser .>>= (fun exp3 ->
+    ret (If_Statement.make exp1 exp2 exp3)))))))
   }
 
   (* Typing *)
+  if_statement_type = {
+    | () ->
+    let btype = BoolType.make() in
+    let ctxt0 = Context.make1 (TypeVariable.idSub) in
+    let ctype = this.get_cond().infer_type(ctxt0) (TypeVariable.next()) in
+    let ttype = this.get_res_t().infer_type(ctxt0) (TypeVariable.next()) in
+    let ftype = this.get_res_f().infer_type(ctxt0) (TypeVariable.next()) in
+    if (ctype == Some (btype:Type)) && (ttype == ftype)
+    then ttype
+    else Exception "Type error"
+  }
+
+  infer_type_head =  {
+    ((fun ctxt ty -> this.if_statement_type()): Context  -> Type -> Maybe Type)
+  }
 
   (* Evaluation *)
+  reduce = {
+    | () ->
+    if True (* Pending *)
+    then Some (this.get_res_t().eval())
+    else Some (this.get_res_f().eval())
+  }
 
   (* Printing *)
+  headString = { |() -> ( toString (this.eval()) )
+  }
+  with Expression.simpleParser += | view(If_Statement.parser, Parsed ps) -> Parsed ps
   
 }
