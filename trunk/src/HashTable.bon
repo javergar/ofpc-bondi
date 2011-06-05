@@ -28,6 +28,11 @@ static make = { |(size,default) ->  let ht = new HashTable in
                                     ht
 }
 
+(* It tells the usage percentage in hashtable*)
+percent = { |() -> Exception "NotImplemented" }
+
+
+(* It returns the hash for a string *)
 get_hash = { fun key -> let result = Ref 0 in 
                         for i=0 to ((lengthstring key) - 1) do (
                             result = !result + (char2int(key getcharstring i))
@@ -79,6 +84,8 @@ get = { fun k -> let hash = Ref (this.get_hash(k)) in
                      );
                      !value
 }
+
+
 
 (* For debugging purpose, not used 
 debug = { fun index -> !(entry(!this.table,index)) }
