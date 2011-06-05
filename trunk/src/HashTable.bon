@@ -64,20 +64,18 @@ put = { |(k,v) -> let position = Ref (this.get_position(k)) in
 (* Public method, it accpets a string key, and returns the related value *)
 get = { fun k -> let hash = Ref (this.get_hash(k)) in
                  let found = Ref (False) in
-                 let key = Ref ("") in
                  let value = Ref ("KeyNotFound": Top) in
-                 let index = Ref (-1) in
+                 let index = Ref (this.get_index(!hash)) in
+                 let key = Ref (fst (!(entry(!this.table, !index)))) in
                      while (!found == False) do
                      (      
-                         index = this.get_index(!hash);
-                         key = fst (!(entry(!this.table, !index)));
                          if (this.is_available(!index)) == True
                              then found = True;
                                   value = Exception "KeyNotFound"                     
                          else if !key == k
                                   then found = True;
-                                      value = snd (!(entry(!this.table, !index)))
-                              else  hash = !hash + 1
+                                       value = snd (!(entry(!this.table, !index)))
+                              else hash = !hash + 1
                      );
                      !value
 }
