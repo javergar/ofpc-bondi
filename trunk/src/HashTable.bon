@@ -29,7 +29,15 @@ static make = { |(size,default) ->  let ht = new HashTable in
 }
 
 (* It tells the usage percentage in hashtable*)
-percent = { |() -> Exception "NotImplemented" }
+percent = { |() -> let used = Ref 0 in
+                   let percentage = Ref (0.0) in
+                   for i = 0 to (this.size()-1) do
+                       if fst(!(entry(!this.table, i))) != ""
+                          then used = !used + 1
+                       else used = !used;
+                   percentage = (int2float !used)/(int2float this.size());
+                   !percentage 
+}
 
 
 (* It returns the hash for a string *)
