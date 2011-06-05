@@ -47,8 +47,9 @@ get_position = { fun k -> let hash = Ref (this.get_hash(k)) in
                           let position = Ref (-1) in
                               while (!found == False) do
                               (
-                                  if this.is_available(this.get_index(!hash)) == True
-                                      then found = True; position = this.get_index(!hash)
+                                  position = this.get_index(!hash);
+                                  if fst(!(entry(!this.table, !position)))==k || this.is_available(!position) == True
+                                      then found = True
                                   else  hash = !hash + 1
 				              );
                               !position
@@ -89,6 +90,10 @@ debug = { fun index -> !(entry(!this.table,index)) }
 let ha = HashTable.make0();;
 
 ha.put("key", "value");;
+
+ha.get("key");;
+
+ha.put("key", "new value");;
 
 ha.get("key");;
 
