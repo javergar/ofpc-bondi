@@ -1,0 +1,42 @@
+
+%open "LLRBTREE.bon";;
+
+class BalancedTree<a,b>
+{
+	root: LLRBTree <a,b>;
+
+	set_root = { fun nm -> this.root = nm }
+	get_root = { | ( ) -> !this.root } 
+
+	static make = { ((| (k,v) -> 
+		let bt = new BalancedTree<a,b> in
+		bt.set_root(LLRBTree.make(k,v,BLACK));
+		bt
+		): a * b -> BalancedTree <a,b>)
+	}
+
+	keys = { |() -> 
+		this.get_root().keys()
+	}
+
+	size = { |() -> 
+		this.get_root().size()
+	}
+	
+	depth = { |() -> 
+		this.get_root().depth()
+	}
+
+	search = { fun (x:a) -> 
+		this.get_root().search x
+	}
+
+	insert = { fun (x:a) (y:b) ->
+		let bt = this.get_root().insert x y in
+		this.set_root(bt)
+	}
+
+	with toString += | (h:BalancedTree) -> toString(h.get_root()) 
+
+}
+
