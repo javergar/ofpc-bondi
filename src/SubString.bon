@@ -1,0 +1,28 @@
+class SubString extends DatumOperator
+{	
+	static make =  { fun args -> Expression.make (new SubString) args } 
+	
+
+	static parser = { (stx_parser "SubString") .>> ret (SubString.make [])}
+
+
+	(* String -> String *)
+	type_scheme = { |() -> 
+	  FunctionType.make (StringType.make(),IntType.make())
+	}
+
+	reduce = { |() -> match this.get_arguments() with
+		((| Cons x (Cons y (Cons z args)) -> match (x,y,z) with |(x:Strings, y:Integer, z:Integer)-> Some (Strings.make (substring (x.get_string_value()) (y.get_int_value()) (z.get_int_value())) args)
+		| _ -> None): List Expression -> Maybe Expression)
+	}
+
+	(* Printing *)
+	headString = { |() -> "SubString" }
+	with 
+	Expression.simpleParser += |view(SubString.parser,Parsed ps) -> Parsed ps 
+
+	(* Testing 
+	let test = Expression.parse "SubString \"abcdefg\" 0 3";;
+	test.eval();;
+	*)
+}
