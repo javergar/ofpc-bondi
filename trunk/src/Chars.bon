@@ -11,7 +11,7 @@ class Chars extends DatumOperator
 	       Expression.make (res) args
 	   }
 
-(* Parsing *) 
+	(* Parsing *) 
 	  static parser = { ((stx_parser "'") .>>  (parseAnyString (fun x -> Chars.make (x getcharstring 0) []))) .>>= (fun x -> (stx_parser "'") .>> (ret x)) }
 
 	
