@@ -1,0 +1,23 @@
+class Write extends Operator {
+(* Making *)
+	static make = { fun args -> Expression.make (new Write) args }
+(* Parsing *)
+	static parser = { (stx_parser "Write") .>> ( ret (Write.make [])) }
+	type_scheme = { | () -> FunctionType.make2(StringType.make(),SocketType.make(),UnitType.make()) }
+	reduce = { |() -> match this.get_arguments() with 
+	  ((| (Cons x (Cons y args)) -> 
+                 match (x,y.eval()) with
+                 ((| (x:Strings,y:SocketExpression) ->
+                      Some (UnitExpression.make (write (x.get_string_value()) (y.get_socket())).apply args)
+                 | _ -> None
+                 ): (a * b) -> Maybe Expression)
+ 	  | _ -> None) : List Expression -> Maybe Expression)
+	}
+(* Typing *)	
+	headString = { |() -> "Write" }
+	with Expression.simpleParser += | view(Write.parser,Parsed ps) -> Parsed ps
+(* Testing 
+	let t1 = Expression.parse "Write \"HelloWorld1234\" (OpenFile \"testfile\")";;
+	t1.eval();;
+*)
+}

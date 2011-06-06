@@ -1,0 +1,5 @@
+class SocketType extends TypeConstant {
+	static make =  { |() -> TypeConstant.make (new SocketType) "Socket" } 
+	static parser = { parseUpper "Socket" (SocketType.make()) }
+	with Type.parser += | view(SocketType.parser,Parsed ps) -> Parsed ps
+}

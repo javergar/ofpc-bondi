@@ -1,0 +1,15 @@
+(*
+  simple UnitExpression class, used to implement the Close, Write, WriteLine method of Sockets Implementation
+*)
+
+class UnitExpression extends Expression {
+	value: Unit;
+	get_value = { | () -> !this.value}
+	
+	static make = {
+		fun x -> let b = new UnitExpression in
+		b.value = x;
+		Expression.make b []
+	}
+}
+

@@ -1,0 +1,22 @@
+class ReadLine extends Operator {
+(* Making *)
+	static make = { fun args -> Expression.make (new ReadLine) args }
+(* Parsing *)
+	static parser = { (stx_parser "ReadLine") .>> ( ret (ReadLine.make [])) }
+	type_scheme = { | () -> FunctionType.make(SocketType.make(),StringType.make()) }
+	reduce = { |() -> match this.get_arguments() with 
+	  ((| Cons x args -> 
+		match (x.eval()) with 
+		((| (x:SocketExpression) -> Some (Strings.make (readline(x.get_socket())) args)
+                | _ -> None
+                ): a -> Maybe Expression)
+	  | _ -> None) : List Expression -> Maybe Expression)
+	}	
+(* Typing *)
+	headString = { |() -> "ReadLine" }
+	with Expression.simpleParser += | view(ReadLine.parser,Parsed ps) -> Parsed ps
+(* Testing
+	let t1 = Expression.parse "ReadLine (OpenFile \"testfile\")";;
+	t1.eval();;
+*)
+}

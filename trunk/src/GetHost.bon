@@ -1,0 +1,18 @@
+class GetHost extends Operator {
+(* Making *)
+	static make = { fun args -> Expression.make (new GetHost) args }
+(* Parsing *)
+	static parser = { (stx_parser "GetHost") .>> ( ret (GetHost.make [])) }
+	type_scheme = { | () -> FunctionType.make(StringType.make(),HostType.make()) }
+	reduce = { |() -> match this.get_arguments() with 
+	  ((| Cons (x:Strings) args -> Some (HostExpression.make( gethost (x.get_string_value()) ).apply args)
+	  | _ -> None) : List Expression -> Maybe Expression)
+	}
+(* Typing *)
+	headString = { |() -> "GetHost" }
+	with Expression.simpleParser += | view(GetHost.parser,Parsed ps) -> Parsed ps
+(* Testing 
+	let t1 = Expression.parse "GetHost \"localhost\"";;
+	t1.eval();;
+*)
+}

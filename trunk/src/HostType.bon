@@ -1,0 +1,6 @@
+class HostType extends TypeConstant {
+	static make =  { |() -> TypeConstant.make (new HostType) "Host" } 
+	static parser = { parseUpper "Host" (HostType.make()) }
+	with Type.parser += | view(HostType.parser,Parsed ps) -> Parsed ps
+}
+
