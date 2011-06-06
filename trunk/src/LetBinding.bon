@@ -12,6 +12,9 @@ class Binding {
 get_parameter = { | () -> !this.parameter}
 get_body_val = { | () -> !this.body}
 
+
+
+
 (* Make *)
 static make = { fun param simex bdy ->
 		let binding = new Binding in 
@@ -44,4 +47,5 @@ static discontinuous parser = {
          | _ -> ret (Binding.make x (Some y) z))
 	))))
 }
+
 }
