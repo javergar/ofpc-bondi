@@ -11,13 +11,35 @@ static make = { | (x:String) ->
 }
 
 
-(* parsing *)
-static discontinuous parser = {
-    (stx_parser "class") .>> (parseUpperCase .>>= (fun cname -> 
-        (stx_parser "{") .>> ((stx_parser "}") .>> (ret (ClassAction.make cname)))))
+(* parsing methods *)
+static methodParser = {
+    (anyLowerCaseToken .>>= (fun cname ->
+        (stx_parser "=") .>> ((stx_parser "{") .>> ((stx_parser "}")))))
 }
 
-headString = { |() -> "class" }
+(* field parser *)
+static fieldParser = {
+    (anyLowerCaseToken .>>= (fun vname ->
+        (stx_parser ":") .>> (anyUpperCaseToken .>>= (fun vtypee ->
+                ret (NamedVariable vname)))))
+}
+
+(* attributeList parser *)
+    (*
+static attributeListParser = {
+    ((ClassAction.fieldParser) .<|> (ClassAction.methodParser))
+}
+*)
+
+(* parsing *)
+static discontinuous parser = {
+    (stx_parser "class") .>> (anyUpperCaseToken .>>= (fun cname -> 
+        (stx_parser "{") .>> ((parseMany ClassAction.methodParser) .>>= (fun methods -> 
+        (stx_parser "}") .>> (ret (ClassAction.make cname))))))
+}
+
+
+headString = { |() -> "class" ^ !this.name}
 with ShellAction.parser += | view(ClassAction.parser, Parsed ps) -> Parsed ps
 
 }
