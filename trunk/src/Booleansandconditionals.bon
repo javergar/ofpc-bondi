@@ -1,0 +1,10 @@
+(* Jingjin Han - 10902714 *)
+
+(* Parsing: 3, Typing: 3, Evaluation: None *)
+%open "Boolean.bon";;
+
+(* Parsing: 3, Typing: 3, Evaluation: None *)
+%open "Boolean_wildcard.bon";;
+
+(* Parsing: 3, Typing: 3, Evaluation: 3 *)
+%open "If_Statement.bon";;
