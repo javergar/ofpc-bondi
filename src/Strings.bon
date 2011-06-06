@@ -1,0 +1,27 @@
+class Strings extends DatumOperator 
+{
+	string_value: String;
+
+	get_string_value = { |() -> !this.string_value}
+	
+	(* Making *)
+	   static make = {
+	      fun x args -> let res = new Strings in
+	      res.string_value = x;
+	       Expression.make (res) args
+	   }
+
+	(* Parsing *)
+	   static parser = { ((stx_parser "\"") .>>  (parseAnyString (fun x -> Strings.make x []))) .>>= (fun x -> (stx_parser "\"") .>> (ret x)) }
+
+
+
+	headString = { |() -> "it: String it = "^(toString (this.get_string_value())) }
+	with Expression.simpleParser += | view(Strings.parser,Parsed ps) -> Parsed ps
+}
+
+
+
+
+
+

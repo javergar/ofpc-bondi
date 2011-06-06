@@ -1,0 +1,8 @@
+class StringType extends TypeConstant 
+{
+	static make =  { |() -> TypeConstant.make (new StringType) "String" } 
+	static parser = { parseUpper "String" (StringType.make()) }
+	
+	with Type.parser += | view(StringType.parser,Parsed ps) -> Parsed ps
+}
+
