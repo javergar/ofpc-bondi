@@ -1,0 +1,32 @@
+class MODINT extends DatumOperator {
+
+  (* Making *)
+
+static make =  { fun args -> Expression.make (new MODINT) args } 
+
+  (* Parsing *)
+
+static parser = { (stx_parser "mod") .>>  (ret (MODINT.make []))}
+type_scheme = { |() -> 
+    FunctionType.make2 (IntType.make(),IntType.make(),IntType.make()) 
+}
+
+  (* Typing *)
+
+reduce = { |() -> match this.get_arguments() with 
+  ((| (Cons x (Cons y args)) -> Some (Integer.make ((x.get_int_value()) modint (y.get_int_value())) args)
+    | _ -> None) : List Expression -> Maybe Expression)
+}
+
+  (* Printing *)
+
+headString = { |() -> "mod" }
+with Expression.simpleParser += | view(MODINT.parser,Parsed ps) -> Parsed ps
+}
+
+(* Testing
+
+let t1 = Expression.parse "mod 5 5";;
+t1.eval();;
+
+*)

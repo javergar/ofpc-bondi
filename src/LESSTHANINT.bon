@@ -1,0 +1,33 @@
+class LESSTHANINT extends DatumOperator {
+
+  (* Making *)
+
+static make =  { fun args -> Expression.make (new LESSTHANINT) args } 
+
+  (* Parsing *)
+
+static parser = { (stx_parser "lessthan") .>>  (ret (LESSTHANINT.make []))}
+type_scheme = { |() -> 
+     FunctionType.make2 (IntType.make(),IntType.make(),IntType.make()) 
+}
+
+  (* Typing *)
+
+reduce = { |() -> match this.get_arguments() with 
+  ((| (Cons x (Cons y args)) -> Some ((Boolean.make ((x.get_int_value()) < (y.get_int_value()))).apply args)
+    | _ -> None) : List Expression -> Maybe Expression)
+}
+
+  (* Printing *)
+
+headString = { |() -> "lessthan" }
+with Expression.simpleParser += | view(LESSTHANINT.parser,Parsed ps) -> Parsed ps
+}
+
+(* Testing *)
+
+let t1 = Expression.parse "lessthan 4 5";;
+t1.eval();;
+
+
+
