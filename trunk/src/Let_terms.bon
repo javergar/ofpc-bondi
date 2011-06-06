@@ -1,0 +1,46 @@
+class Let extends Expression{
+variable:Expression;
+value:Expression;
+body:Expression;
+status:LetStatus;
+get_variable = { | () -> !this.variable}
+get_value = { | () -> !this.value}
+get_body = { | () -> !this.body}
+get_status = { | () -> !this.status}
+
+static make = { fun x y z w->
+  Expression.make  (
+	let res = new Let in
+	res.variable = x;
+	res.value = y;
+	res.body = z;
+        res.status = w;
+	res) 
+}
+
+static discontinuous params_parser = {
+  let params_parser1 = ExpressionVariable.parser in
+  let params_parser2 = params_parser1 .<|> (( lparen .>> params_parser1) .>>= (fun x -> rparen .>> ret x)) in params_parser2
+}
+
+static discontinuous parser = { 
+let lambdamake  = 
+((| (x:Expression) -> fun y -> Lambda.make x y []
+): Expression -> Expression -> Expression) 
+in
+let letmake  = 
+((| (x:Expression) -> fun y z w-> Let.make x y z w []
+): Expression -> Expression -> Expression -> LetStatus -> Expression) 
+in 
+(stx_parser "let") .>> (
+LetStatus.parser .>>= (fun status ->
+Let.params_parser .>>= (fun ident -> 
+(parseMany ExpressionVariable.parser) .>>= (fun params ->
+(stx_parser "=") .>> (
+Expression.parser .>>= (fun exp ->  
+(stx_parser "in") .>> ( 
+Expression.parser .>>= (fun body ->  
+ret (letmake ident (foldright lambdamake params exp) body status)
+))))))))
+}
+}
