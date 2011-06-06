@@ -1,0 +1,17 @@
+class Floats_wildcard extends Floats {
+
+(* Making *)
+   static make = { fun args -> 
+       Expression.make (new Floats_wildcard) args 
+   }
+
+(* Parsing *)
+   static parser = {
+      (stx_parser "_Float") .>>=
+      (fun x -> ret (Floats_wildcard.make [] ))
+   }
+headString = { |() -> "it: Float it = _Float" }
+with Expression.simpleParser += | view(Floats_wildcard.parser,Parsed ps) -> Parsed ps
+}
+
+

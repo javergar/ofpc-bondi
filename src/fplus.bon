@@ -1,0 +1,19 @@
+class PLUS extends DatumOperator {
+static make =  { fun args -> Expression.make (new PLUS) args } 
+static parser = { (stx_parser "plusfloat") .>>  (ret (PLUS.make []))}
+type_scheme = { |() -> 
+    FunctionType.make2 (FloatType.make(),FloatType.make(),FloatType.make()) 
+}
+(* Typing *)
+reduce = { |() -> match this.get_arguments() with 
+  ((| (Cons x (Cons y args)) -> Some (Floats.make ((x.get_float_value()) plusfloat (y.get_float_value())) args)
+    | _ -> None) : List Expression -> Maybe Expression)
+}
+(* Printing *)
+headString = { |() -> "plusfloat" }
+with Expression.simpleParser += | view(PLUS.parser,Parsed ps) -> Parsed ps
+}
+
+(* Testing *)
+let t1 = Expression.parse "plusfloat 5.0 5.0";;
+t1.eval();;

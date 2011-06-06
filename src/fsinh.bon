@@ -1,0 +1,19 @@
+class FSINH extends DatumOperator {
+static make =  { fun args -> Expression.make (new FSINH) args } 
+static parser = { (stx_parser "sinh") .>>  (ret (FSINH.make []))}
+type_scheme = { |() -> 
+    FunctionType.make2 (FloatType.make(),FloatType.make(),FloatType.make()) 
+}
+(* Typing *)
+reduce = { |() -> match this.get_arguments() with 
+  ((| (Cons x args) -> Some (Floats.make (sinh(x.get_float_value())) args)
+    | _ -> None) : List Expression -> Maybe Expression)
+}
+(* Printing *)
+headString = { |() -> "sinh" }
+with Expression.simpleParser += | view(FSINH.parser,Parsed ps) -> Parsed ps
+}
+
+(* Testing *)
+let t1 = Expression.parse "sinh 0.5";;
+t1.eval();;

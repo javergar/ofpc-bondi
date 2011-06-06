@@ -1,0 +1,19 @@
+class MINUS extends DatumOperator {
+static make =  { fun args -> Expression.make (new MINUS) args } 
+static parser = { (stx_parser "minusfloat") .>>  (ret (MINUS.make []))}
+type_scheme = { |() -> 
+    FunctionType.make2 (FloatType.make(),FloatType.make(),FloatType.make()) 
+}
+(* Typing *)
+reduce = { |() -> match this.get_arguments() with 
+  ((| (Cons x (Cons y args)) -> Some (Floats.make ((x.get_float_value()) minusfloat (y.get_float_value())) args)
+    | _ -> None) : List Expression -> Maybe Expression)
+}
+(* Printing *)
+headString = { |() -> "minusfloat" }
+with Expression.simpleParser += | view(MINUS.parser,Parsed ps) -> Parsed ps
+}
+
+(* Testing *)
+let t1 = Expression.parse "minusfloat 5.0 5.0";;
+t1.eval();;
