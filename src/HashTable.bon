@@ -110,11 +110,7 @@ debug = { fun index -> !(entry(!this.table,index)) }
 
 let ha = HashTable.make(-1:Int);;
 
-ha.put("key", "value");;
-
-ha.get("key");;
-
-ha.put("key", "new value");;
+ha.put("key", 110);;
 
 ha.get("key");;
 
