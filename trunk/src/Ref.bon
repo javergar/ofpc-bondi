@@ -23,4 +23,3 @@ with Expression.simpleParser += | view(REF.parser,Parsed ps) -> Parsed ps
 }
 (* get_result (Expression.parser(0, lexer "Ref X"));; *)
 (* Expression.parse "Ref x";; *)
-
