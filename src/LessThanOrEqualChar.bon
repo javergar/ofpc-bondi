@@ -1,0 +1,28 @@
+class LessThanOrEqualChar extends DatumOperator
+{	
+	static make =  { fun args -> Expression.make (new LessThanOrEqualChar) args } 
+	
+
+	static parser = { (stx_parser "LessThanOrEqualChar") .>> ret (LessThanOrEqualChar.make [])}
+
+
+	(* String -> String *)
+	type_scheme = { |() -> 
+	  FunctionType.make (CharType.make(),CharType.make())
+	}
+
+	reduce = { |() -> match this.get_arguments() with
+		((| Cons x (Cons y args) -> match (x,y) with |(x:Chars, y:Chars)-> Some (Boolean.make (x.get_char_value() lessthanorequalchar y.get_char_value()) )
+		| _ -> None): List Expression -> Maybe Expression)
+	}
+
+	(* Printing *)
+	headString = { |() -> "LessThanOrEqualChar" }
+	with 
+	Expression.simpleParser += |view(LessThanOrEqualChar.parser,Parsed ps) -> Parsed ps 
+
+	(* Testing 
+	let test = Expression.parse "LessThanOrEqualChar 'a' 'b'";;
+	test.eval();;
+	*)
+}

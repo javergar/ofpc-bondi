@@ -1,0 +1,29 @@
+class CopyString extends DatumOperator 
+
+{	
+	static make =  { fun args -> Expression.make (new CopyString) args } 
+	
+
+	static parser = { (stx_parser "CopyString") .>> ret (CopyString.make [])}
+
+
+	(* String -> String *)
+	type_scheme = { |() -> 
+	  FunctionType.make (StringType.make(),StringType.make())
+	}
+
+	reduce = { |() -> match this.get_arguments() with
+		((| Cons x args -> Some (Strings.make (copystring((x.get_string_value()))) args)
+		| _ -> None): List Expression -> Maybe Expression)
+	}
+
+	(* Printing *)
+	headString = { |() -> "CopyString" }
+	with 
+	Expression.simpleParser += |view(CopyString.parser,Parsed ps) -> Parsed ps 
+
+	(* Testing 
+	let test = Expression.parse "CopyString \"myname\"";;
+	test.eval();;
+	*)
+}
