@@ -24,6 +24,8 @@ class Boolean extends Expression {
 
   infer_type_head =  { ((fun ctxt ty -> Some (BoolType.make())): Context  -> Type -> Maybe Type) }
 
+
+
   (* Printing *)
 
   headString = { |() -> (toString ( this.get_value() ))
