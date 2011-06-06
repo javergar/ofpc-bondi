@@ -1,0 +1,19 @@
+class FNEGATE extends DatumOperator {
+static make =  { fun args -> Expression.make (new FNEGATE) args } 
+static parser = { (stx_parser "negatefloat") .>>  (ret (FNEGATE.make []))}
+type_scheme = { |() -> 
+    FunctionType.make2 (FloatType.make(),FloatType.make(),FloatType.make()) 
+}
+(* Typing *)
+reduce = { |() -> match this.get_arguments() with 
+  ((| (Cons x args) -> Some (Floats.make (negatefloat(x.get_float_value())) args)
+    | _ -> None) : List Expression -> Maybe Expression)
+}
+(* Printing *)
+headString = { |() -> "negatefloat" }
+with Expression.simpleParser += | view(FNEGATE.parser,Parsed ps) -> Parsed ps
+}
+
+(* Testing *)
+let t1 = Expression.parse "negatefloat 0.5";;
+t1.eval();;

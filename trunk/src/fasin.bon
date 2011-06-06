@@ -1,0 +1,19 @@
+class FASIN extends DatumOperator {
+static make =  { fun args -> Expression.make (new FASIN) args } 
+static parser = { (stx_parser "asin") .>>  (ret (FASIN.make []))}
+type_scheme = { |() -> 
+    FunctionType.make2 (FloatType.make(),FloatType.make(),FloatType.make()) 
+}
+(* Typing *)
+reduce = { |() -> match this.get_arguments() with 
+  ((| (Cons x args) -> Some (Floats.make (asin(x.get_float_value())) args)
+    | _ -> None) : List Expression -> Maybe Expression)
+}
+(* Printing *)
+headString = { |() -> "asin" }
+with Expression.simpleParser += | view(FASIN.parser,Parsed ps) -> Parsed ps
+}
+
+(* Testing *)
+let t1 = Expression.parse "asin 0.5";;
+t1.eval();;
