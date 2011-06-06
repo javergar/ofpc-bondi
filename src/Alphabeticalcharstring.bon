@@ -1,0 +1,30 @@
+(*The Phong Dang - 10617506 - Alphabetical types Char and String *)
+%open "CharType.bon";;
+%open "Chars.bon";;
+%open "StringType.bon";;
+%open "Strings.bon";;
+%open "BoolType.bon";;
+%open "Boolean.bon";;
+%open "CharToInt.bon";;
+%open "LessThanChar.bon";;
+%open "LessThanOrEqualChar.bon";;
+%open "GreaterThanChar.bon";;
+%open "GreaterThanOrEqual.bon";;
+%open "Concat.bon";;
+%open "CopyString.bon";;
+%open "LengthString.bon";;
+%open "CapitalizeString.bon";;
+%open "UppercaseString.bon";;
+%open "StringToBool.bon";;
+%open "StringToInt.bon";;
+%open "GetCharString.bon";;
+%open "MakeString.bon";;
+%open "IndexString.bon";;
+%open "RIndexString.bon";;
+%open "ContainsString.bon";;
+%open "SubString.bon";;
+%open "IndexFromString.bon";;
+%open "ContainsFromString.bon";;
+%open "StringToFloat.bon";;
+
+
