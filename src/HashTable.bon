@@ -1,11 +1,13 @@
-class HashTable <a>{
-
 (* open "HashTable.bon" *)
+
 (**
    Author: Lihan Li
    Date  : 01 Jun 2011
    
 *)
+
+
+class HashTable <a>{
 
 (* Properties *)
 table : array (String * a);
@@ -22,7 +24,10 @@ static make = { fun (x:a) ->  let ht = new HashTable<a> in
                          ht
 }
 
-(* It tells the usage percentage in hashtable*)
+(** 
+    percent: It tells the usage percentage in hashtable
+             
+*)
 percent = { |() -> let used = Ref 0 in
                    let percentage = Ref (0.0) in
                    for i = 0 to (this.size()-1) do
@@ -34,7 +39,9 @@ percent = { |() -> let used = Ref 0 in
 }
 
 
-(* It returns the hash for a string *)
+(**
+    It returns the hash(Int) for a string
+*)
 get_hash = { fun key -> let result = Ref 0 in 
                         for i=0 to ((lengthstring key) - 1) do (
                             result = !result + (char2int(key getcharstring i))
@@ -42,13 +49,19 @@ get_hash = { fun key -> let result = Ref 0 in
                         !result 
 }
 
-
+(**
+    It returns the index in the array based on hash value
+*)
 get_index = { fun hash -> hash modint this.size() }
 
-(* It tells whether the index has already used *)
+(** 
+    It tells whether the index has already used 
+*)
 is_available = { fun index -> fst(!(entry(!this.table,index))) == "" }
 
-(* It accepts the string key and returns the first available position in array *)
+(**
+    It accepts the string key and returns the first available position in array 
+*)
 get_position = { fun k -> let hash = Ref (this.get_hash(k)) in
                           let found = Ref (False) in
                           let position = Ref (-1) in
@@ -105,5 +118,10 @@ ha.put("key", "new value");;
 
 ha.get("key");;
 
+let ha = HashTable.make("":String);;
+
+ha.put("ke2", "string");;
+
+ha.get("ke2");;
 
 *)
