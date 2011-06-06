@@ -2,11 +2,11 @@ class NewArray extends Operator {
 exp: Expression;
 ty: Type;
 
-static make =  { fun val1 val2 -> 
+static make =  { fun val1 val2 args -> 
 	let res = new NewArray in
 	res.exp = val2;
 	res.ty = val1;
-	ArrayType.make  args
+	Expression.make res args
 } 
 
 static parser =  { ((stx_parser "newarray") .>> (Type.parser .>>= (fun cty -> ( 
@@ -26,12 +26,12 @@ type_scheme = { |() ->
 }
 
 
-(*
+
 reduce = {  |() -> match this.get_arguments() with 
-  | (Cons x args) -> Some (x.apply args)
+  | (Cons x (Cons y args)) -> Some (Array.make((x:Float),y) args)
   | _ -> None
 }
-*)
+
 headString = { |() -> "array" }
 with Expression.simpleParser += | view(NewArray.parser,Parsed ps) -> Parsed ps
 }
