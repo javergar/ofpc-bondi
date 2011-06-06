@@ -2,10 +2,14 @@ class Trailer extends ShellAction{
 
 static make = { | () -> new Trailer}
 
-actions:List ShellAction;
+action_list:List ShellAction;
 
-static parser = { ((stx_parser "with") .>> ShellAction.parser);
-parseMany ((stx_parser "and") .>> ShellAction.parser) }
+static parser = { ((stx_parser "with") .>> ShellAction.parser) .>>= (fun action1 ->
+(parseMany ((stx_parser "and") .>> ShellAction.parser)) .>>= 
+(fun actions ->  let trailer = 
+new Trailer in trailer.action_list = 
+(Cons action1 actions); ret trailer)) }
 
-
+headString = { |() -> "Trailer" }
+with ShellAction.parser += | view(Trailer.parser, Parsed ps) -> Parsed ps
 }

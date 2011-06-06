@@ -117,5 +117,4 @@ t5.infer_type(ctxt0) (TypeVariable.next());;
 let t6 = parse "let (x:a -> a) = I in x";;
 t6.infer_type(ctxt0) (TypeVariable.next());;
 
-
 *)
