@@ -1,6 +1,7 @@
 class Boolean_wildcard extends Boolean {
 
   (* Making *)
+
   static make = {
     fun x -> let bw = new Boolean_wildcard in
     bw.value = x;
@@ -8,14 +9,14 @@ class Boolean_wildcard extends Boolean {
   }
   
   (* Parsing *)
+
   static parser = {
     (stx_parser "_Bool") .>>
     ret (Boolean_wildcard.make _)
   }
 
-  (* Typing *)
-
   (* Printing *)
+
   headString = { |() -> (toString ( this.get_value() ))
   }
   with Expression.simpleParser += | view(Boolean_wildcard.parser, Parsed ps) -> Parsed ps

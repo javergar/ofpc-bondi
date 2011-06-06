@@ -8,7 +8,7 @@ class If_Statement extends Expression {
   get_res_f = { | () -> !this.res_f}
 
   (* Making *)
-  (* static make = { fun args -> Expression.make (new If_Statement) args } *)
+
   static make = {
     fun exp1 exp2 exp3 -> let ifs = new If_Statement in
     ifs.cond = exp1;
@@ -18,6 +18,7 @@ class If_Statement extends Expression {
   }
 
   (* Parsing *)
+
   static parser = {
     (stx_parser "if") .>>
     (Expression.simpleParser .>>= (fun exp1 ->
@@ -29,6 +30,7 @@ class If_Statement extends Expression {
   }
 
   (* Typing *)
+
   if_statement_type = {
     | () ->
     let btype = BoolType.make() in
@@ -38,24 +40,37 @@ class If_Statement extends Expression {
     let ftype = this.get_res_f().infer_type(ctxt0) (TypeVariable.next()) in
     if (ctype == Some (btype:Type)) && (ttype == ftype)
     then ttype
-    else Exception "Type error"
+    else None
   }
 
-  infer_type_head =  {
-    ((fun ctxt ty -> this.if_statement_type()): Context  -> Type -> Maybe Type)
-  }
+  infer_type = { ((fun ctxt ty -> this.if_statement_type()): Context  -> Type -> Maybe Type) }
 
   (* Evaluation *)
+
   reduce = {
     | () ->
-    if True (* Pending *)
+    if ( this.get_cond() == Boolean.make True )
     then Some (this.get_res_t())
     else Some (this.get_res_f())
   }
 
   (* Printing *)
-  headString = { |() -> ( toString ("value_exp") ) (* Pending *)
-  }
+
+  headString = { |() -> "if " ^ toString (this.get_cond()) ^ " then " ^ toString (this.get_res_t()) ^ " else " ^ toString (this.get_res_f()) }
   with Expression.simpleParser += | view(If_Statement.parser, Parsed ps) -> Parsed ps
+
+
+  (* Testing
+
+  let parse = Expression.parse;;
+  let ctxt0 = Context.make1 (TypeVariable.idSub);;
   
+  parse "if True then True else False";;
+  
+  (parse "if True then True else False").infer_type(ctxt0) (TypeVariable.next());;
+
+  (parse "if True then True else False").eval();;
+
+  *)
+
 }
