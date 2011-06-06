@@ -1,0 +1,15 @@
+(* Student Name: tuan anh la - Jianqiang Liu
+   Student ID:10908768 - 10895492
+   parsing: 2; evaluation: 1; typing: 0;
+*)
+
+%cd "../ofpc-bondi/src";;
+%open "combinatory_language.bon";;
+%open "Ref.bon";;
+%open "Assignment.bon";;
+%open "Dereference.bon";;
+%open "Ref.bon";;
+%open "NewArray.bon";;
+%open "Ref.bon";;
+%open "Lengthv.bon";;
+%open "Entry.bon";;
