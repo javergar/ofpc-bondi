@@ -1,0 +1,28 @@
+class IndexFromString extends DatumOperator
+{	
+	static make =  { fun args -> Expression.make (new IndexFromString) args } 
+	
+
+	static parser = { (stx_parser "IndexFromString") .>> ret (IndexFromString.make [])}
+
+
+	(* String -> String *)
+	type_scheme = { |() -> 
+	  FunctionType.make (StringType.make(),IntType.make())
+	}
+
+	reduce = { |() -> match this.get_arguments() with
+		((| Cons x (Cons y (Cons z args)) -> match (x,y,z) with |(x:Strings, y:Integer, z:Chars)-> Some (Integer.make (indexfromstring (x.get_string_value()) (y.get_int_value()) (z.get_char_value())) args)
+		| _ -> None): List Expression -> Maybe Expression)
+	}
+
+	(* Printing *)
+	headString = { |() -> "IndexFromString" }
+	with 
+	Expression.simpleParser += |view(IndexFromString.parser,Parsed ps) -> Parsed ps 
+
+	(* Testing 
+	let test = Expression.parse "IndexFromString \"cdfdvbdcsf\" 2 'c'";;
+	test.eval();;
+	*)
+}
