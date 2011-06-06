@@ -1,0 +1,444 @@
+(*
+%open "LLRBTREE.bon";;
+*)
+
+datatype RB = RED | BLACK 
+with toString += | RED -> "R" 
+and toString += | BLACK -> "B"
+;;
+
+let flip = 
+| RED -> BLACK 
+| BLACK -> RED
+;;
+
+class LLRBTree <a,b> 
+{
+
+(*-----------------------------------------------
+*  Variables
+*  ---------------------------------------------*)
+
+key: a;
+value: b;
+color: RB;
+left:  Maybe (LLRBTree <a,b>);
+right: Maybe (LLRBTree <a,b>);
+
+(*-----------------------------------------------
+*  Getters & Setters
+*  ---------------------------------------------*)
+
+get_key = { | () -> !this.key}
+set_key = { fun nm -> this.key = nm}
+get_value = { | () -> !this.value}
+set_value = { fun nm -> this.value = nm}
+get_color = { | () -> !this.color}
+set_color = { fun nm -> this.color = nm}
+get_left = { | () -> !this.left}
+set_left = { fun nm -> this.left = nm}
+get_right = { | () -> !this.right}
+set_right = { fun nm -> this.right = nm}
+
+
+(*-----------------------------------------------
+*  Static Methods
+*  ---------------------------------------------*)
+
+static make = { ((| (k,v,c) -> 
+let bt = new LLRBTree <a,b> in 
+bt.set_key(k);
+bt.set_value(v);
+bt.color = c;
+bt.set_left(None);
+bt.set_right(None);
+bt
+): a * b * RB -> LLRBTree <a,b>)
+}
+
+
+static isRed = { fun (h:Maybe (LLRBTree <a,b>)) -> 
+  match h with 
+  | None -> False
+  | Some bt ->  bt.get_color() == RED
+}
+
+
+(*-----------------------------------------------
+*  Methods
+*  ---------------------------------------------*)
+
+
+(*
+* Key: Returns a list of the keys of the tree
+* Parameters: None
+* Return: List a
+*
+*)
+keys = { |() -> 
+let rec (keys: LLRBTree<a,b> -> List a) bt = 
+  let lkeys = match bt.get_left() with ((
+  | None -> []
+  | Some btl -> keys (btl) 
+  ): Maybe LLRBTree<a,b> -> List a)
+  in 
+  let rkeys = match bt.get_right() with ((
+  | None -> []
+  | Some btl -> keys (btl) 
+  ): Maybe LLRBTree<a,b> -> List a)
+  in 
+  append lkeys (Cons (bt.get_key()) rkeys) 
+in 
+keys this 
+}
+
+(*
+* Size
+* Gets the size of the tree by counting all the nodes
+* Parameters: None
+* Returns: Int with the size of the tree
+*)
+size = { |() -> 
+let rec (s: LLRBTree<a,b> -> Int) bt = 
+  let lsize = match bt.get_left() with ((
+  | None -> 0
+  | Some btl -> s (btl) 
+  ): Maybe LLRBTree<a,b> -> Int)
+  in 
+  let rsize = match bt.get_right() with ((
+  | None -> 0
+  | Some btl -> s (btl) 
+  ): Maybe LLRBTree<a,b> -> Int)
+  in 
+  lsize + rsize + 1
+in 
+s this 
+}
+
+
+(*
+* Depth
+* Returns the a number of the depth of the tree
+* Parameters: None
+* Returns : Int
+*)
+depth = { |() -> 
+let rec (s: LLRBTree<a,b> -> Int) bt = 
+
+ (* We go first by the left side *)
+  let lsize = match bt.get_left() with ((
+  | None -> 0
+  | Some btl -> s (btl) 
+  ): Maybe LLRBTree<a,b> -> Int)
+  in 
+ (* Get the ride side *) 
+  let rsize = match bt.get_right() with ((
+  | None -> 0
+  | Some btl -> s (btl) 
+  ): Maybe LLRBTree<a,b> -> Int)
+  in 
+  if lsize > rsize then lsize +1 else  rsize + 1
+in 
+s this 
+}
+
+
+update = { fun (f:b -> b) -> 
+let rec (upd: LLRBTree<a,b> -> Unit) bt = 
+  (match bt.get_left() with ((
+  | None -> ()
+  | Some btl -> upd btl
+  ): Maybe LLRBTree<a,b> -> Unit));
+  (match bt.get_right() with ((
+  | None -> ()
+  | Some btl -> upd btl
+  ): Maybe LLRBTree<a,b> -> Unit));
+  bt.set_value(f (bt.get_value()))
+in 
+upd this 
+}
+
+(*
+* Fold
+*
+*)
+fold = { fun (f: c -> a*b -> c)  -> 
+ let rec (fld : LLRBTree<a,b> -> c -> c) bt x = 
+  let x1 = 
+  match bt.get_left() with ((
+  | None -> x
+  | Some bt1 -> fld bt1 x
+  ): Maybe LLRBTree<a,b> -> c)
+  in 
+  let x2 = f x1 (bt.get_key(),bt.get_value()) in 
+  match bt.get_right() with ((
+  | None -> x2
+  | Some bt1 -> fld bt1 x2
+  ): Maybe LLRBTree<a,b> -> c)
+in 
+fld this 
+}
+
+
+(*
+* Search
+* Search given key in the tree
+* Parameters: a The key
+* Returns: The value of the key
+**)
+search = { fun (x:a) -> 
+  let rec (s:LLRBTree <a,b> -> Maybe b)  h = 
+  let key = h.get_key() in 
+  if x == key 
+  	then Some (h.get_value()) 
+  else
+  if x < key
+ 	 then match h.get_left() with 
+  		| None -> None
+  		| Some bt -> s bt 
+  else match h.get_right() with 
+  	| None -> None
+ 	| Some bt -> s bt 
+in 
+ s this
+}
+
+static rec get_best = { fun (h:LLRBTree<Int,b>) (m:Int) (y:b) -> 
+  if m == 0 
+  then h.get_value()
+  else 
+  let key = h.get_key() in 
+  if m == key 
+  then h.get_value() else
+  if m < key
+  then match h.get_left() with 
+  | None -> y
+  | Some bt -> LLRBTree.get_best bt m y 
+  else match h.get_right() with 
+  | None -> y
+  | Some bt -> LLRBTree.get_best bt m (h.get_value())
+
+}
+
+flipColor = { | () -> this.set_color(flip (this.get_color())) } 
+
+flipColors = { |() -> 
+  match (this.get_left(), this.get_right()) with ((
+  | (Some l,Some r) -> 
+	this.flipColor(); 
+	l.flipColor(); 
+	r.flipColor()
+  | _ -> ()
+  ): (Maybe (LLRBTree <a,b>) * Maybe (LLRBTree <a,b>)) -> Unit)
+}
+
+(*
+* Rotate Left
+* Rotates this tree to the Left making this right child be his father
+* Parameter: None
+* Returns: LLRBTree<a,b>
+*)
+rotateLeft = { ((| () -> 
+  match this.get_right() with ((
+  | Some r -> 	
+	this.set_right(r.get_left()); 
+	r.set_left(Some this); 
+	r.set_color(this.get_color());
+	this.set_color(RED);
+	r
+  ): Maybe (LLRBTree <a,b>) -> LLRBTree <a,b>)
+): Unit -> LLRBTree <a,b>)
+}
+
+(*
+* Rotate Right
+* Rotates this tree to the right making this left child be his father
+* Parameter: None
+* Returns: LLRBTree<a,b>
+*)
+rotateRight = { ((| () -> 
+  match this.get_left() with ((
+  | Some l -> 
+	(*this.set_left(l.get_right()); 
+
+	l.set_right(Some this); 
+
+	l.set_color(this.get_color());
+	this.set_color(RED);*)
+	l 
+  ): Maybe (LLRBTree <a,b>) -> LLRBTree <a,b>)
+): Unit -> LLRBTree <a,b>)
+}
+
+
+fixUp = { | () -> 
+let res1 = 
+    if LLRBTree.isRed(this.get_right()) && (not (LLRBTree.isRed(this.get_left())))
+    then this.rotateLeft()
+    else this
+  in 
+  let res2 = 
+    match res1.get_left() with 
+    | None ->  res1 
+    | Some l -> 
+      if LLRBTree.isRed(res1.get_left()) && LLRBTree.isRed(l.get_left()) 
+      then res1.rotateRight()
+      else res1
+  in 
+  res2.flipColors() ;
+  Some res2
+}
+
+(*
+* Insert
+* Inserts a new key with its value to the correspond place in the tree
+* Parameter: Key a and Value b
+* Returns: A new LLRBTree with the inserted value and key
+*)
+insert = { fun (x:a) (y:b) ->
+  let rec (ins: Maybe (LLRBTree <a,b>) -> Maybe(LLRBTree <a,b>)) = 
+  | None ->  Some (LLRBTree.make(x,y,RED))
+  | Some h -> 
+    let key = h.get_key() in 
+    if x == key then h.set_value(y)
+    else if x < key 
+	then 
+	  h.set_left(ins (h.get_left()))
+    else h.set_right(ins (h.get_right()));
+    h.fixUp()
+(* end ins *) 
+  in 
+  match ins (Some this) with 
+  | Some t -> t.set_color(BLACK);  t
+}
+
+
+
+moveRedLeft = { |() -> 
+  this.flipColors();
+  match this.get_right() with ((
+  | Some r where LLRBTree.isRed(r.get_left()) -> 
+		this.set_right(Some (r.rotateRight()));
+		let res = this.rotateLeft() in 
+		res.flipColors();
+		res
+  | _ -> this
+  ): Maybe (LLRBTree <a,b>) -> LLRBTree <a,b>)
+}
+
+moveRedRight = { |() -> 
+  this.flipColors();
+  match this.get_left() with ((
+  | Some l where LLRBTree.isRed(l.get_left()) -> 
+		this.set_right(Some (this.rotateRight()));
+		this.flipColors();
+		this
+  | _ -> this
+  ): Maybe (LLRBTree <a,b>) -> LLRBTree <a,b>)
+}
+
+(* 
+* DeleteMin
+*
+*)
+deleteMin = { |() -> 
+
+let rec (del: Maybe(LLRBTree <a,b>) -> Maybe (LLRBTree <a,b>)) = 
+ | None -> None
+ | Some h -> 
+     let res = 
+	match h.get_left() with 
+     	| None -> h 
+	| Some l -> 
+	  if not (LLRBTree.isRed(h.get_left())) && not (LLRBTree.isRed(l.get_left()))
+	  then h.moveRedLeft()
+ 	  else h 
+     in 
+     res.set_left(del(res.get_left()));
+     res.fixUp()
+in 
+  match del (Some this) with 
+  | Some t -> t.set_color(BLACK);  t
+}
+
+min = { |() -> 
+let rec (mn: Maybe(LLRBTree <a,b>) -> Maybe (a*b)) = 
+ | None -> None
+ | Some h -> 
+     let res = 
+	match h.get_left() with ((
+     	| None -> mn (h.get_right()) 
+	| Some l ->  mn (Some l)
+	): Maybe (LLRBTree <a,b>) -> Maybe (a*b) )
+     in 
+     match res with 
+     | None -> Some (h.get_key(),h.get_value())
+     | _ -> res 
+in 
+mn (Some this)
+}
+
+
+delete = { fun (x:a)  ->
+
+  let rec (del: Maybe(LLRBTree <a,b>) -> Maybe (LLRBTree <a,b>)) = 
+  | None -> None 
+  | Some h -> 
+   let key = h.get_key() in 
+   if x < key
+   then 
+     let res = 
+     match h.get_left() with ((
+     | None -> h 
+     | Some l -> 
+	if not (LLRBTree.isRed(h.get_left())) && not (LLRBTree.isRed(l.get_left()))
+	then h.moveRedLeft()
+	else h 
+     ): Maybe (LLRBTree <a,b>) -> LLRBTree <a,b>)
+     in begin
+     res.set_left(del (res.get_left()));
+     Some res
+     end
+  else 
+    let res1 = 
+	if LLRBTree.isRed(this.get_left())
+    	then this.rotateRight()
+	else this
+    in 
+    let res2 = 
+	match res1.get_right() with 
+    | None -> if  x == key then None else Some res1
+    | Some r -> 
+	if not (LLRBTree.isRed(res1.get_right())) && not (LLRBTree.isRed(r.get_left()))
+    	then Some (res1.moveRedRight())
+	else Some res1
+    in 
+    let res3 = 
+      match res2 with 
+      | None -> None 
+      | Some r2 -> 
+	if x == key
+	then 
+	 match r2.min() with 
+	 | begin
+	  r2.set_key(min(r).key);
+	  r2.set_value(get(r, min(r).key)) ;
+	  h.set_right(r.deleteMin())
+	end 
+	else r2.set_right(del (r2.get_right()))
+    in 
+    res3.fixUp()
+  in 
+  match del this with 
+  | Some t -> t.set_color(BLACK); t
+}
+
+with toString += | (h:LLRBTree) -> 
+  match (h.get_left(),h.get_right()) with 
+  | (None,None) -> toString(h.get_key(),h.get_color())
+  | (None,Some bt) -> toString(h.get_key(),h.get_color(), 'N',bt)
+  | (Some bt,None) -> toString(h.get_key(),h.get_color(), bt,'N')
+  | (Some tl, Some tr) -> toString(h.get_key(),h.get_color(),tl,tr)
+
+}
+
