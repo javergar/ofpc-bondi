@@ -187,6 +187,7 @@ match fetch_token args with
 ;;
 
 let parseUpperCase = (parseOne UpperCaseIdentToken);;
+let parseLowerCase= (parseOne LowerCaseIdentToken);;
 
 let parseAnyLowerCase x = parseApplyOne LowerCaseIdentToken x;;
 
