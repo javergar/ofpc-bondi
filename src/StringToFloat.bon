@@ -1,0 +1,29 @@
+class StringToFloat extends DatumOperator
+{	
+	static make =  { fun args -> Expression.make (new StringToFloat) args } 
+	
+
+	static parser = { (stx_parser "StringToFloat") .>> ret (StringToFloat.make [])}
+
+
+	(* String -> String *)
+	type_scheme = { |() -> 
+	  FunctionType.make (StringType.make(),StringType.make())
+	}
+
+	reduce = { |() -> match this.get_arguments() with
+		((| Cons x args -> Some (Float.make (string2float((x.get_string_value()))) args)
+		| _ -> None): List Expression -> Maybe Expression)
+	}
+
+	(* Printing *)
+	headString = { |() -> "StringToFloat" }
+	with 
+	Expression.simpleParser += |view(StringToFloat.parser,Parsed ps) -> Parsed ps 
+
+	(* Testing 
+	let test = Expression.parse "StringToFloat 123";;
+	test.eval();;
+	*)
+}
+
