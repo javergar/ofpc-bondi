@@ -1,26 +1,25 @@
 class Array extends Expression {
 array_type: ArrayType;
 len: Int;
-arr: array Top;
-
+my_array: array Float;
 
 
 get_arrayLength = {|()-> !this.len}
-set_arrayLength = {fun x -> this.len = x}
 
 
 static make =  {|(ini, leng) ->    
-  Expression.make (
         let res = new Array in
-	res.arr  = newarray ini leng;
+	res.my_array  = newarray ini leng;
  	res.len = leng;
-	(res:Expression))
+	(Expression.make res [])
 }
 
+static parser = { parseUpper "Array" (Array.make()) }
+((stx_parser "Array") .>>  (parseAnyString (fun x -> Strings.make x []))) .>>= (fun x -> (stx_parser "\"") .>> (ret x))
 
-static parser = { parseUpper "Array" (ArrayType.make()) }
+with Type.parser += | view(Array.parser,Parsed ps) -> Parsed ps
 
-with Type.parser += | view(ArrayType.parser,Parsed ps) -> Parsed ps
+
 }
 
 (* this is a class array with the type of array inside *)

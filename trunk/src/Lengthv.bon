@@ -17,7 +17,7 @@ type_scheme = { |() ->
 }
 
 reduce = {  |() -> match this.get_arguments() with 
-	| (Cons x args) -> Some (Integer.make (lengthv x) args)
+	| (Cons x args) -> Some (Integer.make (x.get_arrayLength()) args)
 	| _ -> None
 
 }
