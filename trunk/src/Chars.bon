@@ -1,0 +1,27 @@
+class Chars extends DatumOperator 
+{
+	char_value: Char;
+
+	get_char_value = { |() -> !this.char_value}
+	
+	(* Making *)
+	   static make = {
+	      fun x args -> let res = new Chars in
+	      res.char_value = x;
+	       Expression.make (res) args
+	   }
+
+(* Parsing *) 
+	  static parser = { ((stx_parser "'") .>>  (parseAnyString (fun x -> Chars.make (x getcharstring 0) []))) .>>= (fun x -> (stx_parser "'") .>> (ret x)) }
+
+	
+
+(*
+	  static parser = { ((stx_parser "\'")) .>. ( .>>= (fun x -> (stx_parser "\'") .>> (ret x)) }
+*)
+
+
+
+	headString = { |() -> "it: Char it = "^(toString (this.get_char_value())) }
+	with Expression.simpleParser += | view(Chars.parser,Parsed ps) -> Parsed ps
+}
