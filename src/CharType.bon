@@ -1,0 +1,8 @@
+class CharType extends TypeConstant 
+{
+	static make =  { |() -> TypeConstant.make (new CharType) "Char" } 
+	static parser = { parseUpper "Char" (CharType.make()) }
+	
+	with Type.parser += | view(CharType.parser,Parsed ps) -> Parsed ps
+}
+
