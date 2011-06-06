@@ -1,0 +1,28 @@
+class IndexString extends DatumOperator
+{	
+	static make =  { fun args -> Expression.make (new IndexString) args } 
+	
+
+	static parser = { (stx_parser "IndexString") .>> ret (IndexString.make [])}
+
+
+	(* String -> String *)
+	type_scheme = { |() -> 
+	  FunctionType.make (StringType.make(),CharType.make())
+	}
+
+	reduce = { |() -> match this.get_arguments() with
+		((| Cons x (Cons y args) -> match (x,y) with |(x:Strings, y:Chars)-> Some (Integer.make (x.get_string_value() indexstring y.get_char_value()) args)
+		| _ -> None): List Expression -> Maybe Expression)
+	}
+
+	(* Printing *)
+	headString = { |() -> "IndexString" }
+	with 
+	Expression.simpleParser += |view(IndexString.parser,Parsed ps) -> Parsed ps 
+
+	(* Testing 
+	let test = Expression.parse "IndexString \"abcdefg\" 'e'";;
+	test.eval();;
+	*)
+}

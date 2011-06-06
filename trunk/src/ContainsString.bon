@@ -1,0 +1,28 @@
+class ContainsString extends DatumOperator
+{	
+	static make =  { fun args -> Expression.make (new ContainsString) args } 
+	
+
+	static parser = { (stx_parser "ContainsString") .>> ret (ContainsString.make [])}
+
+
+	(* String -> String *)
+	type_scheme = { |() -> 
+	  FunctionType.make (StringType.make(),CharType.make())
+	}
+
+	reduce = { |() -> match this.get_arguments() with
+		((| Cons x (Cons y args) -> match (x,y) with |(x:Strings, y:Chars)-> Some (Boolean.make (x.get_string_value() containsstring y.get_char_value()) )
+		| _ -> None): List Expression -> Maybe Expression)
+	}
+
+	(* Printing *)
+	headString = { |() -> "ContainsString" }
+	with 
+	Expression.simpleParser += |view(ContainsString.parser,Parsed ps) -> Parsed ps 
+
+	(* Testing 
+	let test = Expression.parse "ContainsString \"abcdefg\" 'e'";;
+	test.eval();;
+	*)
+}

@@ -1,0 +1,28 @@
+class GetCharString extends DatumOperator
+{	
+	static make =  { fun args -> Expression.make (new GetCharString) args } 
+	
+
+	static parser = { (stx_parser "GetCharString") .>> ret (GetCharString.make [])}
+
+
+	(* String -> String *)
+	type_scheme = { |() -> 
+	  FunctionType.make (StringType.make(),IntType.make())
+	}
+
+	reduce = { |() -> match this.get_arguments() with
+		((| Cons x (Cons y args) -> match (x,y) with |(x:Strings, y:Integer)-> Some (Chars.make (x.get_string_value() getcharstring y.get_int_value()) args)
+		| _ -> None): List Expression -> Maybe Expression)
+	}
+
+	(* Printing *)
+	headString = { |() -> "GetCharString" }
+	with 
+	Expression.simpleParser += |view(GetCharString.parser,Parsed ps) -> Parsed ps 
+
+	(* Testing 
+	let test = Expression.parse "GetCharString \"abcdefg\" 2";;
+	test.eval();;
+	*)
+}
