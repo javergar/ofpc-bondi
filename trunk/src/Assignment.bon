@@ -1,0 +1,19 @@
+(* It is a Assignment class for Reference *)
+class Assignment extends ShellAction {
+
+exp1: Expression;
+exp2: Expression;
+
+(* Make *)
+
+static make =  { fun val1 val2 args -> 
+	let res = new Assignment in
+	res.exp1 = val1;
+	res.exp2 = val2;
+	Expression.make res args
+}
+(* Parser *)
+
+static parser =  { ((stx_parser "=") .>>  Expression.parser) .>>= (fun x -> ret (Assignment.make x [])) } 
+
+}
