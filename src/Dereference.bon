@@ -1,0 +1,19 @@
+(* It is a Dereference class for Reference *)
+class Dereference extends Operator {
+
+exp: Expression;
+
+(* Make *)
+
+static make =  { fun val args -> 
+	let res = new Dereference in
+	res.exp = val;
+	Expression.make res args
+}
+(* Parser *)
+
+static parser =  { ((stx_parser "!") .>> (Type.parser .>>= (fun cty -> ( 
+	Expression.parser .>>= (fun x -> ret (Dereference.make cty x [])))))) } 
+
+}
+
