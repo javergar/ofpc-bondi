@@ -1,0 +1,30 @@
+class GREATERTHANOREQUALINT extends DatumOperator {
+
+  (* Making *)
+
+static make =  { fun args -> Expression.make (new GREATERTHANOREQUALINT) args } 
+
+  (* Parsing *)
+
+static parser = { (stx_parser "greaterthanorequal") .>>  (ret (GREATERTHANOREQUALINT.make []))}
+type_scheme = { |() -> 
+     FunctionType.make2 (IntType.make(),IntType.make(),IntType.make()) 
+}
+
+  (* Typing *)
+
+reduce = { |() -> match this.get_arguments() with 
+  ((| (Cons x (Cons y args)) -> Some ((Boolean.make ((x.get_int_value()) <= (y.get_int_value()))).apply args)
+    | _ -> None) : List Expression -> Maybe Expression)
+}
+
+  (* Printing *)
+
+headString = { |() -> "greaterthanorequal" }
+with Expression.simpleParser += | view(GREATERTHANOREQUALINT.parser,Parsed ps) -> Parsed ps
+}
+
+  (* Testing *)
+
+let t1 = Expression.parse "greaterthanorequal 5 5";;
+t1.eval();;

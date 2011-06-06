@@ -1,0 +1,34 @@
+class TIMESINT extends DatumOperator {
+
+  (* Making *)
+
+static make =  { fun args -> Expression.make (new TIMESINT) args } 
+
+  (* Parsing *)
+
+static parser = { (stx_parser "time") .>>  (ret (TIMESINT.make []))}
+type_scheme = { |() -> 
+    FunctionType.make2 (IntType.make(),IntType.make(),IntType.make())
+}
+
+  (* Typing *)
+
+reduce = { |() -> match this.get_arguments() with 
+  ((| (Cons x (Cons y args)) -> Some (Integer.make ((x.get_int_value()) timesint (y.get_int_value())) args)
+    | _ -> None) : List Expression -> Maybe Expression)
+}
+
+  (* Printing *)
+
+headString = { |() -> "time" }
+with Expression.simpleParser += | view(TIMESINT.parser,Parsed ps) -> Parsed ps
+}
+
+(* Testing
+
+let t1 = Expression.parse "time 5 5";;
+t1.eval();;
+
+*)
+
+
