@@ -1,0 +1,19 @@
+class FACOS extends DatumOperator {
+static make =  { fun args -> Expression.make (new FACOS) args } 
+static parser = { (stx_parser "acos") .>>  (ret (FACOS.make []))}
+type_scheme = { |() -> 
+    FunctionType.make2 (FloatType.make(),FloatType.make(),FloatType.make()) 
+}
+(* Typing *)
+reduce = { |() -> match this.get_arguments() with 
+  ((| (Cons x args) -> Some (Floats.make (acos(x.get_float_value())) args)
+    | _ -> None) : List Expression -> Maybe Expression)
+}
+(* Printing *)
+headString = { |() -> "acos" }
+with Expression.simpleParser += | view(FACOS.parser,Parsed ps) -> Parsed ps
+}
+
+(* Testing *)
+let t1 = Expression.parse "acos 0.5";;
+t1.eval();;
