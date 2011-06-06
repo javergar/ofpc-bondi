@@ -40,3 +40,40 @@ class BalancedTree<a,b>
 
 }
 
+(*
+	%open "BT";;
+
+	(*
+	let bt1 = Ref (LLRBTree.make(1,2,BLACK));;
+	bt1 = (!bt1).insert 2 3;;
+	bt1 = (!bt1).insert 3 4;;
+	*)
+
+	let bt1 = BalancedTree.make(1,2);;
+	bt1.insert 2 2;;
+	bt1.insert 3 2;;
+	bt1.insert 4 2;;
+	bt1.insert 5 2;;
+
+
+	print "SIZE: \n";;
+	bt1.size();;
+
+	print "Keys: \n";;
+	bt1.keys();;
+
+	print "Depth: \n";;
+	bt1.depth();;
+
+	print "Search 4 \n";;
+	bt1.search 4;;
+
+
+	let bt1 = BalancedTree.make(6,2);;
+	bt1.insert 5 2;;
+	bt1.insert 4 2;;
+	bt1.insert 3 2;;
+	bt1.insert 2 2;;
+
+
+*)
