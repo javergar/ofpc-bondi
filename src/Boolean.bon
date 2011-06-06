@@ -4,6 +4,7 @@ class Boolean extends Expression {
   get_value = { | () -> !this.value}
 
   (* Making *)
+
   static make = {
     fun x -> let b = new Boolean in
     b.value = x;
@@ -11,6 +12,7 @@ class Boolean extends Expression {
   }
 
   (* Parsing *)
+
   static parser = {
     (stx_parser "True" .<|> stx_parser "False") .>>= ( fun x ->
        match x with
@@ -19,9 +21,11 @@ class Boolean extends Expression {
   }
 
   (* Typing *)
+
   infer_type_head =  { ((fun ctxt ty -> Some (BoolType.make())): Context  -> Type -> Maybe Type) }
 
   (* Printing *)
+
   headString = { |() -> (toString ( this.get_value() ))
   }
   with Expression.simpleParser += | view(Boolean.parser, Parsed ps) -> Parsed ps
