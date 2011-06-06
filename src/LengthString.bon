@@ -1,0 +1,29 @@
+class LengthString extends DatumOperator 
+
+{	
+	static make =  { fun args -> Expression.make (new LengthString) args } 
+	
+
+	static parser = { (stx_parser "LengthString") .>> ret (LengthString.make [])}
+
+
+	(* String -> String *)
+	type_scheme = { |() -> 
+	  FunctionType.make (StringType.make(),StringType.make())
+	}
+
+	reduce = { |() -> match this.get_arguments() with
+		((| Cons x args -> Some (Integer.make (lengthstring((x.get_string_value()))) args)
+		| _ -> None): List Expression -> Maybe Expression)
+	}
+
+	(* Printing *)
+	headString = { |() -> "LengthString" }
+	with 
+	Expression.simpleParser += |view(LengthString.parser,Parsed ps) -> Parsed ps 
+
+	(* Testing 
+	let test = Expression.parse "LengthString \"myname\"";;
+	test.eval();;
+	*)
+}

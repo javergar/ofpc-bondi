@@ -1,0 +1,28 @@
+class StringToBool extends DatumOperator
+{	
+	static make =  { fun args -> Expression.make (new StringToBool) args } 
+	
+
+	static parser = { (stx_parser "StringToBool") .>> ret (StringToBool.make [])}
+
+
+	(* String -> String *)
+	type_scheme = { |() -> 
+	  FunctionType.make (StringType.make(),StringType.make())
+	}
+
+	reduce = { |() -> match this.get_arguments() with
+		((| Cons x args -> Some (Boolean.make (string2bool((x.get_string_value()))))
+		| _ -> None): List Expression -> Maybe Expression)
+	}
+
+	(* Printing *)
+	headString = { |() -> "StringToBool" }
+	with 
+	Expression.simpleParser += |view(StringToBool.parser,Parsed ps) -> Parsed ps 
+
+	(* Testing 
+	let test = Expression.parse "StringToBool \"true\"";;
+	test.eval();;
+	*)
+}
