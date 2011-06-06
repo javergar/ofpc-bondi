@@ -1,6 +1,7 @@
 class SWAP extends Operator {
 static make =  { fun args -> Expression.make (new SWAP) args } 
 static parser = { (stx_parser "SWAP") .>>  ret (SWAP.make []) }
+
 type_scheme = { |() -> 
   let x = TypeVariable.next() in 
   let y = TypeVariable.next() in 

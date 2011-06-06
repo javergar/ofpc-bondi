@@ -16,7 +16,7 @@ get_float_value = { |() -> !this.float_value}
      | _ -> NotParsed
        }
 headString = { |() -> "it: Float it = "^(toString (this.get_float_value())) }
-with Expression.simpleParser += | view(Integer.parser,Parsed ps) -> Parsed ps
+with Expression.simpleParser += | view(Float.parser,Parsed ps) -> Parsed ps
 }
 
 
