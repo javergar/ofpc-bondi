@@ -1,0 +1,16 @@
+class OpenTCP extends Operator {
+	static make = { fun args -> Expression.make (new OpenTCP) args }
+	static parser = { (stx_parser "OpenTCP") .>> ( ret (OpenTCP.make [])) }
+	type_scheme = { | () -> FunctionType.make2(HostType.make(),IntType.make(),SocketType.make()) }
+	reduce = { |() -> match this.get_arguments() with 
+	  ((| (Cons x (Cons y args)) ->
+                 match (x.eval(),y) with
+                 ((| (x:HostExpression,y:Integer) -> 
+                      Some (SocketExpression.make (opentcp (x.get_host()) (y.get_int_value())).apply args)
+                 | _ -> None
+                 ): (a * b) -> Maybe Expression)
+ 	  | _ -> None) : List Expression -> Maybe Expression)
+	}
+	headString = { |() -> "OpenTCP" }
+	with Expression.simpleParser += | view(OpenTCP.parser,Parsed ps) -> Parsed ps
+}
