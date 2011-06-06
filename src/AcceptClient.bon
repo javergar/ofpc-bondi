@@ -1,0 +1,22 @@
+class AcceptClient extends Operator {
+(* Making *)	
+	static make = { fun args -> Expression.make (new AcceptClient) args }
+(* Parsing *)	
+	static parser = { (stx_parser "AcceptClient") .>> (ret (AcceptClient.make [])) }
+	type_scheme = { | () -> FunctionType.make(SocketType.make(),SocketType.make()) }
+	reduce = { |() -> match this.get_arguments() with
+	  ((| Cons x args -> 
+		match (x.eval()) with 
+	 	((| (x:SocketExpression) -> Some (SocketExpression.make( acceptclient (x.get_socket()) ).apply args)
+                | _ -> None
+                ): a -> Maybe Expression)
+	  | _ -> None) : List Expression -> Maybe Expression)
+	}
+(* Typing *)			
+	headString = { |() -> "AcceptClient" }
+	with Expression.simpleParser += | view(AcceptClient.parser,Parsed ps) -> Parsed ps
+(* Testing 
+	let t1 = Expression.parse "AcceptClient (OpenServer (GetHost \"localhost\") 8080)";;
+	t1.eval();;
+*)	
+}

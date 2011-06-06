@@ -1,0 +1,23 @@
+class OpenServer extends Operator {
+(* Making *)
+	static make = { fun args -> Expression.make (new OpenServer) args }
+(* Parsing *)
+	static parser = { (stx_parser "OpenServer") .>> ( ret (OpenServer.make [])) }
+	type_scheme = { | () -> FunctionType.make2(HostType.make(),IntType.make(),SocketType.make()) }
+	reduce = { |() -> match this.get_arguments() with 
+	  ((| (Cons x (Cons y args)) -> 
+                 match (x.eval(),y) with
+                 ((| (x:HostExpression,y:Integer) ->
+                      Some (SocketExpression.make (openserver (x.get_host()) (y.get_int_value())).apply args)
+                 | _ -> None
+                 ): (a * b) -> Maybe Expression)
+ 	  | _ -> None) : List Expression -> Maybe Expression)
+	}
+(* Typing *)	
+	headString = { |() -> "OpenServer" }
+	with Expression.simpleParser += | view(OpenServer.parser,Parsed ps) -> Parsed ps
+(* Testing
+	let t1 = Expression.parse "OpenServer (GetHost \"localhost\") 8080";;
+	t1.eval();;
+*)
+}

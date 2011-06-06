@@ -1,5 +1,7 @@
 class OpenTCP extends Operator {
+(* Making *)
 	static make = { fun args -> Expression.make (new OpenTCP) args }
+(* Parsing *)
 	static parser = { (stx_parser "OpenTCP") .>> ( ret (OpenTCP.make [])) }
 	type_scheme = { | () -> FunctionType.make2(HostType.make(),IntType.make(),SocketType.make()) }
 	reduce = { |() -> match this.get_arguments() with 
@@ -11,6 +13,11 @@ class OpenTCP extends Operator {
                  ): (a * b) -> Maybe Expression)
  	  | _ -> None) : List Expression -> Maybe Expression)
 	}
+(* Typing *)
 	headString = { |() -> "OpenTCP" }
 	with Expression.simpleParser += | view(OpenTCP.parser,Parsed ps) -> Parsed ps
+(* Testing 
+	let t1 = Expression.parse "OpenTCP (GetHost \"localhost\") 8080";;
+	t1.eval();;
+*)
 }

@@ -1,0 +1,24 @@
+class HostExpression extends Expression {
+	host: Host;
+        host_type: HostType;
+
+	get_host = { | () -> !this.host }
+
+(* Making *)	
+	static make = { fun (x:Host) -> let h = new HostExpression in
+                               h.host = x;
+                               h.host_type = (| (x:HostType) -> x)  (HostType.make()); 
+                               Expression.make h []}
+
+(* Parsing *)	
+	static discontinuous parser = { 
+	(stx_parser "Host") .>>= ( 
+		| x -> ret (HostExpression.make(gethost x))
+	)}	
+
+(* Typing *)
+	with 
+	Expression.parser += | view(HostExpression.parser, Parsed ps) -> Parsed ps
+	and 
+	toString += | (x:HostExpression) -> (toString (x.get_host()))
+}

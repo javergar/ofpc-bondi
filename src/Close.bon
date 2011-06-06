@@ -1,0 +1,22 @@
+class Close extends Operator {
+(* Making *)
+	static make = { fun args -> Expression.make (new Close) args }
+(* Parsing *)
+	static parser = { (stx_parser "Close") .>> ( ret (Close.make [])) }
+	type_scheme = { | () -> FunctionType.make(SocketType.make(),UnitType.make()) }
+	reduce = { |() -> match this.get_arguments() with 
+	  ((| Cons x args -> 
+		match (x.eval()) with 
+		((| (x:SocketExpression) -> Some (UnitExpression.make(close(x.get_socket())).apply args)
+                | _ -> None
+                ): a -> Maybe Expression)
+	  | _ -> None) : List Expression -> Maybe Expression)
+	}		
+(* Typing *)
+	headString = { |() -> "Close" }
+	with Expression.simpleParser += | view(Close.parser,Parsed ps) -> Parsed ps
+(* Testing 
+	let t1 = Expression.parse "Close (OpenFile \"testfile\")";;
+	t1.eval();;
+*)
+}

@@ -1,0 +1,22 @@
+class ReadAll extends Operator {
+(* Making *)
+	static make = { fun args -> Expression.make (new ReadAll) args }
+(* Parsing *)
+	static parser = { (stx_parser "ReadAll") .>> ( ret (ReadAll.make [])) }
+	type_scheme = { | () -> FunctionType.make(SocketType.make(),StringType.make()) }
+	reduce = { |() -> match this.get_arguments() with 
+	  ((| Cons x args -> 
+		match (x.eval()) with 
+		((| (x:SocketExpression) -> Some (Strings.make (readall(x.get_socket())) args)
+                | _ -> None
+                ): a -> Maybe Expression)
+	  | _ -> None) : List Expression -> Maybe Expression)
+	}	
+(* Typing *)
+	headString = { |() -> "ReadAll" }
+	with Expression.simpleParser += | view(ReadAll.parser,Parsed ps) -> Parsed ps
+(* Testing
+	let t1 = Expression.parse "ReadAll (OpenFile \"testfile\")";;
+	t1.eval();;
+*)
+}

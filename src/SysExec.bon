@@ -1,0 +1,18 @@
+class SysExec extends Operator {
+(* Making *)
+	static make = { fun args -> Expression.make (new SysExec) args }
+(* Parsing *)
+	static parser = { (stx_parser "SysExec") .>> ( ret (SysExec.make [])) }
+	type_scheme = { | () -> FunctionType.make(StringType.make(),IntType.make()) }
+	reduce = { |() -> match this.get_arguments() with 
+	  ((| Cons (x:Strings) args -> Some (Integer.make (sysexec(x.get_string_value())) args)
+	  | _ -> None) : List Expression -> Maybe Expression)
+	}	
+(* Typing *)
+	headString = { |() -> "SysExec" }
+	with Expression.simpleParser += | view(SysExec.parser,Parsed ps) -> Parsed ps
+(* Testing 
+	let t1 = Expression.parse "SysExec \"ls\"";;
+	t1.eval();;
+*)
+}

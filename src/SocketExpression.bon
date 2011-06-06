@@ -1,0 +1,25 @@
+class SocketExpression extends Expression {
+	socket: Socket;
+        socket_type: SocketType;
+
+	get_socket = { | () -> !this.socket }
+	
+(* Making *)
+	static make = { fun (x:Socket) -> let s = new SocketExpression in
+                               s.socket = x;
+                               s.socket_type = (| (x:SocketType) -> x)  (SocketType.make()); 
+                               Expression.make s []}
+	
+(* Parsing *)
+	static discontinuous parser = { 
+	(stx_parser "Socket") .>>= ( 
+		| x -> ret (SocketExpression.make(openfile x))
+		| x .>>= y -> ret (SocketExpression.make(opentcp (gethost x) (string2int y)))
+	)}
+
+(* Typing *)	
+	with 
+	Expression.parser += | view(SocketExpression.parser, Parsed ps) -> Parsed ps
+	and 
+	toString += | (x:SocketExpression) -> (toString (x.get_socket()))
+}
