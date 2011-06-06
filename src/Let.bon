@@ -81,7 +81,7 @@ and toString += | (x:Let) -> ( "\n" ^ (toString ((x.get_binding()).get_parameter
 
 (* testing *)
 (*
-Let.parser (0, lexer "let rec x=3;;");;
+ShellAction.parser (0, lexer "let rec x=3;;");;
 *)
 
 }
