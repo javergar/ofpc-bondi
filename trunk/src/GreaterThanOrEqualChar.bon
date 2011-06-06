@@ -1,0 +1,28 @@
+class GreaterThanOrEqualChar extends DatumOperator
+{	
+	static make =  { fun args -> Expression.make (new GreaterThanOrEqualChar) args } 
+	
+
+	static parser = { (stx_parser "GreaterThanOrEqualChar") .>> ret (GreaterThanOrEqualChar.make [])}
+
+
+	(* String -> String *)
+	type_scheme = { |() -> 
+	  FunctionType.make (CharType.make(),CharType.make())
+	}
+
+	reduce = { |() -> match this.get_arguments() with
+		((| Cons x (Cons y args) -> match (x,y) with |(x:Chars, y:Chars)-> Some (Boolean.make (x.get_char_value() greaterthanorequalchar y.get_char_value()) )
+		| _ -> None): List Expression -> Maybe Expression)
+	}
+
+	(* Printing *)
+	headString = { |() -> "GreaterThanOrEqualChar" }
+	with 
+	Expression.simpleParser += |view(GreaterThanOrEqualChar.parser,Parsed ps) -> Parsed ps 
+
+	(* Testing 
+	let test = Expression.parse "GreaterThanOrEqualChar 'a' 'b'";;
+	test.eval();;
+	*)
+}
