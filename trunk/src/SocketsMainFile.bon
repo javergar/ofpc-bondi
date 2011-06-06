@@ -1,0 +1,37 @@
+(* Sockets Main File *)
+(* Adi Kurniawan 10909568 *)
+
+(* sockets core files *)
+%open "UnitExpression.bon";;
+(* Parsing:, Evaluation: 3, Typing: *)
+%open "SocketType.bon";;
+(* Parsing: 3, Evaluation:, Typing: *)
+%open "HostType.bon";;
+(* Parsing: 3, Evaluation:, Typing: *)
+%open "SocketExpression.bon";;
+(* Parsing: 3, Evaluation: 2, Typing: 2 *)
+%open "HostExpression.bon";;
+(* Parsing: 3, Evaluation: 2, Typing: 2 *)
+%open "AcceptClient.bon";;
+(* Parsing: 3, Evaluation: 2, Typing: 3 *)
+%open "OpenTCP.bon";;
+(* Parsing: 3, Evaluation: 2, Typing: 3 *)
+%open "OpenServer.bon";;
+(* Parsing: 3, Evaluation: 2, Typing: 3 *)
+%open "GetHost.bon";;
+(* Parsing: 3, Evaluation: 3, Typing: 3 *)
+%open "OpenFile.bon";;
+(* Parsing: 3, Evaluation: 3, Typing: 3 *)
+%open "ReadLine.bon";;
+(* Parsing: 3, Evaluation: 3, Typing: 3 *)
+%open "ReadAll.bon";;
+(* Parsing: 3, Evaluation: 3, Typing: 3 *)
+%open "Close.bon";;
+(* Parsing: 3, Evaluation: 3, Typing: 3 *)
+%open "WriteLine.bon";;
+(* Parsing: 3, Evaluation: 3, Typing: 3 *)
+%open "Write.bon";;
+(* Parsing: 3, Evaluation: 3, Typing: 3 *)
+%open "SysExec.bon";;
+(* Parsing: 3, Evaluation: 3, Typing: 3 *)
+
