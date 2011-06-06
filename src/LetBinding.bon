@@ -9,6 +9,9 @@ class Binding {
  simple_expression: Maybe (List Expression);
  body: Expression;
 
+get_parameter = { | () -> !this.parameter}
+get_body_val = { | () -> !this.body}
+
 (* Make *)
 static make = { fun param simex bdy ->
 		let binding = new Binding in 
