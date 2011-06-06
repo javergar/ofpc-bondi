@@ -1,31 +1,25 @@
-class HashTable {
+class HashTable <a>{
 
+(* open "HashTable.bon" *)
 (**
    Author: Lihan Li
    Date  : 01 Jun 2011
+   
 *)
 
 (* Properties *)
-table : array (String * Top);
+table : array (String * a);
 
 (* Functions *)
 size = { |() -> lengthv !this.table }
 
 (**
     Making - with default size 
-    Example : let hashTable = HashTable.make0();;
+    Example : let ha = HashTable.make(-1:Int);;
 *)
-static make0 = { |() ->  let ht = new HashTable in
-                         ht.table = newarray ("",(-1):Top) 10000;
+static make = { fun (x:a) ->  let ht = new HashTable<a> in
+                         ht.table = newarray ("",x) 10000;
                          ht
-}
-(**
-    Making - accepts two parameters for size and default value
-    Example : let hashTable = HashTable.make(1000, -1);;
-*)
-static make = { |(size,default) ->  let ht = new HashTable in
-                                    ht.table = newarray ("",(default):Top) size;
-                                    ht
 }
 
 (* It tells the usage percentage in hashtable*)
@@ -52,7 +46,7 @@ get_hash = { fun key -> let result = Ref 0 in
 get_index = { fun hash -> hash modint this.size() }
 
 (* It tells whether the index has already used *)
-is_available = { fun index -> !(entry(!this.table,index)) == ("", (-1):Top) }
+is_available = { fun index -> fst(!(entry(!this.table,index))) == "" }
 
 (* It accepts the string key and returns the first available position in array *)
 get_position = { fun k -> let hash = Ref (this.get_hash(k)) in
@@ -77,7 +71,7 @@ put = { |(k,v) -> let position = Ref (this.get_position(k)) in
 (* Public method, it accpets a string key, and returns the related value *)
 get = { fun k -> let hash = Ref (this.get_hash(k)) in
                  let found = Ref (False) in
-                 let value = Ref ("KeyNotFound": Top) in
+                 let value = Ref ((_): a) in
                  let index = Ref (this.get_index(!hash)) in
                  let key = Ref (fst (!(entry(!this.table, !index)))) in
                      while (!found == False) do
@@ -93,8 +87,6 @@ get = { fun k -> let hash = Ref (this.get_hash(k)) in
                      !value
 }
 
-
-
 (* For debugging purpose, not used 
 debug = { fun index -> !(entry(!this.table,index)) }
 *)
@@ -103,7 +95,7 @@ debug = { fun index -> !(entry(!this.table,index)) }
 
 (* Test
 
-let ha = HashTable.make0();;
+let ha = HashTable.make(-1:Int);;
 
 ha.put("key", "value");;
 
