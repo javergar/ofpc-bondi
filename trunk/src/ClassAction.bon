@@ -1,6 +1,5 @@
 class ClassAction extends ShellAction {
 
-
 (* getting and making *)
 name: String;
 get_name = { | () -> !this.name }
@@ -10,36 +9,34 @@ static make = { | (x:String) ->
         res
 }
 
-
 (* parsing methods *)
+
+(* method parser *)
 static methodParser = {
     (anyLowerCaseToken .>>= (fun cname ->
         (stx_parser "=") .>> ((stx_parser "{") .>> ((stx_parser "}")))))
 }
 
 (* field parser *)
-static fieldParser = {
+static fieldParser = { 
     (anyLowerCaseToken .>>= (fun vname ->
         (stx_parser ":") .>> (anyUpperCaseToken .>>= (fun vtypee ->
-                ret (NamedVariable vname)))))
+                ret vname))))
 }
 
 (* attributeList parser *)
-    (*
 static attributeListParser = {
-    ((ClassAction.fieldParser) .<|> (ClassAction.methodParser))
+    ((ClassAction.fieldParser) .<|> (ClassAction.methodParser)) .>>=
+        (fun x -> ret x)
 }
-*)
 
-(* parsing *)
+(* main parser *)
 static discontinuous parser = {
     (stx_parser "class") .>> (anyUpperCaseToken .>>= (fun cname -> 
-        (stx_parser "{") .>> ((parseMany ClassAction.methodParser) .>>= (fun methods -> 
+        (stx_parser "{") .>> ((parseMany ClassAction.attributeListParser) .>>= (fun methods -> 
         (stx_parser "}") .>> (ret (ClassAction.make cname))))))
 }
 
-
 headString = { |() -> "class" ^ !this.name}
 with ShellAction.parser += | view(ClassAction.parser, Parsed ps) -> Parsed ps
-
 }
