@@ -57,12 +57,12 @@ ret (LetAction.make(ident,
 }
 
 act = { | gctx -> 
-let ctxt0 = Context.make (Context.idSub,[],[]) in 
-let tyres = (!this.exp).infer_type(ctxt0) (TypeVariable.next()) 
+let ctxt0 = Context.make1 (TypeVariable.idSub) in 
+let tyres = (!this.exp).infer_type(ctxt0) (TypeVariable.next()) in
 match tyres with
-| Some ty -> let exp_data = ExpressionData.make ((!this.exp),"",QuantifiedType.closure(ty,ctxt0)) in 
+| Some ty -> let exp_data = ExpressionData.make ((!this.exp),(LetStatus.make ""),(QuantifiedType.closure ty ctxt0)) in 
                             gctx.declaration_counter =  (!gctx.declaration_counter)+1;                          
-                            (!gctx.value_context).envAdd  (!this.var)  (!gctx.declaration_counter) (exp_data)
+
 | None -> (println "Type Error")  
 } 
 
