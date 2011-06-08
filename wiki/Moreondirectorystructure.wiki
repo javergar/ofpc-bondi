@@ -1,6 +1,6 @@
 #summary More on directory structure
 
-= Introduction =
+= More on directory structure =
 
 Hi everyone,
 
@@ -16,18 +16,21 @@ see this in the src directory).
 The file combinatory_language.bon has been modified by adding a single
 line
 
-%open "globals/globals.bon";;
+{{{ %open "globals/globals.bon";; }}}
 
-before the shell classes are declared. By contrast, your line will go after   %open "Shell.bon";;
+before the shell classes are declared. By contrast, your line will go after  {{{ %open "Shell.bon";; }}}
 
 
 The file "globals/globals.bon" begins with 
 
+{{{
 %cd "globals";;
+}}}
 
 and ends with 
-
+{{{
 %cd ".."
+}}}
 
 In between are the open commands for the various files containing
 classes.
@@ -40,18 +43,11 @@ Most of you will need to move files within svn. This is easy. For
 example, suppose that greatthan.bon is to go into a subdirectory
 called integers. Run the following commands
 
+{{{
 mkdir integers
 svn add integers
 svn mv greatthan.bon integers
 svn commit -m "created integers directory"
+}}}
 
 Note that moving files in any other way will confuse svn and then us. 
-
-
-
-= Details =
-
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
