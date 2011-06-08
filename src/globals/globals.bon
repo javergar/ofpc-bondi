@@ -1,0 +1,9 @@
+%cd "globals";;
+
+%open "ExpressionData.bon";;
+%open "ExpressionDataHasRefs.bon";;
+%open "ConstructorData.bon";;
+%open "DeclarationEnvironment.bon";;
+%open "GlobalContext.bon";;
+
+%cd "..";;

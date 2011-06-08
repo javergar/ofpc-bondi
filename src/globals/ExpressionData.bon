@@ -1,0 +1,16 @@
+class ExpressionData {
+value1: Expression;
+status: LetStatus;
+type1: Type;
+get_value1 = { |() -> !this.value1}
+get_status = { |() -> !this.status}
+get_type1 = { |() -> !this.type1}
+static make = { | (v,s,t) -> 
+	let res = new ExpressionData in 
+	res.value1 = v;
+	res.status = s;
+	res.type1 = t;	
+	res
+}
+
+}
