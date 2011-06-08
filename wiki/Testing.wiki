@@ -1,0 +1,8 @@
+#summary Testing your code
+
+= Testing your code =
+
+As well as any tests that you develop yourselves, let me remind you that there is a directory called tests in bondi 2.06 that includes some basic tests, and then all of the code in the standard prelude etc if you are feeling more ambitious. 
+
+Barry
+
