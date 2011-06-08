@@ -31,7 +31,7 @@ Variable.parser .>>= ( fun var -> ret (ExpressionVariable.make var []))
 infer_type_head = { (( | (ctxt:ExpressionContext) -> fun ty -> 
   match ctxt.find_type(this.get_variable())  with 
 	| None -> None
-	| Some ty1 -> ctxt.subunify_clean (ty1,ty)
+	| Some (ty1,_) -> ctxt.subunify_clean (ty1,ty)
 ): Context -> Type -> Maybe Type)
 }
 
