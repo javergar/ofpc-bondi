@@ -2,6 +2,7 @@
 %open "containers.bon";;
 *)
 class Container<a> {
+dummy: a;
 next = {|() -> (None: Maybe a) }
 }
 
