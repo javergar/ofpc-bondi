@@ -3,5 +3,5 @@ class ShellAction
 static discontinuous parser = { (defaultParser
   : ParserArgument-> ParserResult ShellAction) }
 
-act = { |() -> () }
+act = { | ctx -> () }
 }

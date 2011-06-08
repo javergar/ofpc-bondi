@@ -212,6 +212,22 @@ match fetch_token args with
 let parseUpperCase = (parseOne UpperCaseIdentToken);;
 let parseLowerCase= (parseOne LowerCaseIdentToken);;
 
+
+
+let rec except p (args:ParserArgument) =
+if (lengthv (snd args)) >= (fst args) then
+match p args with
+| Parsed x -> Parsed x
+| NotParsed -> except p (fst args +1,snd args)
+else
+NotParsed
+;;
+
+let end_of_comment =  (stx_parser "* )")
+;;
+
+
+
 let parseAnyLowerCase x = parseApplyOne LowerCaseIdentToken x;;
 
 let parseAnyUpperCase x = parseApplyOne UpperCaseIdentToken x;;
