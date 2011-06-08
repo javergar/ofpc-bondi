@@ -13,14 +13,11 @@ static make =  {|(ini, leng) ->
  	res.len = leng;
 	(Expression.make res [])
 }
-
-static parser = { ((stx_parser "Array") .>> (Expression.parser .>>= ((fun x -> Floats.make x []) .>>= ((fun y -> Integer.make y []) .>> (ret Array.make (x,y))))))  }
 (*
- (Array.make()
-((stx_parser "Array") .>>   (parseAnyString (fun x -> Strings.make x []))) .>>= (fun x -> (stx_parser "\"") .>> (ret x))
-*)
-with Type.parser += | view(Array.parser,Parsed ps) -> Parsed ps
+static parser = { ((stx_parser "Array") .>> (Expression.parser .>>= ((fun x -> Floats.make x []) .>> (fun y -> Integer.make y []) .>> (ret Array.make (x,y)))))  }
 
+with Type.parser += | view(Array.parser,Parsed ps) -> Parsed ps
+*)
 
 }
 
