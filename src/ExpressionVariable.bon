@@ -26,8 +26,6 @@ Variable.parser .>>= ( fun var -> ret (ExpressionVariable.make var []))
 
 	(** typing *) 
 
-
-
 infer_type_head = { (( | (ctxt:ExpressionContext) -> fun ty -> 
   match ctxt.find_type(this.get_variable())  with 
 	| None -> None
@@ -50,6 +48,6 @@ and equal += | ((x:ExpressionVariable),(y:ExpressionVariable)) ->
 	x.get_arguments() == y.get_arguments()
 and Variable.free += | (x:ExpressionVariable) -> 
 	Cons (x.get_variable()) (Variable.free(x.get_arguments())) 
- }
+}
 
 

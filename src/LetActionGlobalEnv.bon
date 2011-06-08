@@ -1,0 +1,73 @@
+class LetAction extends ShellAction {
+var:Expression;
+exp:Expression;
+get_variable = { | () -> !this.var}
+get_expression = { | () -> !this.exp}
+
+static make = { | (x,y) ->
+                   let res = new LetAction in
+                       res.var =  x;
+                       res.exp = y; res
+}
+
+static discontinuous parser = { 
+let lambdamake  = 
+((| (x:ExpressionVariable) -> fun y -> Lambda.make x y []
+): Expression -> Expression -> Expression) 
+in 
+let letmake  = 
+((| (x:ExpressionVariable) -> fun y z -> LetExpression.make x y z []
+): Expression -> Expression -> Expression -> Expression) 
+in 
+(stx_parser "let") .>> (
+Expression.simpleParser .>>= (fun ident -> 
+(parseMany ExpressionVariable.parser) .>>= (fun params ->
+(stx_parser "=") .>> (
+Expression.parser .>>= (fun exp ->  
+(stx_parser "; ;") .>> ( 
+ret (LetAction.make(ident,foldright lambdamake params exp))
+))))))
+}
+
+static discontinuous recursiveParser = { 
+let lambdamake  = 
+((| (x:ExpressionVariable) -> fun y -> Lambda.make x y []
+): Expression -> Expression -> Expression) 
+in 
+let let_term_make  = 
+((| (x:ExpressionVariable) -> LetExpression.make x
+): Expression -> Expression -> Expression -> List Expression -> Expression) 
+in 
+let letmake  = 
+((| (x:ExpressionVariable) -> fun y z -> LetExpression.make x y z []
+): Expression -> Expression -> Expression -> Expression) 
+in 
+(stx_parser "let rec") .>> (
+Expression.simpleParser .>>= (fun ident -> 
+(parseMany ExpressionVariable.parser) .>>= (fun params ->
+(stx_parser "=") .>> (
+Expression.parser .>>= (fun exp ->  
+(stx_parser "; ;") .>> ( 
+ret (LetAction.make(ident,
+      Y_operator.make [
+	lambdamake ident (
+	letmake ident (foldright lambdamake params exp) ident
+	)]
+))))))))
+}
+
+act = { | gctx -> 
+let ctxt0 = Context.make (Context.idSub,[],[]) in 
+let tyres = (!this.exp).infer_type(ctxt0) (TypeVariable.next()) 
+match tyres with
+| Some ty -> let exp_data = ExpressionData.make ((!this.exp),"",QuantifiedType.closure(ty,ctxt0)) in 
+                            gctx.declaration_counter =  (!gctx.declaration_counter)+1;                          
+                            (!gctx.value_context).envAdd  (!this.var)  (!gctx.declaration_counter) (exp_data)
+| None -> (println "Type Error")  
+} 
+
+
+with ShellAction.parser += | view(LetAction.parser,Parsed ps) -> Parsed ps
+and ShellAction.parser += | view(LetAction.recursiveParser,Parsed ps) -> Parsed ps
+and toString += | (x:LetAction) -> "\nlet " ^ (toString (x.get_variable()))^" = "^(toString x)
+}
