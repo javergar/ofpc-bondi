@@ -1,0 +1,16 @@
+class ConstructorData {
+value1: Operator;
+status: LetStatus;
+type1: Type;
+get_value1 = { |() -> !this.value1}
+get_status = { |() -> !this.status}
+get_type1 = { |() -> !this.type1}
+static make = { | (v,s,t) -> 
+	let res = new ConstructorData in 
+	res.value1 = v;
+	res.status = s;
+	res.type1 = t;	
+	res
+}
+
+}

@@ -1,0 +1,31 @@
+class DeclarationEnvironment<a> {
+declaration_context : BalancedTree <Variable,List (Int * a) >;
+static make = { fun (x:a) -> 
+ let res = new DeclarationEnvironment<a> in 
+ res.declaration_context = 
+   BalancedTree.make(NamedVariable.make "",[],BLACK);
+ res
+}
+
+static rec get_best = { fun n -> 
+  | [] -> None 
+  | Cons (m,x) ps -> if n >= m then Some x else DeclarationEnvironment.get_best n ps
+}
+
+
+envFind = { fun (x:Variable) (n:Int) -> 
+  match (!this.declaration_context).search(x) with 
+  | None -> None 
+  | Some ps -> 	DeclarationEnvironment.get_best n ps 
+}
+
+envAdd = { fun (x:Variable) (n:Int) ed -> 
+  let new_list = 
+  match (!this.declaration_context).search(x) with 
+  | None -> [(n,ed)]
+  | Some ps -> Cons (n,ed) ps 
+  in 
+  this.declaration_context = (!this.declaration_context).insert x new_list
+}
+
+}

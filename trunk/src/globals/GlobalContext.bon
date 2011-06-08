@@ -1,0 +1,14 @@
+class GlobalContext {
+declaration_counter : Int;
+value_context : DeclarationEnvironment<ExpressionData>;
+constructor_context : DeclarationEnvironment<ConstructorData>;
+static make = { | () -> 
+ let res = new GlobalContext in 
+ res.declaration_counter = 1;
+ res.value_context = DeclarationEnvironment.make (Exception:ExpressionData);
+ res.constructor_context = DeclarationEnvironment.make (Exception:ConstructorData);
+res 
+}
+
+
+}
