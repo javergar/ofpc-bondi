@@ -1,0 +1,6 @@
+(* Yufei Zhao 10885402 *)
+
+%cd "..";;
+%open "combinatory_language.bon";;
+%cd "auxiliary";;
+%open "Auxiliary.bon";;
