@@ -1,0 +1,18 @@
+(*
+  Student Name : Le Kang 
+  Student Number: 10796720 
+  Email: Le.Kang@student.uts.edu.au
+*)
+
+%cd "..";;
+%open "combinatory_language.bon";;
+
+%cd "letterms";;
+%open "Let.bon";;
+
+(*
+Parsing: 3
+Evalution: 3
+Typing: 3
+*)
+
