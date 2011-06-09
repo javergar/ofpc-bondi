@@ -1,0 +1,11 @@
+(*
+
+Student ID: 10929925
+Student Name:	Pan Zheng
+
+*)
+
+%cd "ofpc-bondi/src";;
+%open "combinatory_language.bon";;
+%cd "typesynonyms";;
+%open "TYPE_SYNONYMS.bon";;

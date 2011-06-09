@@ -1,0 +1,28 @@
+class TypeSynonymAction extends ShellAction {
+type_syn :Type; 
+new_name : String; 
+
+(* Making *)
+static make =  { fun name ty ->  let res = new TypeSynonymAction in
+res.new_name = name;
+res.type_syn = ty;
+res }
+
+(* parsing *)
+
+static parser ={ 
+   ((stx_parser "type") .>> (parseAnyUpperCase)) .>>=
+       (fun n ->  (stx_parser "=").>> (Type.parser
+                  .>>= (fun ty -> (stx_parser ";;") .>> 
+                         (ret (TypeSynonymAction.make n ty))))) }  
+
+act = { | () ->  () } 
+with ShellAction.parser += | view(TypeSynonymAction.parser,Parsed ps) -> Parsed ps
+}
+
+(*
+
+Test:
+Expression.parser "type Bla = Int";;
+
+*)
