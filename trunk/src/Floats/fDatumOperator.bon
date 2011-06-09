@@ -1,0 +1,3 @@
+class DatumOperator extends Operator
+{
+}

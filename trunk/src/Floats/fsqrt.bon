@@ -1,0 +1,19 @@
+class FSQRT extends DatumOperator {
+static make =  { fun args -> Expression.make (new FSQRT) args } 
+static parser = { (stx_parser "sqrt") .>>  (ret (FSQRT.make []))}
+type_scheme = { |() -> 
+    FunctionType.make2 (FloatType.make(),FloatType.make(),FloatType.make()) 
+}
+(* Typing *)
+reduce = { |() -> match this.get_arguments() with 
+  ((| (Cons x args) -> Some (Floats.make (sqrt(x.get_float_value())) args)
+    | _ -> None) : List Expression -> Maybe Expression)
+}
+(* Printing *)
+headString = { |() -> "sqrt" }
+with Expression.simpleParser += | view(FSQRT.parser,Parsed ps) -> Parsed ps
+}
+
+(* Testing *)
+let t1 = Expression.parse "sqrt 5.0";;
+t1.eval();;

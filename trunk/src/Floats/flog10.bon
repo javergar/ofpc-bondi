@@ -1,0 +1,19 @@
+class FLOG10 extends DatumOperator {
+static make =  { fun args -> Expression.make (new FLOG10) args } 
+static parser = { (stx_parser "log10") .>>  (ret (FLOG10.make []))}
+type_scheme = { |() -> 
+    FunctionType.make2 (FloatType.make(),FloatType.make(),FloatType.make()) 
+}
+(* Typing *)
+reduce = { |() -> match this.get_arguments() with 
+  ((| (Cons x args) -> Some (Floats.make (log10(x.get_float_value())) args)
+    | _ -> None) : List Expression -> Maybe Expression)
+}
+(* Printing *)
+headString = { |() -> "log10" }
+with Expression.simpleParser += | view(FLOG10.parser,Parsed ps) -> Parsed ps
+}
+
+(* Testing *)
+let t1 = Expression.parse "log10 0.5";;
+t1.eval();;

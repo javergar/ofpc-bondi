@@ -1,0 +1,32 @@
+class Floats extends DatumOperator {
+float_value: Float;
+get_float_value = { |() -> !this.float_value}
+
+(* Making *)
+   static make = {
+      fun x args -> let res = new Floats in
+      res.float_value = x;
+       Expression.make (res) args
+   }
+
+(* Parsing *)
+   static parser = { ((fun args ->
+     match fetch_token args with
+     | Some (FloatToken x) -> Parsed ((fst args) +1, (Floats.make (string2float x) []))
+     | _ -> NotParsed):  Int * array Token -> ParserResult Expression)
+       }
+ (* Typing *)
+  infer_type_head =  { ((fun ctxt ty -> Some (FloatType.make())): Context  -> Type -> Maybe Type) }
+
+  (* Printing *)
+headString = { |() -> "it: Float it = "^(toString (this.get_float_value())) }
+with Expression.simpleParser += | view(Floats.parser,Parsed ps) -> Parsed ps
+}
+
+
+
+
+
+
+
+

@@ -1,0 +1,19 @@
+class FEXPONENTIAL extends DatumOperator {
+static make =  { fun args -> Expression.make (new FEXPONENTIAL) args } 
+static parser = { (stx_parser "exponential") .>>  (ret (FEXPONENTIAL.make []))}
+type_scheme = { |() -> 
+    FunctionType.make2 (FloatType.make(),FloatType.make(),FloatType.make()) 
+}
+(* Typing *)
+reduce = { |() -> match this.get_arguments() with 
+  ((| (Cons x args) -> Some (Floats.make (exponential(x.get_float_value())) args)
+    | _ -> None) : List Expression -> Maybe Expression)
+}
+(* Printing *)
+headString = { |() -> "exponential" }
+with Expression.simpleParser += | view(FEXPONENTIAL.parser,Parsed ps) -> Parsed ps
+}
+
+(* Testing *)
+let t1 = Expression.parse "exponential 0.5";;
+t1.eval();;

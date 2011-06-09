@@ -1,0 +1,19 @@
+class FCEIL extends DatumOperator {
+static make =  { fun args -> Expression.make (new FCEIL) args } 
+static parser = { (stx_parser "ceil") .>>  (ret (FCEIL.make []))}
+type_scheme = { |() -> 
+    FunctionType.make2 (FloatType.make(),FloatType.make(),FloatType.make()) 
+}
+(* Typing *)
+reduce = { |() -> match this.get_arguments() with 
+  ((| (Cons x args) -> Some (Floats.make (ceil(x.get_float_value())) args)
+    | _ -> None) : List Expression -> Maybe Expression)
+}
+(* Printing *)
+headString = { |() -> "ceil" }
+with Expression.simpleParser += | view(FCEIL.parser,Parsed ps) -> Parsed ps
+}
+
+(* Testing *)
+let t1 = Expression.parse "ceil 0.5";;
+t1.eval();;
