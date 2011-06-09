@@ -61,14 +61,16 @@
 %cd "globals";;
 %open "globals.bon";;
 
-(*open Trailer.bon *)
-%cd "trailer";;
-%open "TrailerAction.bon";;
+
 
 
   %open "ShellAction.bon";;
   %open "ExpressionAction.bon";;
   %open "LetActionGlobalEnv.bon";;
+
+(*open Trailer.bon *)
+%cd "trailer";;
+%open "TrailerAction.bon";;
 
 (*  %open "LetAction.bon";; *)
 
@@ -83,6 +85,7 @@
    %open "BoolType.bon";;
  %cd "lineardeclaration";;
    %open "linearclaration.bon";;
+
 
 
 
