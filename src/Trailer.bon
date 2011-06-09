@@ -22,10 +22,11 @@ new Trailer in trailer.action_list =
 
 act = { fun (gctx: ref GlobalContext) -> 
 let excecute = 
-| (w:ShellAction) -> w.act gctx
+| (x:ShellAction) -> x.act gctx
 | _ -> ()
 in
 iter excecute (!this.action_list)  }
+
 headString = { |() -> "Trailer" ^ !this.name}
 with ShellAction.parser += | view(Trailer.parser, Parsed ps) -> Parsed ps
 }
@@ -38,7 +39,7 @@ let trailer = get_result (Trailer.parser (0,lexer "with let rec x=3;;"))
 trailer.act()
 ;;
 
-let trailer2 = get_result (Shell.parser (0,lexer "with let rec x=3;;"))
+let trailer2 = get_result (ShellAction.parser (0,lexer "with let rec x=3;;"))
 ;;
 
 trailer2.act()
