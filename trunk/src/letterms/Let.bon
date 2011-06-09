@@ -1,0 +1,102 @@
+class Let extends Expression {  
+  variable: ExpressionVariable;
+  status: String;
+  value: Expression;
+  body: Expression;
+  
+  get_variable = { | () -> !this.variable}
+  get_status = { | () -> !this.status}
+  get_value = { | () -> !this.value}
+  get_body = { | () -> !this.body}
+ 
+  (* Making *)
+  
+  static make = { fun x y z w ->
+    let res = new Let in
+    res.variable = x;
+    res.status = y;
+    res.value = z;
+    res.body = w;
+    Expression.make res []
+  }
+    
+  (* Parsing <let status> ::= ‘rec’ | ‘ext’ | ‘method’ | ‘discontinuous’ | ‘linear’ *)
+  
+  static discontinuous status_parser = { 
+    (((((stx_parser "rec") .<|> (stx_parser "ext")) .<|> (stx_parser "method")) .<|> 
+    (stx_parser "discontinuous")) .<|> (stx_parser "linear")) .>>= (fun x -> ret x)
+  }
+
+  (* Parsing <parameter> ::= <term_id> | <parameter> ':' <type> | '(' <paramater> ')' *)
+
+  static discontinuous params_parser = {
+    let params_parser1 = ExpressionVariable.parser in
+    let params_parser2 = params_parser1 .<|> (( lparen .>> params_parser1) .>>= (fun x -> rparen .>> ret x)) in params_parser2
+  }
+
+  (* Parsing *)
+
+  static discontinuous parser = { 
+    let lambdamake  = 
+    ((| (x:ExpressionVariable) -> fun y -> Lambda.make x y []
+    ): Expression -> Expression -> Expression) in
+    let letmake  = 
+    ((| (x:ExpressionVariable) -> fun y z w -> Let.make x y z w
+    ): Expression -> String -> Expression -> Expression -> Expression) in 
+    (stx_parser "let") .>> (
+    Let.status_parser .>>= (fun status ->
+    Let.params_parser .>>= (fun var -> 
+    (parseMany ExpressionVariable.parser) .>>= (fun params ->
+    (stx_parser "=") .>> (
+    Expression.parser .>>= (fun exp ->  
+    (stx_parser "in") .>> ( 
+    Expression.parser .>>= (fun body ->  
+    ret (letmake var status (foldright lambdamake params exp) body)
+    ))))))))
+  }
+
+  (* Typying *)
+
+  let_terms_type = {
+    | () -> 
+    let ctxt = Context.make1 (TypeVariable.idSub) in
+    let value_type = this.get_value().infer_type(ctxt) (TypeVariable.next()) in
+    let body_type = this.get_body().infer_type(ctxt) (TypeVariable.next()) in
+    if (value_type == body_type)
+    then value_type
+    else
+    match (value_type,body_type) with
+    | (Some x,Some y) -> ctxt.subunify_clean(x,y)
+    | _ -> None
+  }
+    
+  infer_type = { ((fun ctxt ty -> this.let_terms_type()): Context  -> Type -> Maybe Type) }  
+
+  (* Evaluation *)
+
+  reduce = {
+    | () -> Some (this.get_body())
+  }
+  
+  (* Printing *)
+
+  headString = { |() -> 
+    "let " ^ 
+    (toString (this.get_status())) ^
+    " " ^
+    (toString (this.get_variable())) ^ 
+    " = " ^
+    (toString (this.get_value())) ^ 
+    " in " ^
+    (toString (this.get_body())) 
+  }
+  with Expression.parser += | view(Let.parser,Parsed ps) -> Parsed ps
+
+
+  (* Testing
+
+    let t = Expression.parse "let ext f x = x in f f";;
+    t.eval();;
+  
+  *)
+}
