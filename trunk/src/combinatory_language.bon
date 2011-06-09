@@ -61,6 +61,10 @@
 %cd "globals";;
 %open "globals.bon";;
 
+(*open Trailer.bon *)
+%cd "trailer";;
+%cd "TrailerAction.bon";;
+
 
   %open "ShellAction.bon";;
   %open "ExpressionAction.bon";;
