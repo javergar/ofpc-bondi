@@ -1,9 +1,11 @@
+(* Dynamic Case parser working completely with the test case at the end *)
+
 class Dynamic_Case extends Case {
 patt : Expression;
 dbody: Expression ;
 get_patt = { | () -> !this.patt}
 get_dbody = { | () -> !this.dbody}
-static make = { | (pat,bdy) -> 
+static make = { | (pat,bdy,args)  -> 
   let res = new Dynamic_Case in 
   res.patt = pat;
   res.dbody = bdy;
@@ -28,9 +30,26 @@ Expression.parser)
 .>>= 
 (fun pat -> 
        (stx_parser "- >") .>>
-(Expression.parser .>>= (fun bdy -> 
-Expression.parser .>>= 
-(fun default -> 
-ret (Case.make (pat,bdy) [default])))))
+(Expression.parser .>>= (fun bdy -> (
+Case.parser .<|> (
+  (stx_parser "|") .>> 
+  Expression.parser)) .>>= (fun default -> 
+ret (Dynamic_Case.extension (pat,bdy,default))))))
 }
+
+headString = { |() -> 
+  "| " ^ 
+  (this.get_pattern().expressionToString (False))^
+  " -> " ^ 
+  (this.get_body().expressionToString(False))
 }
+
+with
+Expression.parser += | view(Dynamic_Case.parser,Parsed ps) -> Parsed ps
+}
+
+(* test Case
+
+let id = (Expression.parse "| {a,s,d} x -> x | I");;
+
+*)
