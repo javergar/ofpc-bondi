@@ -1,0 +1,47 @@
+class Trailer extends ShellAction{
+
+name: String;
+action_list:List ShellAction;
+
+get_name = { | () -> !this.name }
+static make = { | (x:String) ->
+    let res = new Trailer in
+        res.name = x;
+        res
+}
+
+(* static make = { | () -> new Trailer} *)
+(* getting and making *)
+
+
+static parser = { ((stx_parser "with") .>> ShellAction.parser) .>>= (fun action1 ->
+(parseMany ((stx_parser "and") .>> ShellAction.parser)) .>>= 
+(fun actions ->  let trailer = 
+new Trailer in trailer.action_list = 
+(Cons action1 actions); ret trailer)) }
+
+act = { fun (gctx: ref GlobalContext) -> 
+let excecute = 
+| (x:ShellAction) -> x.act gctx
+| _ -> ()
+in
+iter excecute (!this.action_list)  }
+
+headString = { |() -> "Trailer" ^ !this.name}
+with ShellAction.parser += | view(Trailer.parser, Parsed ps) -> Parsed ps
+}
+
+(* Testing
+
+let trailer = get_result (Trailer.parser (0,lexer "with let rec x=3;;"))
+;;
+
+trailer.act()
+;;
+
+let trailer2 = get_result (ShellAction.parser (0,lexer "with let rec x=3;;"))
+;;
+
+trailer2.act()
+;;
+*)

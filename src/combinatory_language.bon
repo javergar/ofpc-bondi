@@ -63,7 +63,7 @@
 
 (*open Trailer.bon *)
 %cd "trailer";;
-%cd "TrailerAction.bon";;
+%open "TrailerAction.bon";;
 
 
   %open "ShellAction.bon";;
