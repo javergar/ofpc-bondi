@@ -72,6 +72,11 @@
 %cd "trailer";;
 %open "TrailerAction.bon";;
 
+(* open LinearType.bon *)
+
+ %cd "lineardeclaration";;
+   %open "lineardeclaration.bon";;
+
 (*  %open "LetAction.bon";; *)
 
   %open "Shell.bon";;
@@ -84,8 +89,6 @@
  %cd "booleansandconditionals";;
    %open "BoolType.bon";;
 
- %cd "lineardeclaration";;
-   %open "linearclaration.bon";;
 
 
 
