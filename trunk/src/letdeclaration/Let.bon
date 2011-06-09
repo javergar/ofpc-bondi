@@ -145,11 +145,29 @@ with ShellAction.parser += | view(Let.parser,Parsed ps) -> Parsed ps
 (* and toString += | (x:Let) -> ((toString ((x.get_binding()).get_parameter())) ^ " = " ^ (toString ((x.get_binding()).get_body_val()))) *)
 
 
-(* *)
+
 
 (* testing *)
 (*
-ShellAction.parser (0, lexer "let rec x=3;;");;
+these following test works:
+ShellAction.parser (0, lexer "let rec (x:a)=x;;");;
+ShellAction.parser (0, lexer "let rec x = x;;");;
+ShellAction.parser (0, lexer "let rec (x)=a;;");;
+ShellAction.parser (0, lexer "let rec x = (a);;");;
+
+
+test that did not works, probably need to wait for other type (i.e.boolean, int) to ready:
+ShellAction.parser (0, lexer "let rec x=3;;");;    
+ShellAction.parser (0, lexer "let rec x = True;;");;
+ShellAction.parser (0, lexer "let rec (x:a)=2;;");;
+ShellAction.parser (0, lexer "let rec (x:a)=True;;");;
+ShellAction.parser(0, lexer "let rec x = [1,2];;");;
+ShellAction.parser(0, lexer "let rec x = (1,2);;");;
+
+
+testing with the global env
+let shell = new Shell;;
+shell.react "let rec x = S;;";;
 
 *)
 }
