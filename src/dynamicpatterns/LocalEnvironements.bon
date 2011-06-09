@@ -1,0 +1,57 @@
+(* At this stage I was suppose to focus on Dynamic patterns evaluation and typing. As a result of negotiations with Jose through email I decided to do the 
+lookup, addto, and member of Lambda abstractions with environments. This file contains the working code with testing cases *)
+
+
+class LocalEnvironments extends Context {
+term_context: List (Variable * Expression);
+get_term_context = {| () -> !this.term_context}
+set_term_context = { fun x -> this.term_context = x}
+
+static make = {| () -> let local_env = new LocalEnvironments in
+                       local_env.term_context = []; local_env 
+		} 
+
+lookup = { 
+   let rec look_aux x term_list = 
+   match term_list  with
+   | Cons (y,val) ys ->
+	if x == y
+	then
+	Some val
+	else  
+        look_aux x ys
+  | Nil -> None
+in
+fun x -> look_aux x (!this.term_context)	
+}
+
+memberof = { 
+   let rec look_aux x term_list =    
+   match term_list  with
+   | Cons (y,val) ys ->
+	if x == y
+	then
+	True
+	else
+	look_aux x ys
+  | Nil -> False
+in
+fun x -> look_aux x (!this.term_context)	
+}
+
+
+addto = { fun x -> this.term_context = (Cons x (!this.term_context)) }
+}
+		
+(* Test Cases:
+					
+let k = Expression.parse "K";;
+let x = Variable.parser (0,lexer "x");;
+let lenv = LocalEnvironments.make();;
+lenv.addto (x,k);;
+lenv.lookup x;;
+lenv.memberof x;;
+
+*)
+
+
