@@ -5,22 +5,26 @@ my_array: array Float;
 
 
 get_arrayLength = {|()-> !this.len}
-
-
-static make =  {|(ini, leng) ->    
-        let res = new Array in
-	res.my_array  = newarray ini leng;
- 	res.len = leng;
-	(Expression.make res [])
-}
 (*
-static parser = { ((stx_parser "Array") .>> (Expression.parser .>>= ((fun x -> Floats.make x []) .>> (fun y -> Integer.make y []) .>> (ret Array.make (x,y)))))  }
-
-with Type.parser += | view(Array.parser,Parsed ps) -> Parsed ps
+get_ini_value = {|()-> !(entry(!this.my_array,0))}
 *)
+get_value = {|(index:Integer)-> !(entry(!this.my_array, index.get_int_value()))}
 
+static make =  {|(ini, leng) ->  
+        match (ini, leng) with
+        | (i:Floats,l:Integer) ->
+	let res = new Array in
+	res.my_array = newarray (i.get_float_value())  (l.get_int_value());
+	res.len = (leng.get_int_value());
+	(Expression.make res []) 
+        | _ -> Exception ""
 }
 
-(* this is a class array with the type of array inside *)
-(* we have to create another class array with has length and initilize value *)
+static parser ={ 
+   ((stx_parser "Array") .>> (Floats.parser )) .>>=
+       (fun x -> (Integer.parser) .>>= (fun y -> (ret (Array.make (x,y))))) }  
+with Type.parser += | view(Array.parser,Parsed ps) -> Parsed ps
+
+
+}
 
