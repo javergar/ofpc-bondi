@@ -1,6 +1,10 @@
-(*  %open "lexer.bon";;  *)
-
-let comment_parser = 
-	(stx_parser "(*")) .>> 
-	Expression.simpleParser .>>= (fun x -> 
-	(stx_parser "*)") -> ret (""));;
+let (comment_parser : ParserArgument -> ParserResult String) =
+( let rec except p (args:ParserArgument) =
+if (lengthv (snd args)) >= (fst args) then
+match p args with
+| Parsed x -> Parsed x
+| NotParsed -> except p (fst args +1,snd args)
+else
+NotParsed
+in except (stx_parser "* )"))
+;;
