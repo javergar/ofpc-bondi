@@ -1,0 +1,8 @@
+(*
+Student name: Quoc Thi Nguyen
+Student number: 11079009
+parsing: 2, evaluation:_, typing:_
+*)
+
+%open "Trailer.bon";;
+%cd "..";;
