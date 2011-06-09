@@ -1,3 +1,4 @@
+(* this is class Linear Type *)
 class LinearType extends Type {
 
 linArgumentType: Type;
