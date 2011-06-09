@@ -1,0 +1,18 @@
+(* As discussed with barry during the last class on Monday 6th June, the other new task I had to do was the closure for lambda abstractions. the part after with is not working therefore cannot implement any test cases. the code after with are written with help from http://www.cs.dartmouth.edu/~mckeeman/cs118/lectures/14.html#anchor2 *)
+
+
+class Closure extends Lambda {
+
+environment:LocalEnvironments;
+
+get_environment = {| () -> !this.environment}
+set_environment = { fun x -> this.environment = x}
+
+with
+ExpressionContext.eval += | (e:Lambda) -> | (f:Expression) -> 
+let (f1,e0) = ExpressionContext.eval f this in
+let (cls,e1) = ExpressionContext.eval e0 in
+ExpressionContext.eval cls e1
+
+}
+
