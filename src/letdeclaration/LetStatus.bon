@@ -26,10 +26,5 @@ static discontinuous parser = {
 	(stx_parser "method")) .>>= (fun x -> ret (LetStatus.make x))
 }
 
-(*
-Parsing: 2
-Evaluation : 
-Typing:
-*)
 
 }

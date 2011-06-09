@@ -1,5 +1,8 @@
 (* Erick Liemarga 10901965 *)
-%open "../combinatory_language.bon";;
+%cd "..";;
+%open "combinatory_language.bon";;
+
+%cd "letdeclaration";;
 %open "LetStatus.bon";;
 (*
 Parsing: 2

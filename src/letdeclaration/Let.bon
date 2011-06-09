@@ -4,29 +4,50 @@
         LetStatus.bon
     contain <let_exp> parser, <binding_list> parser
 
+This following class and method was created based on section 4.1
+of ofpc-bondi-doc.pdf (http://code.google.com/p/ofpc-bondi/downloads/list)
+*)
+
+(*
+	issue: <let_status> must be inputted during the declaration of <let_exp>
+		failing to meet the requirement will resulting in memory complication
+		hence bondi environment will be forced closed.
 *)
 
 class Let extends ShellAction {
+
+(* The definition of the whole class has been altered at this point,
+	the reference doc (ofpc-bondi-doc.pdf) which has been used to build this
+	method and class is no longer in valid. This changes was resulting in
+	alteration of the let-grammar by deleting the second case of the grammar
+	to include a <binding list> and <exp>, all the previous attributes and method 
+	was then commented to avoid compilation and should be kept COMMENTED until there is 
+	an official REVISION of specification of Let-Declaration.
+	List of attributes that are commented:
+	body
+	binding_list
+	
+	List of methods that are commented:
+	make(), binding_list_parser(), old version of parser()	
+*)
 
 binding: Binding;
 (* body: Maybe Expression; *)
 (* binding_list: List Binding; *)
 let_status:Maybe LetStatus;
 
-
+(*this method is used to get the binding in parser results*)
 get_binding = { | () -> !this.binding}
-(*
-get_body_val = { | () -> !this.body}
-get_blist_val = { | () -> !this.binding_list}
-get_lstat_val = { | () -> !this.let_status}
-*)
 
 
 (* Make *)
-(* Two different make method (make) (make1) are defined to tackle
+(* #UNCLEAR Two different make method (make) (make1) are defined to tackle
 	two different result of the <let_exp> parser
  *)
-(* make method with binding_list
+
+
+(* 
+make method with binding_list
 static make = { fun binding_list_rs bdy ->
         let let_action = new Let in 
         let_action.binding_list = binding_list_rs;          
@@ -44,8 +65,11 @@ static make1 = { fun let_stat binding_res  ->
               }
 
 (* Parser *)
-(* There are two parsers defined: <binding_list> and <let_exp> *)
-(* <binding_list> is list of Binding.parser 
+(* #UNCLEAR There are two parsers defined: <binding_list> and <let_exp>
+   <binding_list> is list of Binding.parser 
+*)
+
+(*
 static discontinuous binding_list_parser = {
 let rec blist_parser blist =
 (Binding.parser .>>= (fun var -> println (toString var);
@@ -54,15 +78,23 @@ let rec blist_parser blist =
 (Binding.parser .>>= (fun x -> (ret (append blist [x]))))
  in
 blist_parser
-}*)
+}
+*)
 
 (* <let_exp> parser*)
+(* the existence of <let_status> should be optional, therefore a method maybe should be
+	declared and used in peg_parser.bon to allow 0 occurence of <let_status> in <let_exp>
+	method maybe will stay commented until the method is existed.
+*)
 static discontinuous parser = { 
         (((stx_parser "let") .>> ((*maybe*) LetStatus.parser)) .>>= (fun let_stat ->  (Binding.parser) .>>= (fun binding_res -> (stx_parser ";;" .>>= (fun x -> (ret (Let.make1 (Some let_stat) binding_res ))))))) 
 }
+
+(* #UNCLEAR <let_exp> parser will return to either (make) or (make1)
+ (p1 .>>= (fun x -> Let.make  )  .<|>  (p2 .>>= (fun x -> Let.make  ) 
+*)
+
 (*
-(* <let_exp> parser will return to either (make) or (make1) *)
-(* (p1 .>>= (fun x -> Let.make  )  .<|>  (p2 .>>= (fun x -> Let.make  ) *)
 static discontinuous parser = { 
         (((stx_parser "let") .>> LetStatus.parser) .>>= (fun let_stat ->  (Binding.parser) .>>= (fun binding_res -> (stx_parser "in" .>> Expression.parser) .>>= (fun bdy -> (ret (Let.make1 (Some let_stat) binding_res (Some bdy))))))) 
 
@@ -73,15 +105,19 @@ static discontinuous parser = {
 
 
 (* printing *)
- 
+(* TODO List: get the value and binding variable also the type of the value, print it as:
+	binding_var = Type <new line>
+	binding_var = value <new line>
+	~~
+ *)
 with ShellAction.parser += | view(Let.parser,Parsed ps) -> Parsed ps
-and toString += | (x:Let) -> ( "\n" ^ (toString ((x.get_binding()).get_parameter())) ^ " = " ^ (toString ((x.get_binding()).get_body_val())) ^ "\n")
- (* *)
+and toString += | (x:Let) -> ((toString ((x.get_binding()).get_parameter())) ^ " = " ^ (toString ((x.get_binding()).get_body_val())))
 
+
+(* *)
 
 (* testing *)
 (*
 ShellAction.parser (0, lexer "let rec x=3;;");;
 *)
-
 }
