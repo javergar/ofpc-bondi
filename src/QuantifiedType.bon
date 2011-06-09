@@ -18,9 +18,8 @@ static parser =  {
 }
 
 static closure = { ((fun monotype ctxt -> 
- let mty = monotype.applySub(ctxt.get_substitution()) in 
- let bound = remove_duplicates(subtract (Variable.free mty) (Variable.free ctxt)) in 
-foldright (fun x (ty:Type) -> QuantifiedType.make(x,ty)) bound mty ): Type -> Context -> Type)
+ let bound = remove_duplicates(subtract (Variable.free monotype) (Variable.free ctxt)) in 
+foldright (fun x (ty:Type) -> QuantifiedType.make(x,ty)) bound monotype ): Type -> Context -> Type)
 }
 
 
@@ -80,8 +79,6 @@ and toString += | (x:QuantifiedType) ->
 	"("^"(all " ^ (toString (x.get_boundVariable())) ^")." ^ (toString (x.get_bodyType())) ^")"
 }
 
-
-
 (** tests 
 
 
@@ -96,8 +93,6 @@ let qx = QuantifiedType.make(x.get_variable(),x);;
 let qy = QuantifiedType.make(y.get_variable(),y);;
 
 ctxt0.rebindAvoided (x.get_variable()) (y.get_variable());;
-
-
 
 
 ctxt0.rebindFixed (x.get_variable());;

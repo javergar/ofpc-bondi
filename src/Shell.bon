@@ -1,9 +1,16 @@
 class Shell {
 
-static react = { fun s ->
+globalContext: GlobalContext;
+
+static make = { | () -> let shell = new Shell in
+                         shell.globalContext = GlobalContext.make();
+                         shell
+              }
+
+react = { fun s ->
 let shellAction = new ShellAction in
 let action = get_result (ShellAction.parser (0,lexer s)) in 
- action.act()
+action.act (Ref (!this.globalContext))
 }
 
 }

@@ -9,6 +9,8 @@ static make = { | () ->
  res.constructor_context = DeclarationEnvironment.make (Exception:ConstructorData);
 res 
 }
-
-
+get_value_context = { | () -> !this.value_context }
+set_value_context = { fun x -> this.value_context = x }
+get_declaration_counter = { | () -> (!this.declaration_counter) }
+increment_declaration_counter = { | () -> this.declaration_counter =  (!this.declaration_counter) + 1 }
 }
