@@ -1,4 +1,9 @@
 (*
+    Author: 
+	Erick Liemarga
+	10901965
+	University of Technology, Sydney    	
+
 	Component of: Let.bon
 	contain <binding> and <parameter> parser
 *)
