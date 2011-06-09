@@ -1,0 +1,54 @@
+class LinearType extends Type {
+
+linArgumentType: Type;
+
+get_linArgumentType = { | () -> !this.linArgumentType}
+
+(* create an instance of the class if the free variables occurr more than one,
+ the exception will be thrown. Others will return the type *)
+static make = { fun (ty1:Type) ->
+let res = new LinearType in
+res.linArgumentType = ty1;
+(* isTypeVar function will return how many variables inside the input *)
+let (isTypeVar: a -> Maybe Type) = 
+| (x:TypeVariable) -> Some (x:Type) 
+| _ -> None
+in
+(* has_duplicates function will check if a member of a list has duplicated *)
+let rec has_duplicates = 
+| Cons y ys -> if (member y ys) then True else (has_duplicates ys)
+| [] -> False
+in
+let vars = select isTypeVar ty1 in
+if has_duplicates vars then
+Exception "Not a linear type"
+else
+(res:Type)
+}
+ 
+(* parser *)
+static discontinuous parser = {
+((stx_parser "lin") .>> Type.parser) .>>= (fun x -> ret (LinearType.make (x)))
+}
+
+headString = { |() -> "LinearType"}
+with Type.simpleParser += | view(LinearType.parser,Parsed ps) -> Parsed ps
+}
+
+
+
+
+
+(* Test 
+Expression.parse "(x: lin a)";;
+
+Type.parser (0,lexer "lin a");;
+
+Type.parser (0,lexer "lin x->z");;
+
+*)
+
+
+
+
+

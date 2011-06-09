@@ -2,6 +2,7 @@
    Student number: 11078728 
    parsing: 2; evaluation: 0; typing: 1;
 *)
+
    %open "combinatory_language.bon":;; 
    %open "LinearType.bon";;
-
+%cd "../";;

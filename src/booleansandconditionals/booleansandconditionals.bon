@@ -13,4 +13,4 @@
 (* Parsing: 3, Typing: 3, Evaluation: 3 *)
 %open "If_Statement.bon";;
 
-%cd "..";;
+%cd "../";;

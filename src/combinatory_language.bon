@@ -75,8 +75,10 @@
    %open "UnitType.bon";;
    %open "IntType.bon";;
    %open "FloatType.bon";;
+ %cd "booleansandconditionals";;
    %open "BoolType.bon";;
-
+ %cd "lineardeclaration";;
+   %open "linearclaration.bon";;
 
 
 
