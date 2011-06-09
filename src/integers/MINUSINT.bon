@@ -1,0 +1,32 @@
+class MINUSINT extends DatumOperator {
+
+(* Making *)
+
+static make =  { fun args -> Expression.make (new MINUSINT) args } 
+
+(* Parsing *)
+
+static parser = { (stx_parser "minus") .>>  (ret (MINUSINT.make []))}
+type_scheme = { |() -> 
+    FunctionType.make2 (IntType.make(),IntType.make(),IntType.make()) 
+}
+
+(* Typing *)
+
+reduce = { |() -> match this.get_arguments() with 
+  ((| (Cons x (Cons y args)) -> Some (Integer.make ((x.get_int_value()) minusint (y.get_int_value())) args)
+    | _ -> None) : List Expression -> Maybe Expression)
+}
+
+(* Printing *)
+
+headString = { |() -> "minus" }
+with Expression.simpleParser += | view(MINUSINT.parser,Parsed ps) -> Parsed ps
+}
+
+(* Testing
+
+let t1 = Expression.parse "minus 5 5";;
+t1.eval();;
+
+*)

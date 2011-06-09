@@ -1,0 +1,33 @@
+class Integer extends DatumOperator {
+int_value: Int;
+get_int_value = { |() -> !this.int_value}
+
+(* Making *)
+   static make = {
+      fun x args -> let res = new Integer in
+      res.int_value = x;
+       Expression.make (res) args
+   }
+
+(* Parsing *)
+   static parser = { fun args ->
+     match fetch_token args with
+     | Some (IntToken x) -> Parsed ((fst args) +1, Integer.make (string2int x) [])
+     | _ -> NotParsed
+       }
+
+(* Typing *)
+  infer_type_head =  { ((fun ctxt ty -> Some (IntType.make())): Context  -> Type -> Maybe Type) }
+
+(* Printing *)
+headString = { |() -> "it: Int it = "^(toString (this.get_int_value())) }
+with Expression.simpleParser += | view(Integer.parser,Parsed ps) -> Parsed ps
+}
+
+(* Expresion.parse "3";; *)
+
+
+
+
+
+

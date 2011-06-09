@@ -1,0 +1,24 @@
+(*
+   Student Name: Ran SUN
+   Student ID: 10921512
+*)
+
+%cd "ofpc-bondi/src";;
+%open "combinatory_language.bon";;
+%open "Boolean.bon";;
+%cd "integer";;
+%open "DatumOperator.bon";;
+%open "Integer.bon";;
+%open "Integer_wildcard.bon";;
+%open "PLUSINT.bon";;
+%open "MINUSINT.bon";;
+%open "TIMESINT.bon";;
+%open "DIVIDEINT.bon";;
+%open "MODINT.bon";;
+%open "NEGATEINT.bon";;
+%open "RANDOMINT.bon";;
+%open "LESSTHANINT.bon";;
+%open "LESSTHANOREQUALINT.bon";;
+%open "GREATERTHANINT.bon";;
+%open "GREATERTHANOREQUALINT.bon";;
+
