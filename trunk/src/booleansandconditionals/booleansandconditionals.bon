@@ -2,6 +2,8 @@
 
 %cd "booleansandconditionals";;
 
+%open "BoolType.bon";;
+
 (* Parsing: 3, Typing: 3, Evaluation: None *)
 %open "Boolean.bon";;
 
