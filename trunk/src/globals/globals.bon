@@ -1,4 +1,4 @@
-%cd "globals";;
+
 
 %open "ExpressionData.bon";;
 %open "ExpressionDataHasRefs.bon";;

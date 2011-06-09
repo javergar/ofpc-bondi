@@ -57,9 +57,16 @@
   %open "enact_jens.bon";;
 *)
 
+%open "LetStatus.bon";;
+%cd "globals";;
+%open "globals.bon";;
+
+
   %open "ShellAction.bon";;
   %open "ExpressionAction.bon";;
-  %open "LetAction.bon";;
+  %open "LetActionGlobalEnv.bon";;
+
+(*  %open "LetAction.bon";; *)
 
   %open "Shell.bon";;
 
