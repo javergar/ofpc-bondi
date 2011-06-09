@@ -59,8 +59,25 @@ ret (LetAction.make(ident,
 act = { fun (gctx:ref GlobalContext) -> 
 (* update declaration_counter *)
 let global_context = !gctx in
+global_context.increment_declaration_counter();
 let var = (|(x:ExpressionVariable) -> x.get_variable()) (this.get_variable()) in 
-global_context.ctxAdd(var,!this.exp,(LetStatus.make ""))
+(* do type inference *)
+let ctxt0 = Context.make1 (TypeVariable.idSub) in 
+let types = (!this.exp).infer_type(ctxt0) (TypeVariable.next()) in
+match types with
+| Some ty ->   (* report the type *)
+               println ((toString var)^":"^(toString types))  ;
+               let ty_closure = (QuantifiedType.closure ty ctxt0) in
+               (*evaluate *)
+               let eval_exp = (!this.exp).eval() in
+               println ((toString var)^"="^(toString eval_exp));
+                              let exp_data = ExpressionData.make (eval_exp,(LetStatus.make ""),ty_closure) in 
+		              (* update global enbiroment *)
+                               let value_ctx = global_context.get_value_context() in
+			       value_ctx.envAdd var  (global_context.get_declaration_counter()) (exp_data);
+                               global_context.set_value_context value_ctx;
+			       gctx = global_context 
+| None 	  -> (println "Type Error")
 }
   
 with ShellAction.parser += | view(LetAction.parser,Parsed ps) -> Parsed ps
