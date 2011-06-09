@@ -6,14 +6,14 @@ get_int_value = { |() -> !this.int_value}
    static make = {
       fun x args -> let res = new Integer in
       res.int_value = x;
-       Expression.make (res) args
+       (Expression.make (res) args)
    }
 
 (* Parsing *)
-   static parser = { fun args ->
+   static parser = { ((fun args ->
      match fetch_token args with
      | Some (IntToken x) -> Parsed ((fst args) +1, Integer.make (string2int x) [])
-     | _ -> NotParsed
+     | _ -> NotParsed):  Int * array Token -> ParserResult Expression)
        }
 
 (* Typing *)
