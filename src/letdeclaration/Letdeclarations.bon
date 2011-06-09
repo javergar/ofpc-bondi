@@ -1,14 +1,14 @@
 (* Erick Liemarga 10901965 *)
+(* The main file is Let.bon *)
 %cd "..";;
 %open "combinatory_language.bon";;
 
 %cd "letdeclaration";;
-%open "LetStatus.bon";;
-(*
-Parsing: 2
-Evalution: 
-Typing: 
+
+(* README: I did not load my LetStatus.bon since it should be automatically
+	   loaded upon executing combinatory_language.bon
 *)
+
 %open "LetBinding.bon";;
 (*
 Parsing: 2
