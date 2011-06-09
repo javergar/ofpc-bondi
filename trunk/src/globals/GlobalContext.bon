@@ -13,22 +13,4 @@ get_value_context = { | () -> !this.value_context }
 set_value_context = { fun x -> this.value_context = x }
 get_declaration_counter = { | () -> (!this.declaration_counter) }
 increment_declaration_counter = { | () -> this.declaration_counter =  (!this.declaration_counter) + 1 }
-ctxAdd = { ((| (var,exp,status) ->
-this.declaration_counter =  (!this.declaration_counter) + 1;
-(* do type inference *)
-let ctxt0 = Context.make1 (TypeVariable.idSub) in 
-let types = exp.infer_type(ctxt0) (TypeVariable.next()) in
-match types with
-| Some ty ->   (* report the type *)
-               println ((toString var)^":"^(toString types))  ;
-               let ty_closure = (QuantifiedType.closure ty ctxt0) in
-               (*evaluate *)
-               let eval_exp = exp.eval() in
-               (* report the value *)
-               println ((toString var)^"="^(toString eval_exp));              
-		(* update global enbiroment *)
-               let exp_data = ExpressionData.make (eval_exp,status,ty_closure) in 
-	       ((!this.value_context).envAdd var  (!this.declaration_counter) (exp_data))
-| None 	  -> (println "Type Error")): b * c * d -> Unit)
-}
 }
