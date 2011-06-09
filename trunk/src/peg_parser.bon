@@ -262,3 +262,5 @@ match p args with
 
 let lparen = (stx_parser "(" );;
 let rparen = (stx_parser ")" );;
+
+let parseAnyUpperCase = parseApplyOne UpperCaseIdentToken _;;

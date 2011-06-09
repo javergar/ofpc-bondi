@@ -1,0 +1,33 @@
+class RANDOMINT extends DatumOperator {
+
+  (* Making *)
+
+static make =  { fun args -> Expression.make (new RANDOMINT) args } 
+
+  (* Parsing *)
+
+static parser = { (stx_parser "random") .>>  (ret (RANDOMINT.make []))}
+type_scheme = { |() -> 
+    FunctionType.make2 (IntType.make(),IntType.make(),IntType.make())
+}
+
+  (* Typing *)
+
+reduce = { |() -> match this.get_arguments() with 
+  ((| (Cons x args) -> Some (Integer.make (randomint (x.get_int_value())) args)
+    | _ -> None) : List Expression -> Maybe Expression)
+}
+
+  (* Printing *)
+
+headString = { |() -> "random" }
+with Expression.simpleParser += | view(RANDOMINT.parser,Parsed ps) -> Parsed ps
+}
+
+
+(* Testing
+
+let t1 = Expression.parse "random 5";;
+t1.eval();;
+
+*)

@@ -1,0 +1,30 @@
+class LESSTHANOREQUALINT extends DatumOperator {
+
+  (* Making *)
+
+static make =  { fun args -> Expression.make (new LESSTHANOREQUALINT) args } 
+
+  (* Parsing *)
+
+static parser = { (stx_parser "lessthanorequal") .>>  (ret (LESSTHANOREQUALINT.make []))}
+type_scheme = { |() -> 
+     FunctionType.make2 (IntType.make(),IntType.make(),IntType.make()) 
+}
+
+  (* Typing *)
+
+reduce = { |() -> match this.get_arguments() with 
+  ((| (Cons x (Cons y args)) -> Some ((Boolean.make ((x.get_int_value()) <= (y.get_int_value()))).apply args)
+    | _ -> None) : List Expression -> Maybe Expression)
+}
+
+  (* Printing *)
+
+headString = { |() -> "lessthanorequal" }
+with Expression.simpleParser += | view(LESSTHANOREQUALINT.parser,Parsed ps) -> Parsed ps
+}
+
+  (* Testing *)
+
+let t1 = Expression.parse "lessthanorequal 5 5";;
+t1.eval();;
