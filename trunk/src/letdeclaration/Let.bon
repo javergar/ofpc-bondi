@@ -89,7 +89,7 @@ blist_parser
 (* <let_exp> parser*)
 (* the existence of <let_status> should be optional, therefore a method maybe should be
 	declared and used in peg_parser.bon to allow 0 occurence of <let_status> in <let_exp>
-	method maybe will stay commented until the method is existed.
+	method maybe will stay commented until the method is defined.
 *)
 static discontinuous parser = { 
         (((stx_parser "let") .>> ((*maybe*) LetStatus.parser)) .>>= (fun let_stat ->  (Binding.parser) .>>= (fun binding_res -> ((stx_parser ";;") .>>= (fun x -> (ret (Let.make1 (let_stat) binding_res ))))))) 
@@ -155,9 +155,11 @@ ShellAction.parser (0, lexer "let rec x = x;;");;
 ShellAction.parser (0, lexer "let rec (x)=a;;");;
 ShellAction.parser (0, lexer "let rec x = (a);;");;
 
+issue: oddly the current test only accept variables.
 
-test that did not works, probably need to wait for other type (i.e.boolean, int) to ready:
+test that did not works, probably need to wait for other type (i.e.boolean, int) loaded:
 ShellAction.parser (0, lexer "let rec x=3;;");;    
+ShellAction.parser (0, lexer "let rec x=3.0;;");; 
 ShellAction.parser (0, lexer "let rec x = True;;");;
 ShellAction.parser (0, lexer "let rec (x:a)=2;;");;
 ShellAction.parser (0, lexer "let rec (x:a)=True;;");;
@@ -168,6 +170,10 @@ ShellAction.parser(0, lexer "let rec x = (1,2);;");;
 testing with the global env
 let shell = new Shell;;
 shell.react "let rec x = S;;";;
+shell.react "let rec x = 3;;";;
+shell.react "let rec x = 3.0;;";;
 
+issue: 
+term error: act action produces a match failure
 *)
 }
