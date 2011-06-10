@@ -89,6 +89,10 @@
  %cd "booleansandconditionals";;
    %open "BoolType.bon";;
 
+%cd "..";;
+%cd "datastructure";;
+  %open "HASHTABLE.bon";;
+  %open "LLRBROOT.bon";;
 
 
 
