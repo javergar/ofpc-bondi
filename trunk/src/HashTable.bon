@@ -114,6 +114,8 @@ ha.put("key", 110);;
 
 ha.get("key");;
 
+ha.get("key2);;
+
 let ha = HashTable.make("":String);;
 
 ha.put("ke2", "string");;
