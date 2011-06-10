@@ -1,5 +1,3 @@
-%cd "..";;
-%open "combinatory_language.bon";;
-%cd "../ClassAction";;
+%cd "ClassAction";;
 %open "ClassAction.bon";;
 %cd "..";;
