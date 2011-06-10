@@ -4,9 +4,7 @@ static make =  { fun args ->
 	let res = new Entry in
 	Expression.make res args
 } 
-(*
-static parser =  { (stx_parser "entry") .>> (Expression.parser .>>= (fun x -> (Expression.parser .>>= (fun y -> (ret (Entry.make x y [])))))) }
-*)
+
 static parser = { (stx_parser "entry") .>>  ret (Entry.make []) }
 
 
@@ -28,6 +26,5 @@ headString = { |() -> "entry" }
 with Expression.simpleParser += | view(Entry.parser,Parsed ps) -> Parsed ps
 
 }
-(* get_result (Expression.parser(0, lexer "entry X y"));; *)
-(* Expression.parse "entry x y";; *)
+
 

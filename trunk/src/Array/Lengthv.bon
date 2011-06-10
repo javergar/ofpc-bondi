@@ -6,18 +6,16 @@ static make =  { fun args ->
 	Expression.make res args
 } 
 
-(* static parser =  { ((stx_parser "lengthv") .>> (Expression.parser .>>= (fun x -> ret (Lengthv.make [])))) } *)
 static parser = { (stx_parser "lengthv") .>>  ret (Lengthv.make []) }
 
 
 type_scheme = { |() -> 
   let x = TypeVariable.next() in
 	FunctionType.make(x,IntType.make())
-  (* not x, has to be something like array *)
 }
 
 reduce = {  |() -> match this.get_arguments() with 
-	| (Cons x args) -> Some (Integer.make (x.get_arrayLength()) args)
+	| (Cons x args) ->  Some (Integer.make (x.get_arrayLength()) args)
 	| _ -> None
 
 }
@@ -25,6 +23,5 @@ reduce = {  |() -> match this.get_arguments() with
 headString = { |() -> "lengthv" }
 with Expression.simpleParser += | view(Lengthv.parser,Parsed ps) -> Parsed ps
 }
-(* get_result (Expression.parser(0, lexer "lengthv X"));; *)
-(* Expression.parse "lengthv x";; *)
+
 
