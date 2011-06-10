@@ -1,0 +1,125 @@
+(* open "HashTable.bon" *)
+
+(**
+   Author: Lihan Li
+   Date  : 01 Jun 2011
+   
+*)
+
+
+class HashTable <a>{
+
+(* Properties *)
+table : array (String * a);
+
+(* Functions *)
+size = { |() -> lengthv !this.table }
+
+(**
+    Making - with default size 
+    Example : let ha = HashTable.make(-1:Int);;
+*)
+static make = { fun (x:a) ->  let ht = new HashTable<a> in
+                         ht.table = newarray ("",x) 10000;
+                         ht
+}
+
+(** 
+    percent: It tells the usage percentage in hashtable
+             
+*)
+percent = { |() -> let used = Ref 0 in
+                   let percentage = Ref (0.0) in
+                   for i = 0 to (this.size()-1) do
+                       if fst(!(entry(!this.table, i))) != ""
+                          then used = !used + 1
+                       else used = !used;
+                   percentage = (int2float !used)/(int2float this.size());
+                   !percentage 
+}
+
+
+(**
+    It returns the hash(Int) for a string
+*)
+get_hash = { fun key -> let result = Ref 0 in 
+                        for i=0 to ((lengthstring key) - 1) do (
+                            result = !result + (char2int(key getcharstring i))
+                        ); 
+                        !result 
+}
+
+(**
+    It returns the index in the array based on hash value
+*)
+get_index = { fun hash -> hash modint this.size() }
+
+(** 
+    It tells whether the index has already used 
+*)
+is_available = { fun index -> fst(!(entry(!this.table,index))) == "" }
+
+(**
+    It accepts the string key and returns the first available position in array 
+*)
+get_position = { fun k -> let hash = Ref (this.get_hash(k)) in
+                          let found = Ref (False) in
+                          let position = Ref (-1) in
+                              while (!found == False) do
+                              (
+                                  position = this.get_index(!hash);
+                                  if fst(!(entry(!this.table, !position)))==k || this.is_available(!position) == True
+                                      then found = True
+                                  else  hash = !hash + 1
+                              );
+                              !position
+}
+
+
+(* Public method, it accepts a (key, value) pair and inserts into hash table *)
+put = { |(k,v) -> let position = Ref (this.get_position(k)) in
+                  entry(!this.table,!position) = (k,v) 
+}
+
+(* Public method, it accpets a string key, and returns the related value *)
+get = { fun k -> let hash = Ref (this.get_hash(k)) in
+                 let found = Ref (False) in
+                 let value = Ref ((_): a) in
+                 let index = Ref (this.get_index(!hash)) in
+                 let key = Ref (fst (!(entry(!this.table, !index)))) in
+                     while (!found == False) do
+                     (      
+                         if (this.is_available(!index)) == True
+                             then found = True;
+                                  value = Exception "KeyNotFound"                     
+                         else if !key == k
+                                  then found = True;
+                                       value = snd (!(entry(!this.table, !index)))
+                              else hash = !hash + 1
+                     );
+                     !value
+}
+
+(* For debugging purpose, not used 
+debug = { fun index -> !(entry(!this.table,index)) }
+*)
+
+}
+
+(* Test
+
+let ha = HashTable.make(-1:Int);;
+
+ha.put("key", 110);;
+
+ha.get("key");;
+
+ha.get("key2);;
+
+let ha = HashTable.make("":String);;
+
+ha.put("ke2", "string");;
+
+ha.get("ke2");;
+
+*)
