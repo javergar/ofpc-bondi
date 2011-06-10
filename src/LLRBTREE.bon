@@ -46,14 +46,14 @@ set_right = { fun nm -> this.right = nm}
 *  ---------------------------------------------*)
 
 static make = { ((| (k,v,c) -> 
-let bt = new LLRBTree <a,b> in 
-bt.set_key(k);
-bt.set_value(v);
-bt.color = c;
-bt.set_left(None);
-bt.set_right(None);
-bt
-): a * b * RB -> LLRBTree <a,b>)
+	let bt = new LLRBTree <a,b> in 
+	bt.set_key(k);
+	bt.set_value(v);
+	bt.color = c;
+	bt.set_left(None);
+	bt.set_right(None);
+	bt
+	): a * b * RB -> LLRBTree <a,b>)
 }
 
 
@@ -99,6 +99,7 @@ keys this
 * Returns: Int with the size of the tree
 *)
 size = { |() -> 
+
 let rec (s: LLRBTree<a,b> -> Int) bt = 
   let lsize = match bt.get_left() with ((
   | None -> 0
@@ -160,7 +161,7 @@ upd this
 
 (*
 * Fold
-*
+* Apply fold to all the tree
 *)
 fold = { fun (f: c -> a*b -> c)  -> 
  let rec (fld : LLRBTree<a,b> -> c -> c) bt x = 
@@ -378,7 +379,9 @@ in
 mn (Some this)
 }
 
+(* The delete method need to be fixed *)
 
+(*
 delete = { fun (x:a)  ->
 
   let rec (del: Maybe(LLRBTree <a,b>) -> Maybe (LLRBTree <a,b>)) = 
@@ -387,51 +390,63 @@ delete = { fun (x:a)  ->
    let key = h.get_key() in 
    if x < key
    then 
+   (
      let res = 
      match h.get_left() with ((
-     | None -> h 
+     | None -> (Some h) 
      | Some l -> 
 	if not (LLRBTree.isRed(h.get_left())) && not (LLRBTree.isRed(l.get_left()))
-	then h.moveRedLeft()
-	else h 
-     ): Maybe (LLRBTree <a,b>) -> LLRBTree <a,b>)
-     in begin
-     res.set_left(del (res.get_left()));
-     Some res
-     end
+	then (Some (h.moveRedLeft()))
+	else  (Some h)
+     ): Maybe (LLRBTree <a,b>) -> Maybe (LLRBTree <a,b>))
+     in 
+       match res with 
+       | None -> None
+       | Some res0 ->
+       let temp = del (res0.get_left()) in 
+       res0.set_left(temp); 
+       (Some res0)
+     )
   else 
-    let res1 = 
+  ( let res1 = 
 	if LLRBTree.isRed(this.get_left())
-    	then this.rotateRight()
-	else this
-    in 
+    	then (Some (this.rotateRight()))
+	else (Some this) 
+   in 
     let res2 = 
-	match res1.get_right() with 
-    | None -> if  x == key then None else Some res1
-    | Some r -> 
-	if not (LLRBTree.isRed(res1.get_right())) && not (LLRBTree.isRed(r.get_left()))
-    	then Some (res1.moveRedRight())
-	else Some res1
-    in 
+	match ((| Some x -> x) res1).get_right() with 
+	    | None -> if  x == key then None else res1
+	    | Some r -> 
+	if not (LLRBTree.isRed(((| Some x -> x) res1).get_right())) && not (LLRBTree.isRed(r.get_left()))
+    	then  Some (((| Some x -> x) res1).moveRedRight())
+	else  res1   
+   in 
     let res3 = 
       match res2 with 
       | None -> None 
       | Some r2 -> 
 	if x == key
-	then 
-	 match r2.min() with 
-	 | begin
-	  r2.set_key(min(r).key);
-	  r2.set_value(get(r, min(r).key)) ;
-	  h.set_right(r.deleteMin())
-	end 
-	else r2.set_right(del (r2.get_right()))
-    in 
-    res3.fixUp()
-  in 
-  match del this with 
-  | Some t -> t.set_color(BLACK); t
+	then
+	 match (r2.min()) with 
+	 | None -> None 
+	 | Some (k,r) -> begin
+	 		  r2.set_key(k);
+			  r2.set_value(r);
+			  h.set_right(r.deleteMin());
+			  (Some r2)     
+			end
+	else
+	 (* r2.set_right(del (r2.get_right()));*) (* DOSENT WORK HERE*)
+	  None
+	in
+	res3;
+    ((| Some x -> x) res3).fixUp()
+  ) (* Else fin*) 
+  in
+  match del (Some this) with 
+  | Some t -> t.set_color(BLACK); t 
 }
+*)
 
 with toString += | (h:LLRBTree) -> 
   match (h.get_left(),h.get_right()) with 
