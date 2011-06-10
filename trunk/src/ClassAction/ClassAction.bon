@@ -11,7 +11,6 @@ Student ID  : 10952911
 Parsing: 2
 Typing: 1
 Evaluation: 1
-
 *)
 
 
@@ -186,6 +185,15 @@ static discontinuous parser = {
     Variable access is done with pattern matching.
 
     We can use select to find the variable within our list of variables and methods.
+
+
+  +--------+
+  | Typing |
+  +--------+
+
+    Since the specification was missing the Typing. We can only assume that when classes are
+    loaded, we give them a new Type.
+
 *)
 
 headString = { |() -> "class" ^ !this.name}
