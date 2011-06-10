@@ -1,0 +1,194 @@
+(*
+Student Name: Anh Son Nguyen
+Student ID  : 10840357
+
+Student Name: Jaan Smith
+Student ID  : 10845776
+
+Student Name: Xiaogang Zhang
+Student ID  : 10952911
+
+Parsing: 2
+Typing: 1
+Evaluation: 1
+
+*)
+
+
+class ClassAction extends ShellAction {
+
+(* getting and making *)
+name: String;
+get_name = { | () -> !this.name }
+static make = { | (x:String) ->
+    let res = new ClassAction in
+        res.name = x;
+        res
+}
+
+
+(* parsing methods *)
+
+(* 
+  +---------------+
+  | method parser |
+  +---------------+
+
+Each method has a chance that it can be defined as static, rec, ext, and
+discontinous, this the code in the comment below allows methods to have
+LetStatus on them. However there are things to be coded such as the (*maybe*)
+
+More on that stub can be explained below.
+
+static methodParser = {
+(Expression.simpleParser .>>= (fun mname ->
+((*maybe*) LetStatus.parser) .>>= (fun params ->
+(stx_parser "=") .>> ((stx_parser "{") .>>
+((parseMany Expression.parser) .>>= (fun mbody ->
+(stx_parser "}") ; 
+ret mname
+))))))
+}
+
+The methodParser code outside of this comment block is one that works
+however, it doesn't have LetStatus. One minor note is that it returns
+mname which is an ExpressionVariable, it was suppose to return something
+like LetExpressions, where it has a variable bindedd to it, and also
+it has a body. THe only difference between LetExpressions and our methods
+is that LetExpressions live inside of a code of expressions, while ours
+lives inside of a class.
+
+The idea behind implementing methods in classes is that, each method is
+just a variable pointing to a lambda expression.
+
+Searching through a list of methods should be easy as, it can be done
+with the select function. If it is not there then we simply assume that
+they have an undefined class method/variable.
+*)
+
+static methodParser = {
+(ExpressionVariable.parser .>>= (fun mname ->
+(stx_parser "=") .>> ((stx_parser "{") .>>
+((parseMany Expression.parser) .>>= (fun mbody ->
+(stx_parser "}"); ret mname
+
+)))))
+}
+
+
+(*
+  +--------------+
+  | field parser |
+  +--------------+
+  
+We're suppose to return a new TypedExpressionVariable here using
+the ClassAction.fieldMaker . However it is not compatiable with
+the method Parser.
+
+
+*)
+static fieldMaker = { | (x, ty) ->
+    Expression.make (
+        let res = new TypedExpressionVariable in
+            res.variable = x;
+            res.type_constraint = ty;
+            (res:Expression))
+}
+
+static fieldParser = { 
+    (ExpressionVariable.parser .>>= (fun var ->
+    (stx_parser ":") .>> ((Type.parser .>>= (fun vtype ->
+    ret var)))))
+}
+
+(* 
+  +----------------+
+  | Trailer Parser |
+  +----------------+
+
+The idea that we had in mind was to correctly parse the trailers, then 
+pass the information we gotten to Trailer.bon, and let that class
+handle all the information. 
+
+Below is just a stub on the code that we were going to include, the code is untested.
+
+static trailerParser = {
+let trailermake = 
+((| (x:ShellAction) -> fun y -> let trailer = new Trailer in trailer.action_list = (Cons x y); ret trailer
+ ): ShellAction -> List ShellAction -> Trailer)
+in
+    ((stx_parser "with") .>> ShellAction.parser) .>>= (fun actionList ->
+    (parseMany ((stx_parser "and") .>> ShellAction)) .>>= (fun otherActions ->
+    ret (trailermake actionList otherActions)))
+}
+*)
+
+(*
+  +----------------------+
+  | attributeList parser |
+  +----------------------+
+
+This parsers job is the select between the two parsers, and return one.
+This allows us to have (parseMany attributeListParser) and get a mixed list
+of both methods and fields.
+
+*)
+static attributeListParser = {
+    ((ClassAction.methodParser) .<|> 
+     (ClassAction.fieldParser)) .>>=
+        ( fun x -> ret x )
+}
+
+(* 
+  +-------------+
+  | main parser |
+  +-------------+
+
+The trailer in this case is optional, (*maybe*) is just a stub for a function
+that can be defined in peg_parser.bon that allows 0 or more occurences of
+trailerParser.
+
+static discontinuous parser = {
+    (stx_parser "class") .>> (anyUpperCaseToken .>>= (fun cname -> 
+        (stx_parser "{") .>> ((parseMany ClassAction.attributeListParser) .>>= (fun methods -> 
+        ((*maybe*) (Trailer.parser) .>>= (fun trailer ->        
+        ((stx_parser "}")) .>> (ret (ClassAction.make cname))))))))
+}
+
+However the code above is just what we wanted to do, below is the parsing
+done without Trailers included. There was an instance where we felt that the
+Trailer parser might not be a good idea, see Trailer Parser to for information.
+*)
+static discontinuous parser = {
+    (stx_parser "class") .>> (anyUpperCaseToken .>>= (fun cname -> 
+        (stx_parser "{") .>> ((parseMany ClassAction.attributeListParser) .>>= (fun methods -> 
+        ((stx_parser "}")) .>> (ret (ClassAction.make cname))))))
+}
+
+(*
+  +-------------+
+  | Extra Notes |
+  +-------------+
+
+    Every single method inside a class takes an extra parameter.
+    For example, if the Point class had a method called get_x()
+    
+    get_x = { | () -> !this.x }
+
+    Although it takes no parameters, it takes a hidden parameter and that
+    is of type Point. It should look like this in the background
+
+    get_x = { | (pt:Point) -> !pt.x }
+
+    To simplify, obj.meth (args) is reduced to meth . obj . args
+
+
+    Variable access is done with pattern matching.
+
+    We can use select to find the variable within our list of variables and methods.
+*)
+
+headString = { |() -> "class" ^ !this.name}
+with ShellAction.parser += | view(ClassAction.parser, Parsed ps) -> Parsed ps
+}
+
