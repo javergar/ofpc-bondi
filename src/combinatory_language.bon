@@ -2,7 +2,6 @@
 
 %open "aux.bon";;
 %open "peg_parser.bon";;
-
 (** The comments on the right describe the grammars for
      variables, types and expressions which are encoded
      in the corresponding bondi files.
@@ -81,6 +80,8 @@
 
   %open "Shell.bon";;
 
+(* ClassAction *)
+%open "ClassAction/classes.bon";;
 
  %open "TypeConstant.bon";;
    %open "UnitType.bon";;
