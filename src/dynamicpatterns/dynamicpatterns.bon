@@ -1,0 +1,9 @@
+(*
+Ayta Mollahassani
+11173123
+*)
+%open  "dynamicpatterns/Dynamic_Case.bon";;   (* Parsing: 3 *)
+ 
+%open "dynamicpatterns/LocalEnvironments.bon";; (* Lambda abstractions with environments lookup, member, add: 3 *)
+
+%open "dynamicpatterns/closure.bon";;  (* The closure method for lambda abstraction partially working, no test cases: 2 *)
