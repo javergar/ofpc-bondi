@@ -1,5 +1,4 @@
 class CapitalizeString extends DatumOperator 
-
 {	
 	static make =  { fun args -> Expression.make (new CapitalizeString) args } 
 	
